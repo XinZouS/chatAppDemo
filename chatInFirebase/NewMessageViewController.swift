@@ -126,8 +126,7 @@ class NewMessageViewController: UITableViewController {
         dismiss(animated: true, completion: nil)
         
         let user = self.users[indexPath.row]
-        self.messageVC?.showChatControllerForUser(user: user) // jump to new page
-        
+        self.messageVC?.showChatControllerForUser(partnerUser: user) // jump to new page
         
     }
     

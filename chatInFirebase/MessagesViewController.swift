@@ -15,6 +15,8 @@ class MessagesViewController: UITableViewController {
 
     let cellId = "cellId"
     
+    var currUser = User()
+    
     var messages = [Message]()
     var messagesDictionary = [String:Message]()
     
@@ -31,17 +33,19 @@ class MessagesViewController: UITableViewController {
         
         checkIfUserIsLogin()
         
-        // observeMessages()
-        // observeUserMessages() // move inside func setupNavBarWithUser()
+        // observeUserMessages() // move to func setupNavBarWithUser()
     }
     
+    var observingTimer = Timer() // for forcing it reload table only once;
     func observeUserMessages(){
         guard let uid = FIRAuth.auth()?.currentUser?.uid else {
             return
         }
+
         // make a link reference:
         let ref = FIRDatabase.database().reference().child("user-messages").child(uid)
         ref.observe(.childAdded, with: { (snapshot) in
+            
             // print(snapshot)
             let msgId = snapshot.key // then find this msg:
             let msgRef = FIRDatabase.database().reference().child("messages").child(msgId)
@@ -53,50 +57,27 @@ class MessagesViewController: UITableViewController {
                     getMsg.setValuesForKeys(dictionary)
                     self.messages.append(getMsg)
                     
-                    if let toId = getMsg.toId {
-                        self.messagesDictionary[toId] = getMsg
+                    if let chatPartnerId = getMsg.chatPartnerId() {
+                        self.messagesDictionary[chatPartnerId] = getMsg
                         self.messages = Array(self.messagesDictionary.values)
                         self.messages.sort(by: { (m1, m2) -> Bool in
                             return (m1.timeStamp?.intValue)! > (m2.timeStamp?.intValue)!
                         })
                     }
-                    DispatchQueue.main.async(execute: { 
-                        self.tableView.reloadData()
-                    })
+                    self.observingTimer.invalidate()
+                    self.observingTimer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(self.reloadTable), userInfo: nil, repeats: false)
                 }
                 
             }, withCancel: nil)
             
         }, withCancel: nil)
     }
-    
-    func observeMessages(){
-        let ref = FIRDatabase.database().reference().child("messages")
-        
-        ref.observe(.childAdded, with: {(snapshot) in
-            if let dictionary = snapshot.value as? [String: Any] {
-                let getMsg = Message()
-                getMsg.setValuesForKeys(dictionary)
-
-                self.messages.append(getMsg)
-                if let toId = getMsg.toId { // for grouping sender's messages;
-                    self.messagesDictionary[toId] = getMsg
-                    self.messages = Array(self.messagesDictionary.values)
-                    self.messages.sort(by: { (msg1, msg2) -> Bool in
-                        return (msg1.timeStamp?.intValue)! > (msg2.timeStamp?.intValue)!
-                    })
-                }
-                
-                // this will crash bcz it is a sync, so we neeed to use async here;
-                // self.tableView.reloadData() // use following:
-                DispatchQueue.main.async(execute: { 
-                    self.tableView.reloadData()
-                })
-            }
-            
-            // print(snapshot)
-        }, withCancel: nil)
+    func reloadTable(){
+        DispatchQueue.main.async(execute: {
+            self.tableView.reloadData()
+        })
     }
+    
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return messages.count
@@ -128,7 +109,7 @@ class MessagesViewController: UITableViewController {
             let user = User()
             user.id = chartPartnerId
             user.setValuesForKeys(dictionary)
-            self.showChatControllerForUser(user: user)
+            self.showChatControllerForUser(partnerUser: user)
 
         }, withCancel: nil)
     }
@@ -150,16 +131,16 @@ class MessagesViewController: UITableViewController {
             return
         }
         
-        // get user by id in database:
+        // get current user by id in database:
         FIRDatabase.database().reference().child("users").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
 
             // get snapshot is a JSON obj, so unwap it to get info:
             if let dictionary = snapshot.value as? [String:Any] {
                 // self.navigationItem.title = dictionary["name"] as? String // do it in setupNavBarWithUser()
                 // set user img on navBar.title: 
-                let user = User()
-                user.setValuesForKeys(dictionary)
-                self.setupNavBarWithUser(user: user)
+                //self.currUser = User()
+                self.currUser.setValuesForKeys(dictionary)
+                self.setupNavBarWithUser(user: self.currUser)
             }
         }, withCancel: nil)
         
@@ -213,9 +194,12 @@ class MessagesViewController: UITableViewController {
 
     }
     
-    func showChatControllerForUser(user: User) { //--- go to chatLogViewController -------------------
+    func showChatControllerForUser(partnerUser: User) { //--- go to chatLogViewController -------------------
         let chatLogVC = ChatLogController(collectionViewLayout: UICollectionViewFlowLayout())
-        chatLogVC.user = user
+        chatLogVC.partnerUser = partnerUser
+        // get selfUser info and passing object to ChatLogController:
+        chatLogVC.currUser = self.currUser
+        
         navigationController?.pushViewController(chatLogVC, animated: true) // equals to use segue() in storyboard;
     }
     

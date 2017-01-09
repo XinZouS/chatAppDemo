@@ -93,8 +93,8 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
                 return
             }
             
-            //--- new user successfully ----------------
-            // use fireBase storage:
+            //--- when new user successfully ----------------
+            // use fireBase storage to save image:
             let imageId = NSUUID().uuidString
 //            let storageRef = FIRStorage.storage().reference().child("\(name)_\(imageId).png") // add .child(name) or it will crash;
 //            let storageRef = FIRStorage.storage().reference().child("profile_images").child("\(name)_\(imageId).png") // add more .child();

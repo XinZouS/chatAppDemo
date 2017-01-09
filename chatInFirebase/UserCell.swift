@@ -60,7 +60,7 @@ class UserCell : UITableViewCell {
     
     var timeLabel: UILabel = {
         var lab = UILabel()
-        lab.text = "HH:MM:SS"
+        //lab.text = "HH:MM:SS"
         lab.textColor = UIColor(r: 200, g: 200, b: 200)
         lab.font = UIFont.systemFont(ofSize: 12)
         lab.translatesAutoresizingMaskIntoConstraints = false

@@ -34,50 +34,100 @@ class MessagesViewController: UITableViewController {
         checkIfUserIsLogin()
         
         // observeUserMessages() // move to func setupNavBarWithUser()
+        
+        tableView.allowsMultipleSelectionDuringEditing = true // allow delete at row, then follow by:
+    }
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        //print("selecting at : ", indexPath.row) // delete this partner and all msgs in databas:
+        guard let myId = FIRAuth.auth()?.currentUser?.uid else {return}
+        let msg = messages[indexPath.row]
+        guard let partnerId = msg.chatPartnerId() else {return}
+        
+        FIRDatabase.database().reference().child("user-messages").child(myId).child(partnerId).removeValue { (err, ref) in
+            if err != nil {
+                print("get error when deleting msg : MessagesViewController.swift:50", err)
+            }
+            //self.deleteMessageAt(indexPath: indexPath, forPartnerId: partnerId)
+            self.deleteMessageFor(partnerId: partnerId)
+        }
+    }
+    // one way to delete message, but not so save:
+//    private func deleteMessageAt(indexPath: IndexPath){
+//        self.messages.remove(at: indexPath.row)
+//        self.tableView.deleteRows(at: [indexPath], with: .automatic)
+//    }
+    // the other way to delete message:
+    private func deleteMessageFor(partnerId: String){
+        messagesDictionary.removeValue(forKey: partnerId)
+        reloadTable()
     }
     
     var observingTimer = Timer() // for forcing it reload table only once;
     func observeUserMessages(){
-        guard let uid = FIRAuth.auth()?.currentUser?.uid else {
-            return
-        }
+        guard let myid = FIRAuth.auth()?.currentUser?.uid else {return}
 
-        // make a link reference:
-        let ref = FIRDatabase.database().reference().child("user-messages").child(uid)
+        // get current user ID:
+        let ref = FIRDatabase.database().reference().child("user-messages").child(myid)
+        // observe for new messages:------------------
         ref.observe(.childAdded, with: { (snapshot) in
             
-            // print(snapshot)
-            let msgId = snapshot.key // then find this msg:
-            let msgRef = FIRDatabase.database().reference().child("messages").child(msgId)
-            msgRef.observeSingleEvent(of: .value, with: { (snapshot) in
+            // print(snapshot) // == partnerId {msgId}
+            let partnerId = snapshot.key
+            let partnerRef = FIRDatabase.database().reference().child("user-messages").child(myid).child(partnerId)
+            partnerRef.observe(.childAdded, with: { (snapshot) in
                 
-                // print(snapshot) // and get msgs into dictionary:
-                if let dictionary = snapshot.value as? [String: Any] {
-                    let getMsg = Message()
-                    getMsg.setValuesForKeys(dictionary)
-                    self.messages.append(getMsg)
-                    
-                    if let chatPartnerId = getMsg.chatPartnerId() {
-                        self.messagesDictionary[chatPartnerId] = getMsg
-                        self.messages = Array(self.messagesDictionary.values)
-                        self.messages.sort(by: { (m1, m2) -> Bool in
-                            return (m1.timeStamp?.intValue)! > (m2.timeStamp?.intValue)!
-                        })
-                    }
-                    self.observingTimer.invalidate()
-                    self.observingTimer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(self.reloadTable), userInfo: nil, repeats: false)
-                }
+                //print(snapshot) // == msgId s {1}
+                let msgId = snapshot.key // then find this msg:
+                self.fetchMessageWithMessageID(messageId: msgId)
                 
             }, withCancel: nil)
             
         }, withCancel: nil)
+        
+        // also if the message been removed(delete):--------
+        ref.observe(.childRemoved, with: { (snapshot) in
+            //print(snapshot.key) // == the key of message in msgDict,
+            //print(self.messagesDictionary) // == all messages got in DB;
+            //self.messagesDictionary.removeValue(forKey: snapshot.key)
+            //self.reloadTable()
+            self.deleteMessageFor(partnerId: snapshot.key)
+            
+        }, withCancel: nil)
     }
     func reloadTable(){
+        self.messages = Array(self.messagesDictionary.values)
+        self.messages.sort(by: { (m1, m2) -> Bool in
+            return (m1.timeStamp?.intValue)! > (m2.timeStamp?.intValue)!
+        })
         DispatchQueue.main.async(execute: {
             self.tableView.reloadData()
         })
     }
-    
+    private func fetchMessageWithMessageID(messageId:String){
+        let msgRef = FIRDatabase.database().reference().child("messages").child(messageId)
+        msgRef.observeSingleEvent(of: .value, with: { (snapshot) in
+            
+            // print(snapshot) // == get msgs into dictionary:
+            if let dictionary = snapshot.value as? [String: Any] {
+                let getMsg = Message(dictionary: dictionary)
+                //let getMsg = Message() // replaced by one line above;
+                //getMsg.setValuesForKeys(dictionary)
+                self.messages.append(getMsg) // do we need this line ?????????????????????
+                
+                if let chatPartnerId = getMsg.chatPartnerId() {
+                    self.messagesDictionary[chatPartnerId] = getMsg
+                    // sorting move to reloadTable();
+                }
+                self.observingTimer.invalidate()
+                self.observingTimer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(self.reloadTable), userInfo: nil, repeats: false)
+            }
+            
+        }, withCancel: nil)
+
+    }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return messages.count

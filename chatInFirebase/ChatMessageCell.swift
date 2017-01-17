@@ -7,9 +7,32 @@
 //
 
 import UIKit
-import Firebase
+import AVFoundation
 
 class ChatMessageCell: UICollectionViewCell {
+    
+    var chatLogController : ChatLogController? // for access self.GestureRecognizer
+    
+    var message: Message?
+    
+    var indicator: UIActivityIndicatorView = {
+        let a = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+        a.hidesWhenStopped = true
+        a.translatesAutoresizingMaskIntoConstraints = false
+        return a
+    }()
+    
+    lazy var playButton : UIButton = {
+        let b = UIButton(type: .system)
+        //b.setTitle("▶️", for: .normal)
+        //b.titleLabel!.font = UIFont(name: "Arial", size: 33) // or use image instade:
+        let img = UIImage(named: "playButton_w")
+        b.setImage(img, for: .normal)
+        b.tintColor = UIColor.white
+        b.translatesAutoresizingMaskIntoConstraints = false
+        b.addTarget(self, action: #selector(playButtonTapped), for: .touchUpInside)
+        return b
+    }()
     
     let textLabel : UITextView = {
         let tv = UITextView()
@@ -17,13 +40,14 @@ class ChatMessageCell: UICollectionViewCell {
         tv.font = UIFont.systemFont(ofSize: 16)
         tv.backgroundColor = UIColor.clear
         tv.textColor = UIColor.white
+        tv.isEditable = false
         tv.translatesAutoresizingMaskIntoConstraints = false
         return tv
     }()
     
     let profileImgView: UIImageView = {
         let img = UIImageView()
-        img.image = UIImage(named: "chihiroAndHaku03_500x500")
+        //img.image = UIImage(named: "chihiroAndHaku03_500x500")
         img.layer.cornerRadius = 16
         img.layer.masksToBounds = true
         img.contentMode = .scaleAspectFill
@@ -42,6 +66,29 @@ class ChatMessageCell: UICollectionViewCell {
         v.translatesAutoresizingMaskIntoConstraints = false
         return v
     }()
+    
+    lazy var messageImgView: UIImageView = {
+        let v = UIImageView()
+        v.layer.cornerRadius = 16
+        v.layer.masksToBounds = true
+        v.contentMode = .scaleAspectFill
+        v.backgroundColor = UIColor.clear
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.isUserInteractionEnabled = true
+        v.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(zoomInPicture)) )
+        return v
+    }()
+    func zoomInPicture(tapGesture: UITapGestureRecognizer){
+        if message?.videoURL != nil {
+            return
+        }
+        //print("======================")
+        //PRO tip: do not perform too much logic in a view class!
+        // so we do it in ChatLogController.swift, and send reference form here:
+        if let img = tapGesture.view as? UIImageView {
+            self.chatLogController?.performZoomInForStartingImageView(imgView: img)
+        }
+    }
     
     // init anchors in ChatLogController.swift: 
     var profileImgLeftAnchor: NSLayoutConstraint?
@@ -74,16 +121,59 @@ class ChatMessageCell: UICollectionViewCell {
         bubbleWidthAnchor = bubbleView.widthAnchor.constraint(equalToConstant: 230)
         bubbleWidthAnchor?.isActive = true
         
-        addSubview(textLabel)
+        bubbleView.addSubview(messageImgView)
+        messageImgView.rightAnchor.constraint(equalTo: bubbleView.rightAnchor).isActive = true
+        messageImgView.leftAnchor.constraint(equalTo: bubbleView.leftAnchor).isActive = true
+        messageImgView.topAnchor.constraint(equalTo: bubbleView.topAnchor).isActive = true
+        messageImgView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor).isActive = true
+        
+        bubbleView.addSubview(indicator)
+        indicator.centerXAnchor.constraint(equalTo: bubbleView.centerXAnchor).isActive = true
+        indicator.centerYAnchor.constraint(equalTo: bubbleView.centerYAnchor).isActive = true
+        indicator.widthAnchor.constraint(equalToConstant:  50).isActive = true
+        indicator.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        bubbleView.addSubview(playButton)
+        playButton.centerXAnchor.constraint(equalTo: bubbleView.centerXAnchor).isActive = true
+        playButton.centerYAnchor.constraint(equalTo: bubbleView.centerYAnchor).isActive = true
+        playButton.widthAnchor.constraint(equalToConstant:  50).isActive = true
+        playButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        bubbleView.addSubview(textLabel)
         textLabel.rightAnchor.constraint(equalTo: bubbleView.rightAnchor).isActive = true
         textLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 10).isActive = true
         textLabel.heightAnchor.constraint(equalTo: bubbleView.heightAnchor).isActive = true
         textLabel.leftAnchor.constraint(equalTo: bubbleView.leftAnchor, constant: 10).isActive = true
     }
-    
-    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    
+    
+    var playerLayer: AVPlayerLayer?
+    var player: AVPlayer?
+    
+    func playButtonTapped(){
+        if let videoUrlStr = message?.videoURL, let url = URL(string: videoUrlStr) {
+            player = AVPlayer(url: url)
+            playerLayer = AVPlayerLayer(player: player)
+            playerLayer!.frame = bubbleView.bounds
+            bubbleView.layer.addSublayer(playerLayer!)
+            
+            player!.play()
+            indicator.startAnimating()
+            playButton.isHidden = true
+            
+            chatLogController?.playerInCell = player
+        }
+    }
+    override func prepareForReuse() { // avoiding avplayer showing in other cells;
+        super.prepareForReuse()
+        
+        playerLayer?.removeFromSuperlayer()
+        player?.pause()
+        indicator.stopAnimating() // and it will hide;
     }
     
 }

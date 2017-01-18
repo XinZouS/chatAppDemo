@@ -15,6 +15,9 @@ class Message : NSObject {
     var toId: String?
     var text: String?
     var timeStamp: NSNumber?
+    var isDeletedByPartner: Bool?
+    
+    var fileName: String?
     
     var imgURL: String?
     var imgWidth: NSNumber?
@@ -34,6 +37,9 @@ class Message : NSObject {
         toId    = dictionary["toId"]    as? String
         text    = dictionary["text"]    as? String
         timeStamp = dictionary["timeStamp"] as? NSNumber
+        isDeletedByPartner = dictionary["isDeletedByPartner"] as? Bool
+        
+        fileName = dictionary["fileName"] as? String
         
         imgURL  =   dictionary["imgURL"]  as? String
         imgWidth =  dictionary["imgWidth"] as? NSNumber

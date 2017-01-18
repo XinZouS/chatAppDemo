@@ -83,7 +83,7 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
         }
         FIRAuth.auth()?.createUser(withEmail: email, password: password, completion: { (user:FIRUser?, err) in
             if err != nil {
-                print("get error when creating new user: \(err!)")
+                print("get error when creating new user: \(err!), [LoginViewController+Ex.swift]")
                 return
             }
             

@@ -75,20 +75,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         }
     }
     
-    
-    lazy var inputTxFd : UITextField = {
-        let txFd = UITextField()
-        txFd.placeholder = "Your message..."
-        txFd.translatesAutoresizingMaskIntoConstraints = false
-        txFd.delegate = self // allow use Enter key to send msg, and add UITextFieldDelegate for class;
-        return txFd
-    }()
-    // allow use Enter key to send msg:
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        sendingInputMsg()
-        return true
-    }
-    
     let cellId = "cellId"
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -133,7 +119,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             cell.messageImgView.isHidden = true
         }
         
-        if msg.fromId == FIRAuth.auth()?.currentUser?.uid { // myself ------
+        if msg.fromId == FIRAuth.auth()?.currentUser?.uid {
             //outgoing blue:
             if let myImgURL = self.currUser?.profileImgURL {
                 cell.profileImgView.loadImageUsingCacheWith(urlString: myImgURL)
@@ -146,7 +132,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             cell.profileImgRightAnchor?.isActive = true
             cell.profileImgLeftAnchor?.isActive = false
         }else{
-            //incoming gray: ----------------------------- // my chatPartner
+            //incoming gray:
             if let profileImgURL = self.partnerUser?.profileImgURL {
                 cell.profileImgView.loadImageUsingCacheWith(urlString: profileImgURL)
             }
@@ -253,58 +239,14 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
 */
     // Solution II: -----------------------------------------------
     // input container move with keyboard before keyboard will hide: 
-    lazy var inputContainerView : UIView = {
-        let cv = UIView()
-        cv.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50)        
-        cv.backgroundColor = UIColor.white
-        cv.translatesAutoresizingMaskIntoConstraints = false
-//        self.view.addSubview(cv) // BUG: do NOT add these in the view.self:
-//        cv.leftAnchor.constraint(equalTo: self.view.leftAnchor).isActive = true
-//        cv.rightAnchor.constraint(equalTo: self.view.rightAnchor).isActive = true
-//        cv.heightAnchor.constraint(equalToConstant: 50).isActive = true
+    lazy var inputContainerView : ChatInputContainerView = {
+        let cframe = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50)
+        let cv = ChatInputContainerView(frame: cframe)
+        cv.chatLogController = self
         
-        let sendBtn = UIButton()
-        sendBtn.setTitle("Send", for: .normal)
-        sendBtn.addTarget(self, action: #selector(sendingInputMsg), for: .touchUpInside)
-        sendBtn.translatesAutoresizingMaskIntoConstraints = false
-        sendBtn.layer.cornerRadius = 6
-        sendBtn.backgroundColor = UIColor(r: 90, g: 220, b: 90)
-        sendBtn.tintColor = UIColor.white
-        cv.addSubview(sendBtn)
-        sendBtn.rightAnchor.constraint(equalTo: cv.rightAnchor, constant: -6).isActive = true
-        sendBtn.widthAnchor.constraint(equalToConstant: 70).isActive = true
-        sendBtn.bottomAnchor.constraint(equalTo: cv.bottomAnchor, constant: -4).isActive = true
-        sendBtn.heightAnchor.constraint(equalToConstant: 42).isActive = true
-        
-        let imgBtn = UIButton()
-        imgBtn.setTitle("🏞", for: .normal)
-        imgBtn.titleLabel?.font = UIFont(name: "System", size: 26)
-        imgBtn.addTarget(self, action: #selector(selectingImage), for: .touchUpInside)
-        imgBtn.translatesAutoresizingMaskIntoConstraints = false
-        cv.addSubview(imgBtn)
-        imgBtn.leftAnchor.constraint(equalTo: cv.leftAnchor).isActive = true
-        imgBtn.topAnchor.constraint(equalTo: cv.topAnchor).isActive = true
-        imgBtn.bottomAnchor.constraint(equalTo: cv.bottomAnchor).isActive = true
-        imgBtn.widthAnchor.constraint(equalToConstant: 46).isActive = true
-        
-        cv.addSubview(self.inputTxFd)
-        self.inputTxFd.leftAnchor.constraint(equalTo: imgBtn.rightAnchor, constant: 6).isActive = true
-        self.inputTxFd.rightAnchor.constraint(equalTo: sendBtn.leftAnchor, constant: -6).isActive = true
-        self.inputTxFd.heightAnchor.constraint(equalToConstant: 40)
-        self.inputTxFd.centerYAnchor.constraint(equalTo: cv.centerYAnchor).isActive = true
-        
-        let line = UIView()
-        line.translatesAutoresizingMaskIntoConstraints = false
-        line.backgroundColor = UIColor(r: 220, g: 220, b: 220)
-        cv.addSubview(line)
-        line.leftAnchor.constraint(equalTo: cv.leftAnchor).isActive = true
-        line.rightAnchor.constraint(equalTo: cv.rightAnchor).isActive = true
-        line.heightAnchor.constraint(equalToConstant: 2).isActive = true
-        line.topAnchor.constraint(equalTo: cv.topAnchor, constant: -2).isActive = true
-
         return cv
     }()
-    override var inputAccessoryView: UIView? {
+    override var inputAccessoryView: UIView? { // move it with keyboard;
         get{ // put my inputViewItems:UIView inside here!!!!!
 
             return inputContainerView
@@ -316,49 +258,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         }
     }
     
-    /*
-     var containerBottomConstraint : NSLayoutConstraint?
-     
-    func setupInputComponents() {
-
-        containerView.backgroundColor = UIColor.white
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        self.view.addSubview(containerView)
-        containerView.leftAnchor.constraint(equalTo: self.view.leftAnchor).isActive = true
-        containerView.rightAnchor.constraint(equalTo: self.view.rightAnchor).isActive = true
-        containerBottomConstraint = containerView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
-        containerBottomConstraint?.isActive = true // do this when keyboard pop
-        containerView.heightAnchor.constraint(equalToConstant: 56).isActive = true
-        
-        let sendBtn = UIButton()
-        sendBtn.setTitle("Send", for: .normal)
-        sendBtn.addTarget(self, action: #selector(sendingInputMsg), for: .touchUpInside)
-        sendBtn.translatesAutoresizingMaskIntoConstraints = false
-        sendBtn.layer.cornerRadius = 6
-        sendBtn.backgroundColor = UIColor(r: 90, g: 220, b: 90)
-        sendBtn.tintColor = UIColor.white
-        containerView.addSubview(sendBtn)
-        sendBtn.rightAnchor.constraint(equalTo: containerView.rightAnchor, constant: -6).isActive = true
-        sendBtn.widthAnchor.constraint(equalToConstant: 70).isActive = true
-        sendBtn.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -6).isActive = true
-        sendBtn.heightAnchor.constraint(equalToConstant: 40).isActive = true
-        
-        containerView.addSubview(inputTxFd)
-        inputTxFd.leftAnchor.constraint(equalTo: containerView.leftAnchor, constant: 6).isActive = true
-        inputTxFd.rightAnchor.constraint(equalTo: sendBtn.leftAnchor, constant: -6).isActive = true
-        inputTxFd.heightAnchor.constraint(equalToConstant: 60)
-        inputTxFd.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-        
-        let line = UIView()
-        line.translatesAutoresizingMaskIntoConstraints = false
-        line.backgroundColor = UIColor(r: 220, g: 220, b: 220)
-        containerView.addSubview(line)
-        line.leftAnchor.constraint(equalTo: containerView.leftAnchor).isActive = true
-        line.rightAnchor.constraint(equalTo: containerView.rightAnchor).isActive = true
-        line.heightAnchor.constraint(equalToConstant: 2).isActive = true
-        line.topAnchor.constraint(equalTo: containerView.topAnchor).isActive = true
-    }
-*/
     func selectingImage(){
         let picker = UIImagePickerController()
         picker.allowsEditing = true
@@ -369,10 +268,10 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     }
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         //print("get image info: ", info)
-        if let videoURL = info[UIImagePickerControllerMediaURL] as? URL {
+        if let videoLocalURL = info[UIImagePickerControllerMediaURL] as? URL {
             // selecting a video:
             //print("--- getting video url: \(videoURL)")
-            prepareUploadingVideoTo(url: videoURL)
+            prepareUploadingVideoTo(url: videoLocalURL)
         }else{
             // selecting an image: 
             prepareUploadingImageFrom(info: info)
@@ -380,22 +279,24 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         self.dismiss(animated: true, completion: nil)
     }
     private func prepareUploadingVideoTo(url: URL){
-        let filename = NSUUID().uuidString + ".mov" // "video.mov"
-        let uploadRef = FIRStorage.storage().reference().child("message_video").child("sender: \(currUser!.name!)_\(filename)")
+        let filename = "\(currUser!.name!)_\(NSUUID().uuidString).mov" // "video.mov"
+        let uploadRef = FIRStorage.storage().reference().child("message_video").child(filename)
+        
         let uploadTask = uploadRef.putFile(url, metadata: nil, completion: {(metadata, err) in
             if err != nil {
                 print("get err when uploading video: \(err)")
                 return
             }
-            if let videoUrl = metadata?.downloadURL()?.absoluteString {
+            if let videoDownloadUrl = metadata?.downloadURL()?.absoluteString {
                 //print("------ get url: \(storageUrl)")
                 // get 1st frame of the video:
                 //let thumbnailImg = self.thumbnailImageForFileUrl(fileUrl: url) // not storageUrl!!! // use optional!
                 if let thumbnailImg = self.thumbnailImageForFileUrl(fileUrl: url) { // not storageUrl!!!
-                    self.uploadToFirebaseByImage(img: thumbnailImg, completion: { (getImgUrl) in // inner func to getImgUrl!
-                        let properties : [String: Any] = ["videoURL": videoUrl, "imgURL": getImgUrl,
+                    self.uploadToFirebaseByImage(img: thumbnailImg, fileName: filename, completion: { (getImgUrl) in // inner func to getImgUrl!
+                        let properties : [String: Any] = ["videoURL": videoDownloadUrl, "imgURL": getImgUrl,
                                                           "imgWidth": thumbnailImg.size.width,
-                                                          "imgHeight": thumbnailImg.size.height]
+                                                          "imgHeight": thumbnailImg.size.height,
+                                                          "fileName": filename]
                         self.sendMessageWithProperties(properties: properties)
                     })
                 }
@@ -404,7 +305,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         uploadTask.observe(.progress){ (snapshot) in
             //print(snapshot.progress?.completedUnitCount)
             if let completeUnitCount = snapshot.progress?.completedUnitCount {
-                self.navigationItem.title = String(completeUnitCount)
+                self.navigationItem.title = "Uploading..." + String(completeUnitCount)
             }
         }
         uploadTask.observe(.success){ (snapshot) in
@@ -422,25 +323,27 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         }
         return nil
     }
+    
     private func prepareUploadingImageFrom(info: [String:Any]){
-        var getImg : UIImage?
-        
-        if let originalImg = info["UIImagePickerControllerOriginalImage"] as? UIImage {
-            getImg = originalImg
-        }else if let editedImg = info["UIImagePickerControllerEditedImage"] as? UIImage {
-            getImg = editedImg
+        var selectedImgFromPicker : UIImage?
+        //print(info)
+        if let editedImg = info["UIImagePickerControllerEditedImage"] {
+            selectedImgFromPicker = editedImg as? UIImage
+        }else if let originalImg = info["UIImagePickerControllerOriginalImage"] {
+            selectedImgFromPicker = originalImg as? UIImage
         }
-        if let readyImg = getImg {
+        if let readyImg = selectedImgFromPicker {
             //uploadToFirebaseByImage(img: readyImg) // replaced by inner func:
-            uploadToFirebaseByImage(img: readyImg, completion: { (imgUrl) in
-                self.sendMssageWithImgURL(imgURL: imgUrl, img: readyImg)
+            let fName = "\(currUser!.name!)_\(NSUUID().uuidString).jpg" // "video.mov"
+            uploadToFirebaseByImage(img: readyImg, fileName: fName, completion: { (imgUrl) in
+                self.sendMssageWithImgURL(imgURL: imgUrl, img: readyImg, fileName: fName)
             })
         }
     }
 //    private func uploadToFirebaseByImage(img: UIImage){ // using inner func for callback imgURL:
-    private func uploadToFirebaseByImage(img: UIImage, completion: @escaping (_ imgURL: String) -> () ){
-        let imgId = NSUUID().uuidString // ??? use of unresolved identifier 'FIRStorage' ???
-        let refImg = FIRStorage.storage().reference().child("message_image").child("sender: \(currUser!.name!)_\(imgId)")
+    private func uploadToFirebaseByImage(img: UIImage, fileName:String, completion: @escaping (_ imgURL: String) -> () ){
+        //let imgId = NSUUID().uuidString // use fileName to replace uuid:
+        let refImg = FIRStorage.storage().reference().child("message_image").child(fileName)
         
         if let uploadData = UIImageJPEGRepresentation(img, 0.2) {
             refImg.put(uploadData, metadata: nil, completion: {(metadata, err) in
@@ -455,15 +358,15 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
 //                    self.sendMssageWithImgURL(imgURL: imgURL, img: img)
 //                }
                 // to reuse code above, replace them by inner func:
-                if let imgURL = metadata?.downloadURL()?.absoluteString {
-                    completion(imgURL)
+                if let getImgURL = metadata?.downloadURL()?.absoluteString {
+                    completion(getImgURL) // will send URL with msg by func caller;
                 }
                 
             })
         }
 
     }
-    private func sendMssageWithImgURL(imgURL:String, img:UIImage){
+    private func sendMssageWithImgURL(imgURL:String, img:UIImage, fileName:String){
 //        let ref = FIRDatabase.database().reference().child("messages")
 //        let childRef = ref.childByAutoId()
 //        let toId = partnerUser!.id
@@ -488,7 +391,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
 //        
 //        })
         // above code replased by following for reusable code:
-        let property : [String: Any] = ["imgURL":imgURL, "imgWidth": img.size.width, "imgHeight": img.size.height]
+        let property : [String: Any] = ["imgURL":imgURL, "imgWidth": img.size.width, "imgHeight": img.size.height, "fileName":fileName]
         
         sendMessageWithProperties(properties: property)
     }
@@ -498,7 +401,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
 
     
     func sendingInputMsg() {
-        if let userText = inputTxFd.text, userText != "" {
+        if let userText = inputContainerView.inputTxFd.text, userText != "" {
 //            let ref = FIRDatabase.database().reference().child("messages")
 //            let childRef = ref.childByAutoId() // parent node to save msgs;
 //            let toId = partnerUser!.id
@@ -526,7 +429,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             
             sendMessageWithProperties(properties: property)
             
-            inputTxFd.text = ""
+            inputContainerView.inputTxFd.text = ""
             
         }
     }
@@ -537,8 +440,9 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         let toId = partnerUser!.id
         let fromId = FIRAuth.auth()?.currentUser?.uid
         let timestamp = NSNumber(value: Int(Date().timeIntervalSince1970))
+        let isDeletedByPartner = false
         
-        var value: [String:Any] = ["toId":toId, "fromId": fromId, "timeStamp": timestamp]
+        var value: [String:Any] = ["toId":toId, "fromId": fromId, "timeStamp": timestamp, "isDeletedByPartner": isDeletedByPartner]
         // then append coming in properties to this value: 
         // key: $0, value: $1
         properties.forEach({ value[$0] = $1 })

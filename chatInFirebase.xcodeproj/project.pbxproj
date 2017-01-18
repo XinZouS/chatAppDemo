@@ -17,6 +17,7 @@
 		664630D21E1DD73C00E18F41 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 664630D11E1DD73C00E18F41 /* Message.swift */; };
 		6649CE1A1E1EBD5A006633CD /* UserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6649CE191E1EBD5A006633CD /* UserCell.swift */; };
 		668DC3BE1E2039CA005EC99B /* ChatMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 668DC3BD1E2039CA005EC99B /* ChatMessageCell.swift */; };
+		6690F5391E2E7F4800F1B6E0 /* ChatInputContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6690F5381E2E7F4800F1B6E0 /* ChatInputContainerView.swift */; };
 		669985D11E15A1CE00DCA278 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669985D01E15A1CE00DCA278 /* AppDelegate.swift */; };
 		669985D31E15A1CE00DCA278 /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669985D21E15A1CE00DCA278 /* MessagesViewController.swift */; };
 		669985D61E15A1CE00DCA278 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 669985D41E15A1CE00DCA278 /* Main.storyboard */; };
@@ -35,6 +36,8 @@
 		664630D11E1DD73C00E18F41 /* Message.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		6649CE191E1EBD5A006633CD /* UserCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserCell.swift; sourceTree = "<group>"; };
 		668DC3BD1E2039CA005EC99B /* ChatMessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatMessageCell.swift; sourceTree = "<group>"; };
+		6690F5381E2E7F4800F1B6E0 /* ChatInputContainerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatInputContainerView.swift; sourceTree = "<group>"; };
+		6690F53A1E2EA09500F1B6E0 /* chatInFirebase.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = chatInFirebase.entitlements; sourceTree = "<group>"; };
 		669985CD1E15A1CE00DCA278 /* chatInFirebase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = chatInFirebase.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		669985D01E15A1CE00DCA278 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		669985D21E15A1CE00DCA278 /* MessagesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesViewController.swift; sourceTree = "<group>"; };
@@ -84,6 +87,7 @@
 				664630D11E1DD73C00E18F41 /* Message.swift */,
 				6649CE191E1EBD5A006633CD /* UserCell.swift */,
 				668DC3BD1E2039CA005EC99B /* ChatMessageCell.swift */,
+				6690F5381E2E7F4800F1B6E0 /* ChatInputContainerView.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -109,6 +113,7 @@
 		669985CF1E15A1CE00DCA278 /* chatInFirebase */ = {
 			isa = PBXGroup;
 			children = (
+				6690F53A1E2EA09500F1B6E0 /* chatInFirebase.entitlements */,
 				669985D01E15A1CE00DCA278 /* AppDelegate.swift */,
 				664630D31E1DD8A700E18F41 /* Model */,
 				669985E21E15A44C00DCA278 /* Controller */,
@@ -171,6 +176,11 @@
 						CreatedOnToolsVersion = 8.2;
 						DevelopmentTeam = 6S4EWJH888;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Keychain = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -260,6 +270,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				663C18B41E1C739A0014A359 /* ChatLogController.swift in Sources */,
+				6690F5391E2E7F4800F1B6E0 /* ChatInputContainerView.swift in Sources */,
 				669985E41E15A46700DCA278 /* LoginViewController.swift in Sources */,
 				669985D31E15A1CE00DCA278 /* MessagesViewController.swift in Sources */,
 				664630D21E1DD73C00E18F41 /* Message.swift in Sources */,
@@ -391,8 +402,10 @@
 			baseConfigurationReference = A908868F49AAAEE52A3DF922 /* Pods-chatInFirebase.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = chatInFirebase/chatInFirebase.entitlements;
 				DEVELOPMENT_TEAM = 6S4EWJH888;
 				INFOPLIST_FILE = chatInFirebase/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = edu.Stevens.xzou.chatInFirebase;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -405,8 +418,10 @@
 			baseConfigurationReference = D5C1BBF7503C766AED580A2A /* Pods-chatInFirebase.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = chatInFirebase/chatInFirebase.entitlements;
 				DEVELOPMENT_TEAM = 6S4EWJH888;
 				INFOPLIST_FILE = chatInFirebase/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = edu.Stevens.xzou.chatInFirebase;
 				PRODUCT_NAME = "$(TARGET_NAME)";

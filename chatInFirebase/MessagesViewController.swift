@@ -46,24 +46,85 @@ class MessagesViewController: UITableViewController {
         let msg = messages[indexPath.row]
         guard let partnerId = msg.chatPartnerId() else {return}
         
+        deleteMessageInDataBaseFor(partnerId: partnerId, myId: myId)
+
+        // do it in deleteMessageInDataBaseFor(..): DispatchQueue.main.async{}
         FIRDatabase.database().reference().child("user-messages").child(myId).child(partnerId).removeValue { (err, ref) in
             if err != nil {
-                print("get error when deleting msg : MessagesViewController.swift:50", err)
+                print("get error when deleting msg : MessagesViewController.swift:50", err!)
+                return
             }
+            //print("deleting message success: key:\(ref.key), value: \(ref)") // ref.key == chatPartnerId;
             //self.deleteMessageAt(indexPath: indexPath, forPartnerId: partnerId)
-            self.deleteMessageFor(partnerId: partnerId)
+            self.deleteMessageLocallyFor(partnerId: partnerId)
         }
     }
-    // one way to delete message, but not so save:
-//    private func deleteMessageAt(indexPath: IndexPath){
-//        self.messages.remove(at: indexPath.row)
-//        self.tableView.deleteRows(at: [indexPath], with: .automatic)
-//    }
-    // the other way to delete message:
-    private func deleteMessageFor(partnerId: String){
+    private func deleteMessageInDataBaseFor(partnerId: String, myId: String){
+        let msgsRef = FIRDatabase.database().reference().child("user-messages").child(myId).child(partnerId)
+        msgsRef.observeSingleEvent(of: .value, with: { (snapshot) in
+            //print(snapshot) // == partnerId:[msgIds]
+            guard let msgsDictionary = snapshot.value as? [String: AnyObject] else {return}
+
+            let findMsgRef = FIRDatabase.database().reference().child("messages")
+            
+            for (key, val) in msgsDictionary {
+                //print("get key: --- ",key) // == key of each messages;
+                findMsgRef.child(key).observeSingleEvent(of: .value, with: { (snapshotMsg) in
+                    //print("get message snapshot: ", snapshotMsg) // == msgKey:{String:AnyObj}
+                    
+                    guard var getMsg = snapshotMsg.value as? [String: AnyObject],
+                          let isDeletedOnce = getMsg["isDeletedByPartner"] as? Bool else {return}
+                    //print("get msg deletionCount = ", cnt) // == value of count;
+                    if isDeletedOnce {
+                        // delete the msg in DB;
+                        if let imgUrl = getMsg["imgURL"] as? String, let fileName = getMsg["fileName"] as? String {
+                            // delete image in storage
+                            self.deleteFileInFireBaseAt(folder: "message_image", fileName: fileName)
+                        }
+                        if let videoUrl = getMsg["videoURL"] as? String, let fileName = getMsg["fileName"] as? String {
+                            // delete video in storage
+                            self.deleteFileInFireBaseAt(folder: "message_video", fileName: fileName)
+                        }
+                        
+                        findMsgRef.child(key).removeValue()
+
+                    }else{
+                        getMsg["isDeletedByPartner"] = true as AnyObject?
+                        findMsgRef.child(key).updateChildValues(getMsg)
+                    }
+                    
+                }, withCancel: nil)
+            }
+            
+        }, withCancel: nil)
+    }
+    // one way to delete message, but not so save, bcz db may delay:---------
+    //private func deleteMessageAt(indexPath: IndexPath){
+        //self.messages.remove(at: indexPath.row)
+        //self.tableView.deleteRows(at: [indexPath], with: .automatic)
+    //}
+    // the other way to delete message, remove reference from db:------------
+    private func deleteMessageLocallyFor(partnerId: String){
         messagesDictionary.removeValue(forKey: partnerId)
         reloadTable()
     }
+    private func deleteFileInFireBaseAt(folder:String, fileName:String){
+        if folder.compare("message_image") != ComparisonResult.orderedSame && folder.compare("message_video") != ComparisonResult.orderedSame {
+            print("error: cannnot find folder name [\(folder)] in FireBase storage, MessagesViewController.swift:111")
+            return
+        }
+        let ref = FIRStorage.storage().reference().child(folder).child(fileName)
+        ref.delete { (err) in
+            if err != nil {
+                print("get error when try to delete file [\(fileName)]: ", err)
+                return
+            }
+            print("fild deleted!!!!!!=====")
+        }
+        
+
+    }
+    
     
     var observingTimer = Timer() // for forcing it reload table only once;
     func observeUserMessages(){
@@ -87,13 +148,13 @@ class MessagesViewController: UITableViewController {
             
         }, withCancel: nil)
         
-        // also if the message been removed(delete):--------
+        // also if the message been removed(delete) in db already:--------
         ref.observe(.childRemoved, with: { (snapshot) in
             //print(snapshot.key) // == the key of message in msgDict,
             //print(self.messagesDictionary) // == all messages got in DB;
             //self.messagesDictionary.removeValue(forKey: snapshot.key)
             //self.reloadTable()
-            self.deleteMessageFor(partnerId: snapshot.key)
+            self.deleteMessageLocallyFor(partnerId: snapshot.key)
             
         }, withCancel: nil)
     }

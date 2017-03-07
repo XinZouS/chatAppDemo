@@ -83,7 +83,7 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
         }
         FIRAuth.auth()?.createUser(withEmail: email, password: password, completion: { (user:FIRUser?, err) in
             if err != nil {
-                print("get error when creating new user: \(err!), [LoginViewController+Ex.swift]")
+                print("get error when creating new user: \(err!), [LoginViewController+Ex.swift:86]")
                 return
             }
             
@@ -106,13 +106,14 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
             if let profileImage = self.profileImageView.image, let uploadData = UIImageJPEGRepresentation(profileImage, 0.1) {
                 storageRef.put(uploadData, metadata: nil, completion: {(metadata, error) in
                     if error != nil {
-                        print(error)
+                        print("get error when putting user profile image: [LoginViewController+Ex.swift:109]", error)
                         return
                     }
                     
                     if let profileImgURL = metadata?.downloadURL()?.absoluteString {
+                        let friends : [String:Bool] = ["8JXr5B5njGWdgk2QP34OeFt8UlF3":false] // test case: default friend
                         // let userValue = ["name":name, "email":email, "profileImgURL":metadata.downloadUrl()]
-                        let userValue = ["name":name, "email":email, "profileImgURL":profileImgURL]
+                        let userValue = ["name":name, "email":email, "profileImgURL":profileImgURL, "friends":friends] as [String:Any]
                         self.registerUserIntoDatabaseWithUID(uid: uid, userValue: userValue)
                         //print(metadata)  // to get its info and key;
                     }
@@ -129,7 +130,7 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
         // demo: ref.updateChildValues(["Key" : "value"])
         userReference.updateChildValues(userValue, withCompletionBlock: { (err, ref) in
             if err != nil {
-                print("getting err when updating user info: \(err!)")
+                print("getting err when updating user info, [LoginViewController+Ex.swift:133]: \(err!)")
                 return
             }
             // self.messagesViewController?.fetchUserAndSetUpNavBarTitle() // replaced by following:

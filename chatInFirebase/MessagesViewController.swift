@@ -8,8 +8,8 @@
 
 import UIKit
 import Firebase
+import UserNotifications
 
-// change the main VC into TableViewController:
 class MessagesViewController: UITableViewController {
     
 
@@ -18,13 +18,27 @@ class MessagesViewController: UITableViewController {
     var currUser = User()
     
     var messages = [Message]()
-    var messagesDictionary = [String:Message]()
+    var messagesDictionary = [String:Message]() // dict[chatPartnerId] for latest msgs;
     
+    let tabBarItemChat: UITabBarItem = {
+        let c = UITabBarItem()
+        c.image = UIImage(named: "playButton_w")
+        return c
+    }()
+    
+    let tabBar : UITabBar = {
+        let t = UITabBar()
+        
+        return t
+    }()
+    
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Log out", style: .plain, target: self, action: #selector(handleLogout))
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(addNewMessage))
+        
 //        use this after user sign in successfully:
 //        let ref = FIRDatabase.database().reference(fromURL: "https://chatdemo-4eb7c.firebaseio.com/")
 //        ref.updateChildValues(["Key" : "value"])
@@ -36,6 +50,13 @@ class MessagesViewController: UITableViewController {
         // observeUserMessages() // move to func setupNavBarWithUser()
         
         tableView.allowsMultipleSelectionDuringEditing = true // allow delete at row, then follow by:
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // remove notification badge number:
+        if UIApplication.shared.applicationIconBadgeNumber > 0 {
+            UIApplication.shared.applicationIconBadgeNumber = 0
+        }        
     }
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
@@ -110,7 +131,7 @@ class MessagesViewController: UITableViewController {
     }
     private func deleteFileInFireBaseAt(folder:String, fileName:String){
         if folder.compare("message_image") != ComparisonResult.orderedSame && folder.compare("message_video") != ComparisonResult.orderedSame {
-            print("error: cannnot find folder name [\(folder)] in FireBase storage, MessagesViewController.swift:111")
+            print("error: cannnot find folder name [\(folder)] in FireBase storage, MessagesViewController.deleteFileInFireBaseAt()")
             return
         }
         let ref = FIRStorage.storage().reference().child(folder).child(fileName)
@@ -119,7 +140,7 @@ class MessagesViewController: UITableViewController {
                 print("get error when try to delete file [\(fileName)]: ", err)
                 return
             }
-            print("fild deleted!!!!!!=====")
+            // print("fild deleted!!")
         }
         
 
@@ -165,9 +186,12 @@ class MessagesViewController: UITableViewController {
         })
         DispatchQueue.main.async(execute: {
             self.tableView.reloadData()
+            if let getMsg = self.messages.first {
+                self.newMsgNotification(newMsg: getMsg)
+            }
         })
     }
-    private func fetchMessageWithMessageID(messageId:String){
+    private func fetchMessageWithMessageID(messageId:String) {
         let msgRef = FIRDatabase.database().reference().child("messages").child(messageId)
         msgRef.observeSingleEvent(of: .value, with: { (snapshot) in
             
@@ -176,7 +200,7 @@ class MessagesViewController: UITableViewController {
                 let getMsg = Message(dictionary: dictionary)
                 //let getMsg = Message() // replaced by one line above;
                 //getMsg.setValuesForKeys(dictionary)
-                self.messages.append(getMsg) // do we need this line ?????????????????????
+                self.messages.append(getMsg)
                 
                 if let chatPartnerId = getMsg.chatPartnerId() {
                     self.messagesDictionary[chatPartnerId] = getMsg
@@ -188,6 +212,33 @@ class MessagesViewController: UITableViewController {
             
         }, withCancel: nil)
 
+    }
+    private func newMsgNotification(newMsg: Message){
+        guard let newText = newMsg.text,
+              let senderName = messagesDictionary[newMsg.fromId!] else { return }
+//        how to get the name of sender??? add sender name into message!
+        // push notifications for new msg coming;
+        let content = UNMutableNotificationContent()
+        content.title = "New Message"
+        content.subtitle = newMsg.fromId!
+        content.body = newText
+        content.badge = 1
+        updateBadgeNumberBy(increment: 1)
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 2, repeats: false)
+        let id = "identifiterNotification"
+        let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
+            if let err = err {
+                print("get error when firing UNUserNotification; MessagesVC.swift:170 --->", err)
+            }
+        })
+    }
+    private func updateBadgeNumberBy(increment: Int){
+        let currentNumber = UIApplication.shared.applicationIconBadgeNumber
+        let newBadgeNumber = currentNumber + increment
+        if newBadgeNumber > -1 {
+            UIApplication.shared.applicationIconBadgeNumber = newBadgeNumber
+        }
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -305,7 +356,7 @@ class MessagesViewController: UITableViewController {
 
     }
     
-    func showChatControllerForUser(partnerUser: User) { //--- go to chatLogViewController -------------------
+    func showChatControllerForUser(partnerUser: User) { //--- go to ChatLogViewController.swift ---
         let chatLogVC = ChatLogController(collectionViewLayout: UICollectionViewFlowLayout())
         chatLogVC.partnerUser = partnerUser
         // get selfUser info and passing object to ChatLogController:
@@ -326,7 +377,7 @@ class MessagesViewController: UITableViewController {
         present(loginVC, animated: true, completion: nil) // this need to be dismiss when its done!
     }
     
-    func addNewMessage(){
+    func addNewMessage(){ // go to NewMessageViewController
         var newMsgVC = NewMessageViewController()
         newMsgVC.messageVC = self // need reference in newMsgVC
         let navVC = UINavigationController(rootViewController: newMsgVC)

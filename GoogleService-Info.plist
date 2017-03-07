@@ -7,9 +7,9 @@
 	<key>AD_UNIT_ID_FOR_INTERSTITIAL_TEST</key>
 	<string>ca-app-pub-3940256099942544/4411468910</string>
 	<key>CLIENT_ID</key>
-	<string>270083643150-dsnk8em8k0o6iu17jf3in6cdr69ie0ku.apps.googleusercontent.com</string>
+	<string>270083643150-rn6j3cdb2kt272c8k0jkh6h4mggh6kpp.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.270083643150-dsnk8em8k0o6iu17jf3in6cdr69ie0ku</string>
+	<string>com.googleusercontent.apps.270083643150-rn6j3cdb2kt272c8k0jkh6h4mggh6kpp</string>
 	<key>API_KEY</key>
 	<string>AIzaSyDODFied0o8aybqc_N7Nbz4r3P82N30juA</string>
 	<key>GCM_SENDER_ID</key>
@@ -17,7 +17,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>edu.Stevens.xzou.chatInFirebase</string>
+	<string>edu.Stevens.xzou.ogdenchat</string>
 	<key>PROJECT_ID</key>
 	<string>chatdemo-4eb7c</string>
 	<key>STORAGE_BUCKET</key>
@@ -33,7 +33,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true/>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:270083643150:ios:f540f9b2cae80ab7</string>
+	<string>1:270083643150:ios:bbcd5931012ec190</string>
 	<key>DATABASE_URL</key>
 	<string>https://chatdemo-4eb7c.firebaseio.com</string>
 </dict>

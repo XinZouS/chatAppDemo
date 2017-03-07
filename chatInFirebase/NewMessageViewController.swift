@@ -11,13 +11,15 @@ import Firebase
 
 class NewMessageViewController: UITableViewController {
     
-    var users = [User]()
+    var myFriends = [User]()
     let cellId = "cellId"
 
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelNewMessage))
+        
         
         // change tableViewCell at UserCell.class (at bottom of this file)
         tableView.register(UserCell.self, forCellReuseIdentifier: cellId)
@@ -28,7 +30,7 @@ class NewMessageViewController: UITableViewController {
     func fetchUser(){
 
         FIRDatabase.database().reference().child("users").observe(.childAdded, with: { (snapshot) in
-//            print(snapshot)  // JSON data of users, we use array to hold all users:
+            //print(snapshot)  // JSON data of users, one by one, use array to load all users:
 
             if let dictionary = snapshot.value as? [String:AnyObject] {
                 let user = User()
@@ -36,7 +38,7 @@ class NewMessageViewController: UITableViewController {
                 // if using this way, the class properties MUST match the exactly structure with data in Firebase, or it will crash!
                 // aka : user.name = dictionary["name"]
                 user.setValuesForKeys(dictionary)
-                self.users.append(user)
+                self.myFriends.append(user)
                 // print("get user name: \(user.name) and email: \(user.email)")
                 
                 // to avoid crash, use dispatch_async to load users into table:
@@ -65,7 +67,7 @@ class NewMessageViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return users.count
+        return myFriends.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -73,7 +75,7 @@ class NewMessageViewController: UITableViewController {
 //         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: cellId)
         let cell = tableView.dequeueReusableCell(withIdentifier: cellId, for: indexPath) as! UserCell
         
-        let user = users[indexPath.row]
+        let user = myFriends[indexPath.row]
 
         cell.textLabel?.text = user.name!
         cell.detailTextLabel?.text = user.email!
@@ -121,10 +123,11 @@ class NewMessageViewController: UITableViewController {
     var messageVC : MessagesViewController?
     // var messageVC = MessagesViewController()
     
+    // when tapping at one row: 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         dismiss(animated: true, completion: nil)
         
-        let user = self.users[indexPath.row]
+        let user = self.myFriends[indexPath.row]
         self.messageVC?.showChatControllerForUser(partnerUser: user) // jump to new page
         
     }

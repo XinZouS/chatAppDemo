@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		469C62760433F34121605A7F /* Pods_chatInFirebase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9965A7F4372D5FADABFC4ED /* Pods_chatInFirebase.framework */; };
-		663C18AA1E16B9900014A359 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 663C18A91E16B9900014A359 /* GoogleService-Info.plist */; };
 		663C18AC1E1816680014A359 /* NewMessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663C18AB1E1816680014A359 /* NewMessageViewController.swift */; };
 		663C18AE1E195AA60014A359 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663C18AD1E195AA60014A359 /* User.swift */; };
 		663C18B01E1AAE5A0014A359 /* LoginViewController+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663C18AF1E1AAE5A0014A359 /* LoginViewController+Ex.swift */; };
@@ -18,16 +17,19 @@
 		6649CE1A1E1EBD5A006633CD /* UserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6649CE191E1EBD5A006633CD /* UserCell.swift */; };
 		668DC3BE1E2039CA005EC99B /* ChatMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 668DC3BD1E2039CA005EC99B /* ChatMessageCell.swift */; };
 		6690F5391E2E7F4800F1B6E0 /* ChatInputContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6690F5381E2E7F4800F1B6E0 /* ChatInputContainerView.swift */; };
+		6690F53E1E31154900F1B6E0 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6690F53D1E31154900F1B6E0 /* TabBarController.swift */; };
+		6690F5401E313E7200F1B6E0 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6690F53F1E313E7200F1B6E0 /* SearchViewController.swift */; };
+		6690F5421E31496D00F1B6E0 /* SearchViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6690F5411E31496D00F1B6E0 /* SearchViewCell.swift */; };
 		669985D11E15A1CE00DCA278 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669985D01E15A1CE00DCA278 /* AppDelegate.swift */; };
 		669985D31E15A1CE00DCA278 /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669985D21E15A1CE00DCA278 /* MessagesViewController.swift */; };
 		669985D61E15A1CE00DCA278 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 669985D41E15A1CE00DCA278 /* Main.storyboard */; };
 		669985D81E15A1CE00DCA278 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 669985D71E15A1CE00DCA278 /* Assets.xcassets */; };
 		669985DB1E15A1CE00DCA278 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 669985D91E15A1CE00DCA278 /* LaunchScreen.storyboard */; };
 		669985E41E15A46700DCA278 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669985E31E15A46700DCA278 /* LoginViewController.swift */; };
+		66CCFBB21E63656500F46ACC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 66CCFBB11E63656500F46ACC /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		663C18A91E16B9900014A359 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		663C18AB1E1816680014A359 /* NewMessageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewMessageViewController.swift; sourceTree = "<group>"; };
 		663C18AD1E195AA60014A359 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		663C18AF1E1AAE5A0014A359 /* LoginViewController+Ex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "LoginViewController+Ex.swift"; sourceTree = "<group>"; };
@@ -38,6 +40,9 @@
 		668DC3BD1E2039CA005EC99B /* ChatMessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatMessageCell.swift; sourceTree = "<group>"; };
 		6690F5381E2E7F4800F1B6E0 /* ChatInputContainerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatInputContainerView.swift; sourceTree = "<group>"; };
 		6690F53A1E2EA09500F1B6E0 /* chatInFirebase.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = chatInFirebase.entitlements; sourceTree = "<group>"; };
+		6690F53D1E31154900F1B6E0 /* TabBarController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
+		6690F53F1E313E7200F1B6E0 /* SearchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
+		6690F5411E31496D00F1B6E0 /* SearchViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchViewCell.swift; sourceTree = "<group>"; };
 		669985CD1E15A1CE00DCA278 /* chatInFirebase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = chatInFirebase.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		669985D01E15A1CE00DCA278 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		669985D21E15A1CE00DCA278 /* MessagesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesViewController.swift; sourceTree = "<group>"; };
@@ -46,6 +51,7 @@
 		669985DA1E15A1CE00DCA278 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		669985DC1E15A1CE00DCA278 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		669985E31E15A46700DCA278 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		66CCFBB11E63656500F46ACC /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		A908868F49AAAEE52A3DF922 /* Pods-chatInFirebase.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-chatInFirebase.debug.xcconfig"; path = "Pods/Target Support Files/Pods-chatInFirebase/Pods-chatInFirebase.debug.xcconfig"; sourceTree = "<group>"; };
 		A9965A7F4372D5FADABFC4ED /* Pods_chatInFirebase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_chatInFirebase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5C1BBF7503C766AED580A2A /* Pods-chatInFirebase.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-chatInFirebase.release.xcconfig"; path = "Pods/Target Support Files/Pods-chatInFirebase/Pods-chatInFirebase.release.xcconfig"; sourceTree = "<group>"; };
@@ -87,6 +93,7 @@
 				664630D11E1DD73C00E18F41 /* Message.swift */,
 				6649CE191E1EBD5A006633CD /* UserCell.swift */,
 				668DC3BD1E2039CA005EC99B /* ChatMessageCell.swift */,
+				6690F5411E31496D00F1B6E0 /* SearchViewCell.swift */,
 				6690F5381E2E7F4800F1B6E0 /* ChatInputContainerView.swift */,
 			);
 			name = Model;
@@ -121,7 +128,7 @@
 				669985D71E15A1CE00DCA278 /* Assets.xcassets */,
 				669985D91E15A1CE00DCA278 /* LaunchScreen.storyboard */,
 				669985DC1E15A1CE00DCA278 /* Info.plist */,
-				663C18A91E16B9900014A359 /* GoogleService-Info.plist */,
+				66CCFBB11E63656500F46ACC /* GoogleService-Info.plist */,
 			);
 			path = chatInFirebase;
 			sourceTree = "<group>";
@@ -129,11 +136,13 @@
 		669985E21E15A44C00DCA278 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				6690F53D1E31154900F1B6E0 /* TabBarController.swift */,
 				669985E31E15A46700DCA278 /* LoginViewController.swift */,
 				663C18AF1E1AAE5A0014A359 /* LoginViewController+Ex.swift */,
 				669985D21E15A1CE00DCA278 /* MessagesViewController.swift */,
 				663C18AB1E1816680014A359 /* NewMessageViewController.swift */,
 				663C18B11E1BEAF60014A359 /* UIImageView++.swift */,
+				6690F53F1E313E7200F1B6E0 /* SearchViewController.swift */,
 				663C18B31E1C739A0014A359 /* ChatLogController.swift */,
 			);
 			name = Controller;
@@ -174,10 +183,16 @@
 				TargetAttributes = {
 					669985CC1E15A1CE00DCA278 = {
 						CreatedOnToolsVersion = 8.2;
-						DevelopmentTeam = 6S4EWJH888;
+						DevelopmentTeam = 4G3CY5ZV6E;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
 							com.apple.Keychain = {
+								enabled = 1;
+							};
+							com.apple.Push = {
 								enabled = 1;
 							};
 						};
@@ -208,7 +223,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				669985DB1E15A1CE00DCA278 /* LaunchScreen.storyboard in Resources */,
-				663C18AA1E16B9900014A359 /* GoogleService-Info.plist in Resources */,
+				66CCFBB21E63656500F46ACC /* GoogleService-Info.plist in Resources */,
 				669985D81E15A1CE00DCA278 /* Assets.xcassets in Resources */,
 				669985D61E15A1CE00DCA278 /* Main.storyboard in Resources */,
 			);
@@ -270,12 +285,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				663C18B41E1C739A0014A359 /* ChatLogController.swift in Sources */,
+				6690F53E1E31154900F1B6E0 /* TabBarController.swift in Sources */,
 				6690F5391E2E7F4800F1B6E0 /* ChatInputContainerView.swift in Sources */,
 				669985E41E15A46700DCA278 /* LoginViewController.swift in Sources */,
 				669985D31E15A1CE00DCA278 /* MessagesViewController.swift in Sources */,
 				664630D21E1DD73C00E18F41 /* Message.swift in Sources */,
+				6690F5421E31496D00F1B6E0 /* SearchViewCell.swift in Sources */,
 				669985D11E15A1CE00DCA278 /* AppDelegate.swift in Sources */,
 				663C18AE1E195AA60014A359 /* User.swift in Sources */,
+				6690F5401E313E7200F1B6E0 /* SearchViewController.swift in Sources */,
 				663C18AC1E1816680014A359 /* NewMessageViewController.swift in Sources */,
 				668DC3BE1E2039CA005EC99B /* ChatMessageCell.swift in Sources */,
 				663C18B01E1AAE5A0014A359 /* LoginViewController+Ex.swift in Sources */,
@@ -403,13 +421,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = chatInFirebase/chatInFirebase.entitlements;
-				DEVELOPMENT_TEAM = 6S4EWJH888;
+				DEVELOPMENT_TEAM = 4G3CY5ZV6E;
 				INFOPLIST_FILE = chatInFirebase/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = edu.Stevens.xzou.chatInFirebase;
+				PRODUCT_BUNDLE_IDENTIFIER = edu.Stevens.xzou.ogdenchat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -419,13 +438,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = chatInFirebase/chatInFirebase.entitlements;
-				DEVELOPMENT_TEAM = 6S4EWJH888;
+				DEVELOPMENT_TEAM = 4G3CY5ZV6E;
 				INFOPLIST_FILE = chatInFirebase/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = edu.Stevens.xzou.chatInFirebase;
+				PRODUCT_BUNDLE_IDENTIFIER = edu.Stevens.xzou.ogdenchat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};

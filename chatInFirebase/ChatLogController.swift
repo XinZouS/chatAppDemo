@@ -14,9 +14,9 @@ import AVFoundation
 
 class ChatLogController: UICollectionViewController, UITextFieldDelegate, UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
-    let containerView = UIView()
+    //let containerView = UIView() // replaced by inputView on top of keyboard;
     
-    var playerInCell: AVPlayer?
+    var player: AVPlayer?
 
     var messages = [Message]()
     
@@ -53,7 +53,8 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                     
                     //if message.chatPartnerId() == self.partnerUser?.id {
                         //self.messages.append(message)
-                        self.messages.append( Message(dictionary: getDictionary) )
+                        let newMessage = Message(dictionary: getDictionary)
+                        self.messages.append( newMessage )
                         DispatchQueue.main.async {
                             self.collectionView?.reloadData()
                             // and scroll to the last item: 
@@ -204,7 +205,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         NotificationCenter.default.removeObserver(self)
     }
     
-/*
+/*  //Moving input area with keyboard and make it stick on top of keyboard;
     // Solution I : ------------------------------------------
     func setUpKeyboardObservers(){
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
@@ -402,6 +403,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     
     func sendingInputMsg() {
         if let userText = inputContainerView.inputTxFd.text, userText != "" {
+            // complicate way to do sending:-----------------------------------
 //            let ref = FIRDatabase.database().reference().child("messages")
 //            let childRef = ref.childByAutoId() // parent node to save msgs;
 //            let toId = partnerUser!.id
@@ -424,7 +426,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
 //                let recipientUserRef = FIRDatabase.database().reference().child("user-messages").child(toId!).child(fromId!)
 //                recipientUserRef.updateChildValues([msgId: 1])
 //            })
-            // above code replased by following for reusable code:
+            // above code replased by following for reusable code:------------
             let property : [String:Any] = ["text":userText]
             
             sendMessageWithProperties(properties: property)
@@ -445,7 +447,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         var value: [String:Any] = ["toId":toId, "fromId": fromId, "timeStamp": timestamp, "isDeletedByPartner": isDeletedByPartner]
         // then append coming in properties to this value: 
         // key: $0, value: $1
-        properties.forEach({ value[$0] = $1 })
+        properties.forEach({ value[$0] = $1 }) // value += properties;
         
         childRef.updateChildValues(value, withCompletionBlock: { (err, ref) in
             if err != nil {
@@ -463,15 +465,18 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         })
     }
     
-    var startFrame : CGRect?
-    var blurEffectView : UIVisualEffectView! // for img zoom in background
+    private var startFrame : CGRect?
+    private var blurEffectView : UIVisualEffectView! // for img zoom in background
+    private var zoomingImgView : UIImageView!
+    private var activityIndicator: UIActivityIndicatorView!
+    
     // my custom zoom in-out func: pointer from ChatMessageCell.swift;
-    func performZoomInForStartingImageView(imgView: UIImageView){
+    func performZoomInForStartingImageView(imgView: UIImageView, isVideo: Bool){
         startFrame = imgView.superview?.convert(imgView.frame, to: nil)
         //print(startFrame)
-        let zoomingImgView = UIImageView(frame: startFrame!)
-        //zoomingImgView.backgroundColor = UIColor.cyan
+        zoomingImgView = UIImageView(frame: startFrame!)
         zoomingImgView.image = imgView.image
+        zoomingImgView.isHidden = false
         zoomingImgView.isUserInteractionEnabled = true
         zoomingImgView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(performZoomOutOf)))
         
@@ -494,33 +499,79 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                 // h1 = h2 / w2 * w1, then:
                 let newWidth = keyWindow.frame.width
                 let newHeight = imgView.frame.height / imgView.frame.width * newWidth
-                zoomingImgView.frame = CGRect(x: 0, y: 0, width: newWidth, height: newHeight)
-                zoomingImgView.center = keyWindow.center
+                self.zoomingImgView.frame = CGRect(x: 0, y: 0, width: newWidth, height: newHeight)
+                self.zoomingImgView.center = keyWindow.center
                 
                 self.blurEffectView.alpha = 1
                 self.inputContainerView.alpha = 0
                 
-            }, completion: nil)
+            }, completion: {(finish) in
+                if isVideo {
+                    self.activityIndicator = UIActivityIndicatorView(frame: CGRect(x: self.view.bounds.maxX / 2 - 50, y: self.view.bounds.midY / 2 - 100, width: 100, height: 100))
+                    self.activityIndicator.activityIndicatorViewStyle = .whiteLarge
+                    self.activityIndicator.hidesWhenStopped = true
+                    self.activityIndicator.startAnimating()
+                    self.zoomingImgView.addSubview(self.activityIndicator)
+                }
+            })
+            
         }
     }
-    func performZoomOutOf(tapGesture:UITapGestureRecognizer){
+    func performZoomOutOf() { //(tapGesture:UITapGestureRecognizer){
         //print("getting zoom out.......")
-        if let zoomOutView = tapGesture.view {
-            zoomOutView.layer.cornerRadius = 16
-            zoomOutView.clipsToBounds = true
+        player?.pause()
+        
+//        if let zoomOutView = tapGesture.view {
+//        if let zoomOutView = zoomingImgView { // bcz we dont want to remove it after show, just hid it;
+            zoomingImgView.layer.cornerRadius = 16
+            zoomingImgView.clipsToBounds = true
             
             //UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: { // use a more smooth animation:
             UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
-                zoomOutView.frame = self.startFrame!
+                self.zoomingImgView.frame = self.startFrame!
                 self.blurEffectView.alpha = 0
                 self.inputContainerView.alpha = 1
 
             }) { (completed: Bool) in
-                //self.blurEffectView.isHidden = true
-                self.blurEffectView.removeFromSuperview()
-                zoomOutView.removeFromSuperview()
+                self.blurEffectView.isHidden = true
+                self.zoomingImgView.isHidden = true
+            }
+//        }
+    }
+    
+    // for video playing zoom in to full screen:
+    func playVideoFrom(url: URL) { // url comes from ChatMessageCell.swift
+        
+        player = AVPlayer(url: url)
+        let playerLayer = AVPlayerLayer(player: player)
+        playerLayer.frame = self.view.bounds
+        blurEffectView.layer.addSublayer(playerLayer)
+        blurEffectView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(performZoomOutOf)))
+        
+        // observe player, hide image when start playing:
+        player?.addObserver(self, forKeyPath: "currentItem", options: .initial, context: nil)
+        player?.addObserver(self, forKeyPath: "status", options: NSKeyValueObservingOptions.new, context: nil)
+        player?.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions.new, context: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didFinishPlaying), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: player?.currentItem)
+        
+        player?.play()
+    }
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == "rate" {
+            //print(player?.rate)
+            if player?.rate == 0 { // when stop play;
+                zoomingImgView.isHidden = false
             }
         }
+        if keyPath == "status" { // when begin play;
+            zoomingImgView.isHidden = true
+            activityIndicator.stopAnimating()
+        }
     }
+    func didFinishPlaying() {
+        performZoomOutOf()
+    }
+    
+    
     
 }

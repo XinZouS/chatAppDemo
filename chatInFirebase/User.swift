@@ -13,4 +13,6 @@ class User : NSObject {
     var name : String?
     var email: String?
     var profileImgURL: String?
+    
+    var friends: [String:Bool]? // [userID:isAcceptedAsFriend]
 }

@@ -13,6 +13,7 @@ class ChatInputContainerView: UIView, UITextFieldDelegate {
     var chatLogController : ChatLogController? // setup at ChatLogController when init() this view; 
 
     
+    
     lazy var inputTxFd : UITextField = {
         let txFd = UITextField()
         txFd.placeholder = "Your message..."

@@ -24,8 +24,6 @@ class ChatMessageCell: UICollectionViewCell {
     
     lazy var playButton : UIButton = {
         let b = UIButton(type: .system)
-        //b.setTitle("▶️", for: .normal)
-        //b.titleLabel!.font = UIFont(name: "Arial", size: 33) // or use image instade:
         let img = UIImage(named: "playButton_w")
         b.setImage(img, for: .normal)
         b.tintColor = UIColor.white
@@ -80,13 +78,13 @@ class ChatMessageCell: UICollectionViewCell {
     }()
     func zoomInPicture(tapGesture: UITapGestureRecognizer){
         if message?.videoURL != nil {
-            return
+            return // not for video, so return;
         }
         //print("======================")
         //PRO tip: do not perform too much logic in a view class!
         // so we do it in ChatLogController.swift, and send reference form here:
         if let img = tapGesture.view as? UIImageView {
-            self.chatLogController?.performZoomInForStartingImageView(imgView: img)
+            self.chatLogController?.performZoomInForStartingImageView(imgView: img, isVideo: false)
         }
     }
     
@@ -156,16 +154,25 @@ class ChatMessageCell: UICollectionViewCell {
     
     func playButtonTapped(){
         if let videoUrlStr = message?.videoURL, let url = URL(string: videoUrlStr) {
-            player = AVPlayer(url: url)
-            playerLayer = AVPlayerLayer(player: player)
-            playerLayer!.frame = bubbleView.bounds
-            bubbleView.layer.addSublayer(playerLayer!)
             
-            player!.play()
-            indicator.startAnimating()
-            playButton.isHidden = true
-            
-            chatLogController?.playerInCell = player
+            //PRO tip: do not perform too much logic in a view class! ==============
+            // so we do it in ChatLogController.swift, and send reference form here:
+            self.chatLogController?.performZoomInForStartingImageView(imgView: messageImgView, isVideo: true)
+            self.chatLogController?.playVideoFrom(url: url)
+            return
+                
+//            // play video INSIDE bubble cell: (replaced by above)
+//            player = AVPlayer(url: url)
+//            playerLayer = AVPlayerLayer(player: player)
+//            playerLayer!.frame = bubbleView.bounds
+//            bubbleView.layer.addSublayer(playerLayer!)
+//            
+//            
+//            player!.play()
+//            indicator.startAnimating()
+//            playButton.isHidden = true
+//            
+//            chatLogController?.playerInCell = player
         }
     }
     override func prepareForReuse() { // avoiding avplayer showing in other cells;

@@ -1,0 +1,6 @@
+framework module Pods_chatInFirebase {
+  umbrella header "Pods-chatInFirebase-umbrella.h"
+
+  export *
+  module * { export * }
+}

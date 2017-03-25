@@ -16,7 +16,7 @@ class LoginViewController: UIViewController {
     lazy var profileImageView : UIImageView = {
         let img = UIImageView()
         img.translatesAutoresizingMaskIntoConstraints = false
-        img.image = UIImage(named: "chihiroAndHaku03_500x500")
+        img.image = #imageLiteral(resourceName: "guaiqiao01")
         img.contentMode = .scaleAspectFit
         img.layer.cornerRadius = 10
         img.clipsToBounds = true
@@ -86,7 +86,7 @@ class LoginViewController: UIViewController {
         let seg = UISegmentedControl(items: ["Login", "Register"])
         seg.translatesAutoresizingMaskIntoConstraints = false
         seg.tintColor = UIColor.white
-        seg.selectedSegmentIndex = 1
+        seg.selectedSegmentIndex = 0
         seg.addTarget(self, action: #selector(loginRegisterModeChanged), for: .valueChanged)
         return seg
     }()

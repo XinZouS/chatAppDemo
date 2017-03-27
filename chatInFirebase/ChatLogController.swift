@@ -97,7 +97,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         
         if let msgtx = msg.text {
             // mdf width for cell here:
-            cell.bubbleWidthAnchor?.constant = estimateFrameFor(text: msgtx).width + 30
+            cell.bubbleWidthAnchor?.constant = estimateFrameFor(text: msgtx).width + 50
         }else
         if msg.imgURL != nil {
             cell.bubbleWidthAnchor?.constant = 220
@@ -125,7 +125,10 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             if let myImgURL = self.currUser?.profileImgURL {
                 cell.profileImgView.loadImageUsingCacheWith(urlString: myImgURL)
             }
-            cell.bubbleView.backgroundColor = ChatMessageCell.blueColor
+            //cell.bubbleView.backgroundColor = ChatMessageCell.blueColor // replaced by bubble image:
+            // use image for background in bubbleView, UIEdgeInsetsMake(top, left, bottom, right;), withRenderingMode to allow color change;
+            cell.bubbleImageView.image = #imageLiteral(resourceName: "chatbubbleR").resizableImage(withCapInsets: UIEdgeInsetsMake(26, 40, 26, 35)).withRenderingMode(.alwaysTemplate)
+            cell.bubbleImageView.tintColor = ChatMessageCell.blueColor
             cell.textLabel.textColor = UIColor.white
             cell.bubbleRightAnchor?.isActive = true
             cell.bubbleLeftAnchor?.isActive = false
@@ -137,7 +140,10 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             if let profileImgURL = self.partnerUser?.profileImgURL {
                 cell.profileImgView.loadImageUsingCacheWith(urlString: profileImgURL)
             }
-            cell.bubbleView.backgroundColor = ChatMessageCell.grayColor
+            //cell.bubbleView.backgroundColor = ChatMessageCell.grayColor // replaced by bubble image:
+            // use image for background in bubbleView, UIEdgeInsetsMake(top, left, bottom, right;), withRenderingMode to allow color change;
+            cell.bubbleImageView.image = #imageLiteral(resourceName: "chatbubbleL").resizableImage(withCapInsets: UIEdgeInsetsMake(26, 35, 26, 40)).withRenderingMode(.alwaysTemplate)
+            cell.bubbleImageView.tintColor = ChatMessageCell.grayColor
             cell.textLabel.textColor = UIColor.black
             cell.bubbleRightAnchor?.isActive = false
             cell.bubbleLeftAnchor?.isActive = true
@@ -147,13 +153,14 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         }
     }
     
+    // cell size:
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         var height: CGFloat = 80
         
         let msg = messages[indexPath.item]
         // get the height depends on text: 
         if let tx = msg.text {
-            height = estimateFrameFor(text: tx).height + 20
+            height = estimateFrameFor(text: tx).height + 25
         }else // adjust imgView
         if let imgW = msg.imgWidth?.floatValue, let imgH = msg.imgHeight?.floatValue {
             // h1 / w1 = h2 / w2, so we solve for h1, then:

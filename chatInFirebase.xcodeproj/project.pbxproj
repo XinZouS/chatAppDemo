@@ -141,9 +141,9 @@
 				663C18AF1E1AAE5A0014A359 /* LoginViewController+Ex.swift */,
 				669985D21E15A1CE00DCA278 /* MessagesViewController.swift */,
 				663C18AB1E1816680014A359 /* NewMessageViewController.swift */,
+				663C18B31E1C739A0014A359 /* ChatLogController.swift */,
 				663C18B11E1BEAF60014A359 /* UIImageView++.swift */,
 				6690F53F1E313E7200F1B6E0 /* SearchViewController.swift */,
-				663C18B31E1C739A0014A359 /* ChatLogController.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";

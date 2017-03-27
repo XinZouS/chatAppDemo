@@ -58,10 +58,20 @@ class ChatMessageCell: UICollectionViewCell {
     
     let bubbleView: UIView = {
         let v = UIView()
-        v.backgroundColor = blueColor
-        v.layer.cornerRadius = 16
-        v.layer.masksToBounds = true
+        v.backgroundColor = .clear // blueColor
+        //v.layer.cornerRadius = 16
+        //v.layer.masksToBounds = true
         v.translatesAutoresizingMaskIntoConstraints = false
+        return v
+    }()
+    
+    let bubbleImageView : UIImageView = {
+        let v = UIImageView()
+        v.translatesAutoresizingMaskIntoConstraints = false
+        // use image for background in bubbleView, UIEdgeInsetsMake(top, left, bottom, right;), withRenderingMode to allow color change;
+        // v.image = #imageLiteral(resourceName: "chatbubbleL").resizableImage(withCapInsets: UIEdgeInsetsMake(35, 60, 35, 60)).withRenderingMode(.alwaysTemplate)
+        // setup image in ChatLogController;
+        v.tintColor = UIColor(white: 0.9, alpha: 1)
         return v
     }()
     
@@ -110,14 +120,18 @@ class ChatMessageCell: UICollectionViewCell {
         // backgroundColor = UIColor.green
         addSubview(bubbleView) // add this first!!!
         bubbleRightAnchor = bubbleView.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -40)
-        //bubbleRightAnchor?.isActive = true // initiate it in ChatLogController.swift!
         bubbleLeftAnchor = bubbleView.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 43)
         // bubbleLeftAnchor?.isActive = true
-        bubbleView.topAnchor.constraint(equalTo: self.topAnchor, constant: 10).isActive = true
+        bubbleView.topAnchor.constraint(equalTo: self.topAnchor, constant: 9).isActive = true
         bubbleView.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
-        // bubbleView.widthAnchor.constraint(equalToConstant: 270).isActive = true
         bubbleWidthAnchor = bubbleView.widthAnchor.constraint(equalToConstant: 230)
         bubbleWidthAnchor?.isActive = true
+        
+        bubbleView.addSubview(bubbleImageView)
+        bubbleImageView.leftAnchor.constraint(equalTo: bubbleView.leftAnchor).isActive = true
+        bubbleImageView.topAnchor.constraint(equalTo: bubbleView.topAnchor).isActive = true
+        bubbleImageView.rightAnchor.constraint(equalTo: bubbleView.rightAnchor).isActive = true
+        bubbleImageView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor).isActive = true
         
         bubbleView.addSubview(messageImgView)
         messageImgView.rightAnchor.constraint(equalTo: bubbleView.rightAnchor).isActive = true
@@ -139,9 +153,9 @@ class ChatMessageCell: UICollectionViewCell {
         
         bubbleView.addSubview(textLabel)
         textLabel.rightAnchor.constraint(equalTo: bubbleView.rightAnchor).isActive = true
-        textLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 10).isActive = true
+        textLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 15).isActive = true
         textLabel.heightAnchor.constraint(equalTo: bubbleView.heightAnchor).isActive = true
-        textLabel.leftAnchor.constraint(equalTo: bubbleView.leftAnchor, constant: 10).isActive = true
+        textLabel.leftAnchor.constraint(equalTo: bubbleView.leftAnchor, constant: 20).isActive = true
     }
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

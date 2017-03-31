@@ -220,23 +220,24 @@ class MessagesViewController: UITableViewController {
         // push notifications for new msg coming;
         let content = UNMutableNotificationContent()
         content.title = "New Message"
-        content.subtitle = newMsg.fromId!
+        content.subtitle = "From \(senderName), \(newMsg.fromId!): "
         content.body = newText
         content.badge = 1
+        content.sound = UNNotificationSound.default()
         updateBadgeNumberBy(increment: 1)
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 2, repeats: false)
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
         let id = "identifiterNotification"
         let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
         UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
             if let err = err {
-                print("get error when firing UNUserNotification; MessagesVC.swift:170 --->", err)
+                print("get error when firing UNUserNotification; MessagesVC.swift:newMsgNotification --->", err)
             }
         })
     }
     private func updateBadgeNumberBy(increment: Int){
         let currentNumber = UIApplication.shared.applicationIconBadgeNumber
         let newBadgeNumber = currentNumber + increment
-        if newBadgeNumber > -1 {
+        if newBadgeNumber > 0 {//-1 {
             UIApplication.shared.applicationIconBadgeNumber = newBadgeNumber
         }
     }

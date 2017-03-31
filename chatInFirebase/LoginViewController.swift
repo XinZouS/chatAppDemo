@@ -82,11 +82,11 @@ class LoginViewController: UIViewController {
         return btn
     }()
     
-    let loginRegisterSegmentedControl: UISegmentedControl = {
+    lazy var loginRegisterSegmentedControl: UISegmentedControl = {
         let seg = UISegmentedControl(items: ["Login", "Register"])
         seg.translatesAutoresizingMaskIntoConstraints = false
         seg.tintColor = UIColor.white
-        seg.selectedSegmentIndex = 0
+        seg.selectedSegmentIndex = 1
         seg.addTarget(self, action: #selector(loginRegisterModeChanged), for: .valueChanged)
         return seg
     }()
@@ -96,7 +96,8 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.view.backgroundColor = UIColor(r: 61, g: 91, b: 151)
+        self.view.backgroundColor = UIColor(r: 68, g: 36, b: 133) // 61,91,151
+        setupBackgroundGradientLayer()
     
         self.view.addSubview(loginRegisterSegmentedControl)
         self.view.addSubview(profileImageView)
@@ -149,6 +150,15 @@ class LoginViewController: UIViewController {
         profileImageView.heightAnchor.constraint(equalToConstant: 150).isActive = true
         
     }
+    
+    private func setupBackgroundGradientLayer(){
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.frame = self.view.frame
+        gradientLayer.colors = [UIColor.clear.cgColor, UIColor.black.cgColor]
+        gradientLayer.locations = [0.5, 1.2]
+        self.view.layer.addSublayer(gradientLayer)
+    }
+    
     
     var inputContainerViewHeightConstraint : NSLayoutConstraint?
     var nameTextFieldHeightAnchor :          NSLayoutConstraint?

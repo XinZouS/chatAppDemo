@@ -22,6 +22,8 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     
     var currUser : User?
     
+    let cellId = "cellId"
+    
     var partnerUser : User? { // as the 'user' in video
         didSet {
             navigationItem.title = partnerUser?.name
@@ -47,7 +49,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                     // print(snapshot)
                     guard let getDictionary = snapshot.value as? [String: AnyObject] else {return}
                     // potential crashing if the keys don't match:
-                    // let message = Message() // we change as Msg(dic), so not need following line:
+                    // let message = Message() // we change as Msg(dict), so not need following line:
                     // message.setValuesForKeys(getDictionary)
                     // print(message)
                     
@@ -55,9 +57,9 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                         //self.messages.append(message)
                         let newMessage = Message(dictionary: getDictionary)
                         self.messages.append( newMessage )
+                    
                         DispatchQueue.main.async {
                             self.collectionView?.reloadData()
-                            // and scroll to the last item: 
                             self.scrollerViewMoveToBottom()
                         }
                     //}
@@ -75,8 +77,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         collectionView?.scrollToItem(at: indexPath, at: .bottom, animated: true)
         }
     }
-    
-    let cellId = "cellId"
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return messages.count
@@ -195,10 +195,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         setupKeyboardObservers()
         
     }
-    // changing between vertical and landscape:
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        collectionView?.collectionViewLayout.invalidateLayout()
-    }
     func setupKeyboardObservers(){
         NotificationCenter.default.addObserver(self, selector: #selector(moveCollectionViewWhenKeyboardDidShow), name: NSNotification.Name.UIKeyboardDidShow, object: nil)
     }
@@ -210,6 +206,10 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         super.viewWillDisappear(animated)
         
         NotificationCenter.default.removeObserver(self)
+    }
+    // changing between vertical and landscape:
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        collectionView?.collectionViewLayout.invalidateLayout()
     }
     
 /*  //Moving input area with keyboard and make it stick on top of keyboard;

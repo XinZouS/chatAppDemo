@@ -86,7 +86,7 @@ class NewMessageViewController: UITableViewController {
             //--- better way to load img -----------------------------------------
             cell.profileImageView.loadImageUsingCacheWith(urlString: profileImgURL)
 
-            //--- too much download way ------------------------------------------
+            //--- too much download way, replaced by above -----------------------
 //            let url = URL(string: profileImgURL)
 //            
 //            URLSession.shared.dataTask(with: url!, completionHandler: { (data, response, err) in

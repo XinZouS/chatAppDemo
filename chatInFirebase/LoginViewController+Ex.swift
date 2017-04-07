@@ -50,21 +50,35 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
     //=== save user data into fierbase ======================================================
     
     func loginOrRegister(){ // handleLogin(): loginSignup button tapped():
-        if loginRegisterSegmentedControl.selectedSegmentIndex == 0 {
+        if emailTextField.text == "" || passwordTextField.text == "" {
+            showAlertWith(title: "Missing Info", message: "You need to input both your email and password. Please try again.")
+            return
+        }
+        if loginRegisterSegmentedControl.selectedSegmentIndex == 0 { // loginUser or register user
             performSelector(inBackground: #selector(loginUser), with: nil)
         }else{
+            let pw1 = passwordTextField.text, pw2 = passwordConfernTextField.text
+            if (pw1?.characters.count)! < 8 || (pw2?.characters.count)! < 8 {
+                showAlertWith(title: "Password too short", message: "Your password must have at least 8 characters, try again please.")
+                return
+            }
+            if pw1 != pw2 {
+                showAlertWith(title: "Password does not match", message: "Both passwords are not the same, please try again.")
+                return
+            }
             performSelector(inBackground: #selector(registerUser), with: nil)
         }
     }
     //
     func loginUser(){
         guard let email = emailTextField.text, let pw = passwordTextField.text else {
-            print("need your email and password!!!")
+            showAlertWith(title: "Missing Info", message: "You need to input both your email and password. Please try again.")
             return
         }
         FIRAuth.auth()?.signIn(withEmail: email, password: pw, completion: { (user:FIRUser?, err:Error?) in
             if err != nil {
-                print("get error wen sign in: \(err!)")
+                self.showAlertWith(title: "Login Failed", message: "Got an error when signing in: \(err!)")
+                print("get error when sign in: LoginViewController+Ex:loginUser(): \(err!)")
                 return
             }
             // see user login successfully:
@@ -76,20 +90,20 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
     }
     //
     func registerUser(){
-        guard let name = nameTextField.text, let email = emailTextField.text, let password = passwordTextField.text
-            else {
-                print("please provide your name, email and password!!!")
-                return
+        guard let name = nameTextField.text, let email = emailTextField.text, let password = passwordTextField.text else {
+            showAlertWith(title: "Please tell us more about you", message: "please provide your name, email and password to register.")
+            return
         }
         FIRAuth.auth()?.createUser(withEmail: email, password: password, completion: { (user:FIRUser?, err) in
             if err != nil {
-                print("get error when creating new user: \(err!), [LoginViewController+Ex.swift:86]")
+                self.showAlertWith(title: "Register Failed", message: "Got an error when register new user: \(err!)")
+                print("get error when creating new user: [LoginViewController+Ex.registerUser()]: \(err!)")
                 return
             }
             
             // use fireBase User:
             guard let uid = user?.uid else {
-                print("did NOT access to current user: LoginViewController.swift: 93")
+                print("------- did NOT access to current user: LoginViewController.swift:registerUser()")
                 return
             }
             
@@ -111,7 +125,7 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
                     }
                     
                     if let profileImgURL = metadata?.downloadURL()?.absoluteString {
-                        let friends : [String:Bool] = ["8JXr5B5njGWdgk2QP34OeFt8UlF3":false] // test case: default friend
+                        let friends : [String] = [""]
                         // let userValue = ["name":name, "email":email, "profileImgURL":metadata.downloadUrl()]
                         let userValue = ["name":name, "email":email, "profileImgURL":profileImgURL, "friends":friends] as [String:Any]
                         self.registerUserIntoDatabaseWithUID(uid: uid, userValue: userValue)
@@ -146,6 +160,16 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
         })
 
     }
+    
+    private func showAlertWith(title:String, message:String){
+        let alertCtrl = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
+        alertCtrl.addAction(UIAlertAction(title: "OK", style: .default, handler: { (action) in
+            alertCtrl.dismiss(animated: true, completion: nil)
+        }))
+        self.present(alertCtrl, animated: true, completion: nil)
+    }
+    
+
     
 
 }

@@ -24,9 +24,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // add my main.storyboard by code: ================================
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.makeKeyAndVisible()
-        // use the ViewController.swift as our customer VC, so put it herer: 
-        window?.rootViewController = UINavigationController(rootViewController: MessagesViewController())
-        //window?.rootViewController = TabBarController() // replace above line, use tabbar;
+        //window?.rootViewController = UINavigationController(rootViewController: MessagesViewController())
+        window?.rootViewController = TabBarController() // replace above line, use tabbar;
         
         FIRApp.configure()
         
@@ -45,7 +44,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func tokenRefreshNotification(_ notification: Notification) {
         if let refreshedToken = FIRInstanceID.instanceID().token() {
             print("InstanceID token: \(refreshedToken)")
-        }        
+        }
         // Connect to FCM since connection may have failed when attempted before having a token.
         connectToFcm()
     }
@@ -98,9 +97,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         application.registerForRemoteNotifications()
         application.registerUserNotificationSettings(UIUserNotificationSettings(types:  [.alert, .badge, .sound], categories: nil))
         application.beginBackgroundTask(withName: "showNotification", expirationHandler: nil)
-        
-        //=================================================================
-        
     }
     // handle notification messages when receiving one: ============
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
@@ -133,6 +129,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         completionHandler(UIBackgroundFetchResult.newData)
     }
     
+    //=================================================================
+
     
     
     

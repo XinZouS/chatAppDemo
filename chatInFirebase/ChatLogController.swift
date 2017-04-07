@@ -18,11 +18,11 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     
     var player: AVPlayer?
 
+    let cellId = "cellId"
+    
     var messages = [Message]()
     
     var currUser : User?
-    
-    let cellId = "cellId"
     
     var partnerUser : User? { // as the 'user' in video
         didSet {
@@ -32,7 +32,10 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         }
     }
     func observeMessages(){
-        guard let myid = FIRAuth.auth()?.currentUser?.uid, let toId = partnerUser?.id else {return}
+        guard let myid = FIRAuth.auth()?.currentUser?.uid, let toId = partnerUser?.id, let ptrName = partnerUser?.name else {return}
+
+        loadMessagesFromDiskFor(partnerName: ptrName)
+        
         let ref = FIRDatabase.database().reference().child("user-messages").child(myid).child(toId)
         ref.observe(.childAdded, with: { (snapshot) in
             
@@ -55,13 +58,18 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                     
                     //if message.chatPartnerId() == self.partnerUser?.id {
                         //self.messages.append(message)
-                        let newMessage = Message(dictionary: getDictionary)
+                    let newMessage = Message(dictionary: getDictionary)
+                    if self.hasMsgInDiskTheSameAs(newMessage) == false {
+                        print("messages not contains newMsg, start fetch from firebase;=====")
                         self.messages.append( newMessage )
                     
                         DispatchQueue.main.async {
                             self.collectionView?.reloadData()
                             self.scrollerViewMoveToBottom()
+                            
+                            self.saveMessagesToDiskFor(partnerName: ptrName)
                         }
+                    }
                     //}
                     
                 }, withCancel: nil)
@@ -73,10 +81,32 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     
     func scrollerViewMoveToBottom(){
         if messages.count > 0 {
-        let indexPath = IndexPath(item: self.messages.count - 1, section: 0)
-        collectionView?.scrollToItem(at: indexPath, at: .bottom, animated: true)
+            let indexPath = IndexPath(item: self.messages.count - 1, section: 0)
+            collectionView?.scrollToItem(at: indexPath, at: .bottom, animated: true)
         }
     }
+    private func saveMessagesToDiskFor(partnerName:String){
+        let userDefaults = UserDefaults.standard
+        let encodeData : Data = NSKeyedArchiver.archivedData(withRootObject: messages)
+        userDefaults.set(encodeData, forKey: "\(partnerName)Messages")
+        userDefaults.synchronize()
+    }
+    private func loadMessagesFromDiskFor(partnerName: String?){
+        guard let name = partnerName else { return }
+        if let decodeed = UserDefaults.standard.object(forKey: "\(name)Messages") as? Data {
+            let decodeItems = NSKeyedUnarchiver.unarchiveObject(with: decodeed) as! [Message]
+            //print("decodeItems: ", decodeItems)
+            messages.append(contentsOf: decodeItems)
+        }
+    }
+    private func hasMsgInDiskTheSameAs(_ msg: Message) -> Bool {
+        guard let newTimeStamp = msg.timeStamp else { return false }
+        for localMsg in messages {
+            if localMsg.timeStamp == newTimeStamp { return true }
+        }
+        return false
+    }
+    
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return messages.count
@@ -91,7 +121,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
 
         let msg = messages[indexPath.item]
         cell.message = msg // for ChatMessageCell to get VideoURL
-        cell.textLabel.text = msg.text
+        cell.textView.text = msg.text
 
         setupCell(cell: cell, msg: msg)
         
@@ -113,10 +143,10 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     private func setupCell(cell: ChatMessageCell, msg: Message){
         if let imgUrl = msg.imgURL {
             cell.messageImgView.loadImageUsingCacheWith(urlString: imgUrl)
-            cell.textLabel.isHidden = true
+            cell.textView.isHidden = true
             cell.messageImgView.isHidden = false
         }else{
-            cell.textLabel.isHidden = false
+            cell.textView.isHidden = false
             cell.messageImgView.isHidden = true
         }
         
@@ -126,10 +156,10 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                 cell.profileImgView.loadImageUsingCacheWith(urlString: myImgURL)
             }
             //cell.bubbleView.backgroundColor = ChatMessageCell.blueColor // replaced by bubble image:
-            // use image for background in bubbleView, UIEdgeInsetsMake(top, left, bottom, right;), withRenderingMode to allow color change;
-            cell.bubbleImageView.image = #imageLiteral(resourceName: "chatbubbleR").resizableImage(withCapInsets: UIEdgeInsetsMake(26, 40, 26, 35)).withRenderingMode(.alwaysTemplate)
+            // use image for background in bubbleView, UIEdgeInsetsMake(top, right, bottom, left;), withRenderingMode to allow color change;
+            cell.bubbleImageView.image = #imageLiteral(resourceName: "chatbubbleR").resizableImage(withCapInsets: UIEdgeInsetsMake(33, 33, 33, 36)).withRenderingMode(.alwaysTemplate)
             cell.bubbleImageView.tintColor = ChatMessageCell.blueColor
-            cell.textLabel.textColor = UIColor.white
+            cell.textView.textColor = UIColor.white
             cell.bubbleRightAnchor?.isActive = true
             cell.bubbleLeftAnchor?.isActive = false
             //cell.profileImgView.isHidden = true
@@ -141,10 +171,10 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                 cell.profileImgView.loadImageUsingCacheWith(urlString: profileImgURL)
             }
             //cell.bubbleView.backgroundColor = ChatMessageCell.grayColor // replaced by bubble image:
-            // use image for background in bubbleView, UIEdgeInsetsMake(top, left, bottom, right;), withRenderingMode to allow color change;
-            cell.bubbleImageView.image = #imageLiteral(resourceName: "chatbubbleL").resizableImage(withCapInsets: UIEdgeInsetsMake(26, 35, 26, 40)).withRenderingMode(.alwaysTemplate)
+            // use image for background in bubbleView, UIEdgeInsetsMake(top, right, bottom, left;), withRenderingMode to allow color change;
+            cell.bubbleImageView.image = #imageLiteral(resourceName: "chatbubbleL").resizableImage(withCapInsets: UIEdgeInsetsMake(33, 33, 33, 36)).withRenderingMode(.alwaysTemplate)
             cell.bubbleImageView.tintColor = ChatMessageCell.grayColor
-            cell.textLabel.textColor = UIColor.black
+            cell.textView.textColor = UIColor.black
             cell.bubbleRightAnchor?.isActive = false
             cell.bubbleLeftAnchor?.isActive = true
             //cell.profileImgView.isHidden = false
@@ -172,9 +202,9 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         return CGSize(width: width, height: height)
     }
     private func estimateFrameFor(text: String) -> CGRect {
-        let sz = CGSize(width: 230, height: 1000)
+        let sz = CGSize(width: 200, height: 1000)
         let opts = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
-        return NSString(string: text).boundingRect(with: sz, options: opts, attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 16)], context:nil)
+        return NSString(string: text).boundingRect(with: sz, options: opts, attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 15)], context:nil)
     }
     
     

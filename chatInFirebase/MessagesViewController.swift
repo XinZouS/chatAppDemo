@@ -17,8 +17,8 @@ class MessagesViewController: UITableViewController {
     
     var currUser = User()
     
-    var messages = [Message]()
-    var messagesDictionary = [String:Message]() // dict[chatPartnerId] for latest msgs;
+    var messages = [Message]()  // sorted by timeStamp for tableView
+    var messageOfPartnerId = [String:Message]() // dict[chatPartnerId] for latest msgs;
     
     let tabBarItemChat: UITabBarItem = {
         let c = UITabBarItem()
@@ -49,7 +49,8 @@ class MessagesViewController: UITableViewController {
         
         // observeUserMessages() // move to func setupNavBarWithUser()
         
-        tableView.allowsMultipleSelectionDuringEditing = true // allow delete at row, then follow by:
+        tableView.allowsMultipleSelectionDuringEditing = true // allow delete at row;
+        
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -62,6 +63,7 @@ class MessagesViewController: UITableViewController {
         return true
     }
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        removeMessageFromDisk()
         //print("selecting at : ", indexPath.row) // delete this partner and all msgs in databas:
         guard let myId = FIRAuth.auth()?.currentUser?.uid else {return}
         let msg = messages[indexPath.row]
@@ -72,7 +74,7 @@ class MessagesViewController: UITableViewController {
         // do it in deleteMessageInDataBaseFor(..): DispatchQueue.main.async{}
         FIRDatabase.database().reference().child("user-messages").child(myId).child(partnerId).removeValue { (err, ref) in
             if err != nil {
-                print("get error when deleting msg : MessagesViewController.swift:50", err!)
+                print("get error when deleting msg : MessagesViewController.swift: editingStyle(): ", err!)
                 return
             }
             //print("deleting message success: key:\(ref.key), value: \(ref)") // ref.key == chatPartnerId;
@@ -97,16 +99,13 @@ class MessagesViewController: UITableViewController {
                           let isDeletedOnce = getMsg["isDeletedByPartner"] as? Bool else {return}
                     //print("get msg deletionCount = ", cnt) // == value of count;
                     if isDeletedOnce {
-                        // delete the msg in DB;
+                        // delete the msg data in DB;
                         if let imgUrl = getMsg["imgURL"] as? String, let fileName = getMsg["fileName"] as? String {
-                            // delete image in storage
                             self.deleteFileInFireBaseAt(folder: "message_image", fileName: fileName)
                         }
                         if let videoUrl = getMsg["videoURL"] as? String, let fileName = getMsg["fileName"] as? String {
-                            // delete video in storage
                             self.deleteFileInFireBaseAt(folder: "message_video", fileName: fileName)
                         }
-                        
                         findMsgRef.child(key).removeValue()
 
                     }else{
@@ -126,7 +125,7 @@ class MessagesViewController: UITableViewController {
     //}
     // the other way to delete message, remove reference from db:------------
     private func deleteMessageLocallyFor(partnerId: String){
-        messagesDictionary.removeValue(forKey: partnerId)
+        messageOfPartnerId.removeValue(forKey: partnerId)
         reloadTable()
     }
     private func deleteFileInFireBaseAt(folder:String, fileName:String){
@@ -150,6 +149,7 @@ class MessagesViewController: UITableViewController {
     var observingTimer = Timer() // for forcing it reload table only once;
     func observeUserMessages(){
         guard let myid = FIRAuth.auth()?.currentUser?.uid else {return}
+        self.currUser.id = myid
 
         // get current user ID:
         let ref = FIRDatabase.database().reference().child("user-messages").child(myid)
@@ -161,7 +161,7 @@ class MessagesViewController: UITableViewController {
             let partnerRef = FIRDatabase.database().reference().child("user-messages").child(myid).child(partnerId)
             partnerRef.observe(.childAdded, with: { (snapshot) in
                 
-                //print(snapshot) // == msgId s {1}
+                //print(snapshot) // == added msgId s {1}
                 let msgId = snapshot.key // then find this msg:
                 self.fetchMessageWithMessageID(messageId: msgId)
                 
@@ -172,18 +172,20 @@ class MessagesViewController: UITableViewController {
         // also if the message been removed(delete) in db already:--------
         ref.observe(.childRemoved, with: { (snapshot) in
             //print(snapshot.key) // == the key of message in msgDict,
-            //print(self.messagesDictionary) // == all messages got in DB;
-            //self.messagesDictionary.removeValue(forKey: snapshot.key)
+            //print(self.messageOfPartnerId) // == all messages got in DB;
+            //self.messageOfPartnerId.removeValue(forKey: snapshot.key)
             //self.reloadTable()
             self.deleteMessageLocallyFor(partnerId: snapshot.key)
             
         }, withCancel: nil)
     }
     func reloadTable(){
-        self.messages = Array(self.messagesDictionary.values)
+        self.messages = Array(self.messageOfPartnerId.values)
         self.messages.sort(by: { (m1, m2) -> Bool in
             return (m1.timeStamp?.intValue)! > (m2.timeStamp?.intValue)!
         })
+        // save messages into disk:
+        saveMessageToDisk()
         DispatchQueue.main.async(execute: {
             self.tableView.reloadData()
             if let getMsg = self.messages.first {
@@ -203,7 +205,7 @@ class MessagesViewController: UITableViewController {
                 self.messages.append(getMsg)
                 
                 if let chatPartnerId = getMsg.chatPartnerId() {
-                    self.messagesDictionary[chatPartnerId] = getMsg
+                    self.messageOfPartnerId[chatPartnerId] = getMsg
                     // sorting move to reloadTable();
                 }
                 self.observingTimer.invalidate()
@@ -213,9 +215,54 @@ class MessagesViewController: UITableViewController {
         }, withCancel: nil)
 
     }
+    private func saveMessageToDisk(){
+        if let currName = self.currUser.name, let currId = self.currUser.id {
+            let userDefaults = UserDefaults.standard
+            let encodedData : Data = NSKeyedArchiver.archivedData(withRootObject: self.messages)
+            userDefaults.set(encodedData, forKey: "\(currName)\(currId)Messages")
+            userDefaults.synchronize()
+            print("------ save messages to disk success!!")
+        }
+    }
+    private func fetchMessageFromDisk(){
+        // load Messages from disk:
+        if let currName = self.currUser.name, let currId = self.currUser.id,
+            let decodedData = UserDefaults.standard.object(forKey: "\(currName)\(currId)Messages") as? Data {
+            let decodedMessages = NSKeyedUnarchiver.unarchiveObject(with: decodedData) as! [Message]
+            self.messages = decodedMessages
+            print("=======load messages success: ", decodedMessages)
+        }else{
+            print("==== unable to load messages from disk: for userName,id = ", currUser.name, currUser.id )
+        }
+    }
+    private func removeMessageFromDisk(){
+        if let currName = self.currUser.name, let currId = self.currUser.id {
+            UserDefaults.standard.removeObject(forKey: "\(currName)\(currId)Messages")
+        }
+    }
+    func saveUserIntoDisk(){
+        if self.currUser.name != nil, self.currUser.id != nil {
+            let userDefaults = UserDefaults.standard
+            let encodedData : Data = NSKeyedArchiver.archivedData(withRootObject: self.currUser)
+            userDefaults.set(encodedData, forKey: "currUser")
+            userDefaults.synchronize()
+            print("---- save currUser to disk success!!")
+        }
+    }
+    func fetchUserFromDisk(){
+        if let decodedData = UserDefaults.standard.object(forKey: "currUser") as? Data {
+            let decodedUser = NSKeyedUnarchiver.unarchiveObject(with: decodedData) as! User
+            self.currUser = decodedUser
+            print("------ load currUser success")
+        }
+    }
+    func removeUserFromDisk(){
+        UserDefaults.standard.removeObject(forKey: "currUser")
+        print("xxxxxx remove user. ")
+    }
     private func newMsgNotification(newMsg: Message){
         guard let newText = newMsg.text,
-              let senderName = messagesDictionary[newMsg.fromId!] else { return }
+              let senderName = messageOfPartnerId[newMsg.fromId!] else { return }
 //        how to get the name of sender??? add sender name into message!
         // push notifications for new msg coming;
         let content = UNMutableNotificationContent()
@@ -261,7 +308,7 @@ class MessagesViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let msg = messages[indexPath.row] 
+        let msg = messages[indexPath.row] // get the latest msg
         guard let chartPartnerId = msg.chatPartnerId() else {
             return
         } // initializer for conditional binding must have optional type, not string
@@ -269,41 +316,43 @@ class MessagesViewController: UITableViewController {
         ref.observeSingleEvent(of: .value, with: { (snapshot) in
             // get the partner as a new user: 
             guard let dictionary = snapshot.value as? [String: Any] else {return}
-            let user = User()
-            user.id = chartPartnerId
-            user.setValuesForKeys(dictionary)
-            self.showChatControllerForUser(partnerUser: user)
+            let partnerUser = User()
+            partnerUser.id = chartPartnerId
+            partnerUser.setValuesForKeys(dictionary)
+            
+            self.showChatControllerForUser(partnerUser: partnerUser)
 
         }, withCancel: nil)
     }
     
     
     func checkIfUserIsLogin(){
+        fetchUserFromDisk() // setup currUser;
         let uid = FIRAuth.auth()?.currentUser?.uid
-        if uid == nil {
+        if uid != nil || currUser.id != "" {
+            // get user by id in firebase:
+            fetchUserAndSetUpNavBarTitle()
+        }else{
             // handleLogout()  //but we use a better way to call that func:
             performSelector(inBackground: #selector(handleLogout), with: nil)
-        }else{
-            // get user by id in database:
-            fetchUserAndSetUpNavBarTitle()
         }
     }
     
     func fetchUserAndSetUpNavBarTitle() {
-        guard let uid = FIRAuth.auth()?.currentUser?.uid else { // already unwap uid !!!
+        guard let uid = FIRAuth.auth()?.currentUser?.uid else {
+            fetchUserFromDisk()
+            guard let userName = currUser.name else { return }
+            setupNavBarWithUser(user: currUser)
             return
         }
         
         // get current user by id in database:
         FIRDatabase.database().reference().child("users").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
-
             // get snapshot is a JSON obj, so unwap it to get info:
             if let dictionary = snapshot.value as? [String:Any] {
-                // self.navigationItem.title = dictionary["name"] as? String // do it in setupNavBarWithUser()
-                // set user img on navBar.title: 
-                //self.currUser = User()
-                self.currUser.setValuesForKeys(dictionary)
+                self.currUser.setValuesForKeys(dictionary) // profileImgURL, name, email (already has id,friends)
                 self.setupNavBarWithUser(user: self.currUser)
+                self.saveUserIntoDisk()
             }
         }, withCancel: nil)
         
@@ -311,10 +360,10 @@ class MessagesViewController: UITableViewController {
     
     func setupNavBarWithUser(user: User) {
         messages.removeAll()
-        messagesDictionary.removeAll()
+        messageOfPartnerId.removeAll()
         tableView.reloadData()
         
-        observeUserMessages() // fetch msgs for ONLY current user; 
+        observeUserMessages() // fetch msgs ONLY for current user;
         
         
         // self.navigationItem.title = user.name // but this can only set name, we need img using:
@@ -371,7 +420,10 @@ class MessagesViewController: UITableViewController {
             try FIRAuth.auth()?.signOut()
         }catch let signoutErr {
             print("error when signOut: \(signoutErr)")
+            return
         }
+        self.removeUserFromDisk()
+        self.removeMessageFromDisk()
         self.navigationItem.title = "New user"
         let loginVC = LoginViewController()
         loginVC.messagesViewController = self // for setting bar.title;
@@ -381,6 +433,7 @@ class MessagesViewController: UITableViewController {
     func addNewMessage(){ // go to NewMessageViewController
         var newMsgVC = NewMessageViewController()
         newMsgVC.messageVC = self // need reference in newMsgVC
+        newMsgVC.currUser = self.currUser
         let navVC = UINavigationController(rootViewController: newMsgVC)
         present(navVC, animated: true, completion: nil)
     }

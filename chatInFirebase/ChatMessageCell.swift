@@ -32,10 +32,10 @@ class ChatMessageCell: UICollectionViewCell {
         return b
     }()
     
-    let textLabel : UITextView = {
+    let textView : UITextView = {
         let tv = UITextView()
         //tv.text = "test txt a b c d e f g h i j"
-        tv.font = UIFont.systemFont(ofSize: 16)
+        tv.font = UIFont.systemFont(ofSize: 15)
         tv.backgroundColor = UIColor.clear
         tv.textColor = UIColor.white
         tv.isEditable = false
@@ -113,13 +113,13 @@ class ChatMessageCell: UICollectionViewCell {
         addSubview(profileImgView)
         profileImgView.topAnchor.constraint(equalTo: self.topAnchor, constant: 12).isActive = true
         profileImgLeftAnchor = profileImgView.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 7)
-        profileImgRightAnchor = profileImgView.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -5)
+        profileImgRightAnchor = profileImgView.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -7)
         profileImgView.widthAnchor.constraint(equalToConstant: 32).isActive = true
         profileImgView.heightAnchor.constraint(equalToConstant: 32).isActive = true
         
         // backgroundColor = UIColor.green
         addSubview(bubbleView) // add this first!!!
-        bubbleRightAnchor = bubbleView.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -40)
+        bubbleRightAnchor = bubbleView.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -43)
         bubbleLeftAnchor = bubbleView.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 43)
         // bubbleLeftAnchor?.isActive = true
         bubbleView.topAnchor.constraint(equalTo: self.topAnchor, constant: 9).isActive = true
@@ -151,11 +151,11 @@ class ChatMessageCell: UICollectionViewCell {
         playButton.widthAnchor.constraint(equalToConstant:  50).isActive = true
         playButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-        bubbleView.addSubview(textLabel)
-        textLabel.rightAnchor.constraint(equalTo: bubbleView.rightAnchor).isActive = true
-        textLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 15).isActive = true
-        textLabel.heightAnchor.constraint(equalTo: bubbleView.heightAnchor).isActive = true
-        textLabel.leftAnchor.constraint(equalTo: bubbleView.leftAnchor, constant: 20).isActive = true
+        bubbleView.addSubview(textView)
+        textView.leftAnchor.constraint(equalTo: bubbleView.leftAnchor, constant: 20).isActive = true
+        textView.rightAnchor.constraint(equalTo: bubbleView.rightAnchor, constant: -10).isActive = true
+        textView.topAnchor.constraint(equalTo: self.topAnchor, constant: 15).isActive = true
+        textView.heightAnchor.constraint(equalTo: bubbleView.heightAnchor).isActive = true
     }
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

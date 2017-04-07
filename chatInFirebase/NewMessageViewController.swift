@@ -11,6 +11,7 @@ import Firebase
 
 class NewMessageViewController: UITableViewController {
     
+    var currUser : User?
     var myFriends = [User]()
     let cellId = "cellId"
 
@@ -24,31 +25,57 @@ class NewMessageViewController: UITableViewController {
         // change tableViewCell at UserCell.class (at bottom of this file)
         tableView.register(UserCell.self, forCellReuseIdentifier: cellId)
 
-        fetchUser()
+        fetchMyFriendsUser()
     }
     
-    func fetchUser(){
-
-        FIRDatabase.database().reference().child("users").observe(.childAdded, with: { (snapshot) in
-            //print(snapshot)  // JSON data of users, one by one, use array to load all users:
-
-            if let dictionary = snapshot.value as? [String:AnyObject] {
+    func fetchMyFriendsUser(){
+        guard let currId = currUser?.id else { return }
+        let firRef = FIRDatabase.database().reference().child("users")
+        
+        // load only MY friends from firebase:
+        firRef.child(currId).child("friends").observe(.value, with: { (snapshot) in
+            //print("snapshot.value: \(snapshot.value)") // [userIds]
+            if let friendIds = snapshot.value as? [String] {
+                for id in friendIds {
+                    self.fetchFriendsBy(id: id, fromRef: firRef)
+                }
+            }
+        }, withCancel: nil)
+        
+//        // get ALL users from firebase;
+//        FIRDatabase.database().reference().child("users").observe(.childAdded, with: { (snapshot) in
+//            //print(snapshot)  // JSON data of users, one by one, use array to load all users:
+//            if let dictionary = snapshot.value as? [String:AnyObject] {
+//                let user = User()
+//                user.id = snapshot.key
+//                // if using this way, the class properties MUST match the exactly structure with data in Firebase, or it will crash!
+//                // aka : user.name = dictionary["name"]
+//                user.setValuesForKeys(dictionary)
+//                self.myFriends.append(user)
+//                // print("get user name: \(user.name) and email: \(user.email)")
+//                
+//                // to avoid crash, use dispatch_async to load users into table:
+//                DispatchQueue.main.async(execute: {
+//                    self.tableView.reloadData()
+//                })
+//            }
+//        }, withCancel: nil)
+        
+    }
+    func fetchFriendsBy(id: String?, fromRef: FIRDatabaseReference?){
+        guard let id = id, let ref = fromRef else { return }
+        ref.child(id).observe(.value, with: { (snapshot) in
+            //print("ids: ", snapshot) // get: (id){User obj}
+            if let dictionary = snapshot.value as? [String:AnyObject] { // User()
                 let user = User()
                 user.id = snapshot.key
-                // if using this way, the class properties MUST match the exactly structure with data in Firebase, or it will crash!
-                // aka : user.name = dictionary["name"]
                 user.setValuesForKeys(dictionary)
                 self.myFriends.append(user)
-                // print("get user name: \(user.name) and email: \(user.email)")
-                
-                // to avoid crash, use dispatch_async to load users into table:
                 DispatchQueue.main.async(execute: {
                     self.tableView.reloadData()
                 })
             }
-            
         }, withCancel: nil)
-        
     }
     
     func cancelNewMessage(){

@@ -21,10 +21,10 @@ class UserCell : UITableViewCell {
             if let seconds = message?.timeStamp?.doubleValue {
                 // NSNumber(value: Int(Date().timeIntervalSince1970))
                 let timeStampDate = Date(timeIntervalSince1970: seconds)
-                let formater = DateFormatter()
-                formater.dateFormat = "hh:mm:ss a"
-                // timeLabel.text = timeStampData.description
-                timeLabel.text = formater.string(from: timeStampDate)
+                //let formater = DateFormatter()
+                //formater.dateFormat = "hh:mm:ss a"
+                //timeLabel.text = formater.string(from: timeStampDate)
+                timeLabel.text = timeStampDate.timeAgoDispaly()
             }
             
         }
@@ -50,9 +50,9 @@ class UserCell : UITableViewCell {
     
     var profileImageView: UIImageView = {
         var imgView = UIImageView()
-        imgView.image = UIImage(named: "chihiroAndHaku03_500x500")
-        imgView.contentMode = .scaleAspectFill
         imgView.translatesAutoresizingMaskIntoConstraints = false // for our modify affect;
+        imgView.image = #imageLiteral(resourceName: "guaiqiao01")
+        imgView.contentMode = .scaleAspectFill
         imgView.layer.cornerRadius = 23
         imgView.layer.masksToBounds = true
         return imgView
@@ -60,10 +60,10 @@ class UserCell : UITableViewCell {
     
     var timeLabel: UILabel = {
         var lab = UILabel()
+        lab.translatesAutoresizingMaskIntoConstraints = false
         //lab.text = "HH:MM:SS"
         lab.textColor = UIColor(r: 200, g: 200, b: 200)
         lab.font = UIFont.systemFont(ofSize: 12)
-        lab.translatesAutoresizingMaskIntoConstraints = false
         return lab
     }()
     

@@ -9,7 +9,7 @@
 import UIKit
 import Firebase
 
-class Message : NSObject {
+class Message : NSObject, NSCoding {
     
     var fromId: String?
     var toId: String?
@@ -48,5 +48,48 @@ class Message : NSObject {
         videoURL = dictionary["videoURL"] as? String
     }
     
+    
+    
+    // for save into UserDefault: ===========================================
+    required convenience init(coder aDecoder: NSCoder) {
+        let fromId = aDecoder.decodeObject(forKey: "fromId") as? String
+        let toId   = aDecoder.decodeObject(forKey: "toId")   as? String
+        let text   = aDecoder.decodeObject(forKey: "text")   as? String
+        let timeStamp = aDecoder.decodeObject(forKey: "timeStamp") as? NSNumber
+        let isDeletedByPartner = aDecoder.decodeObject(forKey: "isDeletedByPartner") as? Bool
+        
+        let fileName = aDecoder.decodeObject(forKey: "fileName") as? String
+        
+        let imgURL = aDecoder.decodeObject(forKey: "imgURL") as? String
+        let imgWidth = aDecoder.decodeObject(forKey: "imgWidth") as? NSNumber
+        let imgHeight = aDecoder.decodeObject(forKey: "imgHeight") as? NSNumber
+        
+        let videoURL = aDecoder.decodeObject(forKey: "videoURL") as? String
+        
+        let decodeDict : [String: Any] = [
+            "fromId" : fromId, "toId" : toId, "text" : text, "timeStamp" : timeStamp,
+            "isDeletedByPartner" : isDeletedByPartner, "fileName" : fileName,
+            "imgURL" : imgURL, "imgWidth" : imgWidth, "imgHeight" : imgHeight,
+            "videoURL" : videoURL
+        ]
+        self.init(dictionary: decodeDict)
+    }
+    
+    func encode(with aCoder: NSCoder) {
+        aCoder.encode(fromId, forKey: "fromId")
+        aCoder.encode(toId, forKey: "toId")
+        aCoder.encode(text, forKey: "text")
+        aCoder.encode(timeStamp, forKey: "timeStamp")
+        aCoder.encode(isDeletedByPartner, forKey: "isDeletedByPartner")
+
+        aCoder.encode(fileName, forKey: "fileName")
+        
+        aCoder.encode(imgURL, forKey: "imgURL")
+        aCoder.encode(imgWidth, forKey: "imgWidth")
+        aCoder.encode(imgHeight, forKey: "imgHeight")
+        
+        aCoder.encode(videoURL, forKey: "videoURL")
+    }
+
 }
 

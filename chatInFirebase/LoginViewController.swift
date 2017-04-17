@@ -11,7 +11,9 @@ import Firebase
 
 
 let buttonColorPurple = UIColor(r: 160, g: 90, b: 253)
+let buttonColorGreen  = UIColor(r: 100, g: 255, b: 100)
 let buttonColorBlue   = UIColor(r: 63, g: 133, b: 253)
+let buttonColorRed    = UIColor(r: 255, g: 100, b: 100)
 
 class LoginViewController: UIViewController {
 
@@ -84,17 +86,16 @@ class LoginViewController: UIViewController {
     var passWordSepratorLine:UIView!
     
     lazy var loginRegisterButton : UIButton = { // lazy is for access self
-        let btn = UIButton(type: .system)
-        btn.translatesAutoresizingMaskIntoConstraints = false // for Anchor
-        btn.setTitle("Register", for: .normal)
-        btn.setTitleColor(UIColor.white, for: .normal)
-        btn.titleLabel?.font = UIFont(name: "Verdana", size: 26)
-        btn.backgroundColor = buttonColorPurple
-        btn.layer.cornerRadius = 7
+        let b = UIButton(type: .system)
+        b.translatesAutoresizingMaskIntoConstraints = false // for Anchor
+        b.setTitle("Register", for: .normal)
+        b.setTitleColor(UIColor.white, for: .normal)
+        b.titleLabel?.font = UIFont(name: "Verdana", size: 26)
+        b.backgroundColor = buttonColorPurple
+        b.layer.cornerRadius = 7
         // needs lazy var for this self:
-        btn.addTarget(self, action: #selector(loginOrRegister), for: .touchUpInside) // in extension file;
-        
-        return btn
+        b.addTarget(self, action: #selector(loginOrRegister), for: .touchUpInside) // in extension file;
+        return b
     }()
     
     lazy var loginRegisterSegmentedControl: UISegmentedControl = {

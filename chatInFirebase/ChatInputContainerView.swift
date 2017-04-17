@@ -12,7 +12,23 @@ class ChatInputContainerView: UIView, UITextFieldDelegate {
     
     var chatLogController : ChatLogController? // setup at ChatLogController when init() this view; 
 
+    lazy var sendBtn : UIButton = {
+        let b = UIButton()
+        b.setTitle("Send", for: .normal)
+        b.translatesAutoresizingMaskIntoConstraints = false
+        b.layer.cornerRadius = 6
+        b.backgroundColor = UIColor(r: 90, g: 220, b: 90)
+        b.tintColor = UIColor.white
+        return b
+    }()
     
+    lazy var imgBtn : UIButton = {
+        let i = UIButton()
+        i.setTitle("🏞", for: .normal)
+        i.translatesAutoresizingMaskIntoConstraints = false
+        i.titleLabel?.font = UIFont(name: "System", size: 26)
+        return i
+    }()
     
     lazy var inputTxFd : UITextField = {
         let txFd = UITextField()
@@ -23,7 +39,7 @@ class ChatInputContainerView: UIView, UITextFieldDelegate {
     }()
     // allow use Enter key to send msg:
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        chatLogController!.sendingInputMsg()
+        chatLogController?.sendingInputMsg()
         return true
     }
     
@@ -38,26 +54,15 @@ class ChatInputContainerView: UIView, UITextFieldDelegate {
 //        cv.rightAnchor.constraint(equalTo: self.view.rightAnchor).isActive = true
 //        cv.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-        let sendBtn = UIButton()
-        sendBtn.setTitle("Send", for: .normal)
-//        sendBtn.addTarget(self, action: #selector(chatLogController!.sendingInputMsg), for: .touchUpInside)
-        sendBtn.addTarget(chatLogController, action: #selector(chatLogController!.sendingInputMsg), for: .touchUpInside)
-        sendBtn.translatesAutoresizingMaskIntoConstraints = false
-        sendBtn.layer.cornerRadius = 6
-        sendBtn.backgroundColor = UIColor(r: 90, g: 220, b: 90)
-        sendBtn.tintColor = UIColor.white
         addSubview(sendBtn)
+        sendBtn.addTarget(chatLogController, action: #selector(chatLogController!.sendingInputMsg), for: .touchUpInside)
         sendBtn.rightAnchor.constraint(equalTo: rightAnchor, constant: -6).isActive = true
         sendBtn.widthAnchor.constraint(equalToConstant: 70).isActive = true
         sendBtn.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4).isActive = true
         sendBtn.heightAnchor.constraint(equalToConstant: 42).isActive = true
         
-        let imgBtn = UIButton()
-        imgBtn.setTitle("🏞", for: .normal)
-        imgBtn.titleLabel?.font = UIFont(name: "System", size: 26)
-        imgBtn.addTarget(chatLogController, action: #selector(chatLogController!.selectingImage), for: .touchUpInside)
-        imgBtn.translatesAutoresizingMaskIntoConstraints = false
         addSubview(imgBtn)
+        imgBtn.addTarget(chatLogController, action: #selector(chatLogController!.selectingImage), for: .touchUpInside)
         imgBtn.leftAnchor.constraint(equalTo: leftAnchor).isActive = true
         imgBtn.topAnchor.constraint(equalTo: topAnchor).isActive = true
         imgBtn.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true

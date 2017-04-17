@@ -36,8 +36,8 @@ class MessagesViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Log out", style: .plain, target: self, action: #selector(handleLogout))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(addNewMessage))
+        //navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Log out", style: .plain, target: self, action: #selector(handleLogout))
+        //navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(addNewMessage))
         
 //        use this after user sign in successfully:
 //        let ref = FIRDatabase.database().reference(fromURL: "https://chatdemo-4eb7c.firebaseio.com/")
@@ -230,14 +230,15 @@ class MessagesViewController: UITableViewController {
             let decodedData = UserDefaults.standard.object(forKey: "\(currName)\(currId)Messages") as? Data {
             let decodedMessages = NSKeyedUnarchiver.unarchiveObject(with: decodedData) as! [Message]
             self.messages = decodedMessages
-            print("=======load messages success: ", decodedMessages)
+            print("======= load messages success: ", decodedMessages)
         }else{
-            print("==== unable to load messages from disk: for userName,id = ", currUser.name, currUser.id )
+            print("======= unable to load messages from disk: for userName,id = ", currUser.name, currUser.id )
         }
     }
     private func removeMessageFromDisk(){
         if let currName = self.currUser.name, let currId = self.currUser.id {
             UserDefaults.standard.removeObject(forKey: "\(currName)\(currId)Messages")
+            print("------ 1. removed messages in disk success!!")
         }
     }
     func saveUserIntoDisk(){
@@ -249,16 +250,18 @@ class MessagesViewController: UITableViewController {
             print("---- save currUser to disk success!!")
         }
     }
-    func fetchUserFromDisk(){
+    func fetchUserFromDisk() -> User? {
         if let decodedData = UserDefaults.standard.object(forKey: "currUser") as? Data {
             let decodedUser = NSKeyedUnarchiver.unarchiveObject(with: decodedData) as! User
-            self.currUser = decodedUser
+            return decodedUser
             print("------ load currUser success")
         }
+        return nil as User?
     }
     func removeUserFromDisk(){
         UserDefaults.standard.removeObject(forKey: "currUser")
-        print("xxxxxx remove user. ")
+        UserDefaults.standard.removeObject(forKey: "myFriends")
+        print("-------- 2. removed user and myFriends list success. ")
     }
     private func newMsgNotification(newMsg: Message){
         guard let newText = newMsg.text,
@@ -300,7 +303,8 @@ class MessagesViewController: UITableViewController {
         
         let msg = messages[indexPath.row]
         cell.message = msg
-        
+        cell.layer.shouldRasterize = true // 2 lines for better image loading
+        cell.layer.rasterizationScale = UIScreen.main.scale
         return cell
     }
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -311,7 +315,7 @@ class MessagesViewController: UITableViewController {
         let msg = messages[indexPath.row] // get the latest msg
         guard let chartPartnerId = msg.chatPartnerId() else {
             return
-        } // initializer for conditional binding must have optional type, not string
+        }
         let ref = FIRDatabase.database().reference().child("users").child(chartPartnerId)
         ref.observeSingleEvent(of: .value, with: { (snapshot) in
             // get the partner as a new user: 
@@ -327,7 +331,9 @@ class MessagesViewController: UITableViewController {
     
     
     func checkIfUserIsLogin(){
-        fetchUserFromDisk() // setup currUser;
+        if let getuser = fetchUserFromDisk() { // setup currUser;
+            currUser = getuser
+        }
         let uid = FIRAuth.auth()?.currentUser?.uid
         if uid != nil || currUser.id != "" {
             // get user by id in firebase:
@@ -340,12 +346,12 @@ class MessagesViewController: UITableViewController {
     
     func fetchUserAndSetUpNavBarTitle() {
         guard let uid = FIRAuth.auth()?.currentUser?.uid else {
-            fetchUserFromDisk()
-            guard let userName = currUser.name else { return }
+            if let getuser = fetchUserFromDisk(){
+                currUser = getuser
+            }
             setupNavBarWithUser(user: currUser)
             return
         }
-        
         // get current user by id in database:
         FIRDatabase.database().reference().child("users").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
             // get snapshot is a JSON obj, so unwap it to get info:
@@ -354,8 +360,7 @@ class MessagesViewController: UITableViewController {
                 self.setupNavBarWithUser(user: self.currUser)
                 self.saveUserIntoDisk()
             }
-        }, withCancel: nil)
-        
+        }, withCancel: nil)        
     }
     
     func setupNavBarWithUser(user: User) {
@@ -365,42 +370,8 @@ class MessagesViewController: UITableViewController {
         
         observeUserMessages() // fetch msgs ONLY for current user;
         
-        
         // self.navigationItem.title = user.name // but this can only set name, we need img using:
-        let titleView = UIView()
-        titleView.frame = CGRect(x: 0, y: 0, width: 210, height: 40)
-        
-        let containerView = UIView() // for adjuse titleLabel when it is too loooong
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        titleView.addSubview(containerView)
-        
-        let profileImageView = UIImageView()
-        if let profileImageUrl = user.profileImgURL {
-            profileImageView.loadImageUsingCacheWith(urlString: profileImageUrl)
-        }
-        profileImageView.translatesAutoresizingMaskIntoConstraints = false
-        profileImageView.contentMode = .scaleAspectFill
-        profileImageView.layer.cornerRadius = 20
-        profileImageView.layer.masksToBounds = true
-        containerView.addSubview(profileImageView)
-        profileImageView.leftAnchor.constraint(equalTo: containerView.leftAnchor).isActive = true
-        profileImageView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-        profileImageView.widthAnchor.constraint(equalToConstant: 40).isActive = true
-        profileImageView.heightAnchor.constraint(equalToConstant: 40).isActive = true
-        
-        let nameLabel = UILabel()
-        nameLabel.text = user.name
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        containerView.addSubview(nameLabel)
-        nameLabel.leftAnchor.constraint(equalTo: profileImageView.rightAnchor, constant: 9).isActive = true
-        nameLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-        nameLabel.rightAnchor.constraint(equalTo: containerView.rightAnchor).isActive = true
-        nameLabel.heightAnchor.constraint(equalTo: containerView.heightAnchor).isActive = true
-        
-        containerView.centerXAnchor.constraint(equalTo: titleView.centerXAnchor).isActive = true
-        containerView.centerYAnchor.constraint(equalTo: titleView.centerYAnchor).isActive = true
-        
-        self.navigationItem.titleView = titleView
+        navigationController?.setupNavBarWithUser(user: user, in: self) // in
         
         // titleView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showChatController)))
 
@@ -431,7 +402,7 @@ class MessagesViewController: UITableViewController {
     }
     
     func addNewMessage(){ // go to NewMessageViewController
-        var newMsgVC = NewMessageViewController()
+        let newMsgVC = NewMessageViewController()
         newMsgVC.messageVC = self // need reference in newMsgVC
         newMsgVC.currUser = self.currUser
         let navVC = UINavigationController(rootViewController: newMsgVC)

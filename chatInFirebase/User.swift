@@ -9,11 +9,11 @@
 import UIKit
 
 class User : NSObject, NSCoding {
+    
     var id : String?
     var name : String?
     var email: String?
     var profileImgURL: String?
-    
     var friends: [String]? // [userID]
     
     override init() {
@@ -30,7 +30,16 @@ class User : NSObject, NSCoding {
         self.profileImgURL = profileImgUrl
         self.friends = friendList
     }
-    
+    init(dictionary: [String: AnyObject]) {
+        super.init()        
+        id  = dictionary["id"] as? String
+        name = dictionary["name"] as? String
+        email = dictionary["email"] as? String
+        profileImgURL = dictionary["profileImgURL"] as? String
+        friends = dictionary["friends"] as? [String]
+    }
+
+    // for save into disk on device:
     required convenience init?(coder aDecoder: NSCoder) {
         let id = aDecoder.decodeObject(forKey: "id") as? String
         let name = aDecoder.decodeObject(forKey: "name") as? String

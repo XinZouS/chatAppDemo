@@ -84,6 +84,7 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
             // see user login successfully:
             if user?.email != nil {
                 self.messagesViewController?.fetchUserAndSetUpNavBarTitle() // update navBar.title
+                self.messagesViewController?.currUser.id = user?.uid
                 self.dismiss(animated: true, completion: nil)
             }
         })
@@ -109,10 +110,10 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
             
             //--- when new user successfully ----------------
             // use fireBase storage to save image:
-            let imageId = NSUUID().uuidString
+            let imageId = "\(email)Profile.jpg" // NSUUID().uuidString
 //            let storageRef = FIRStorage.storage().reference().child("\(name)_\(imageId).png") // add .child(name) or it will crash;
 //            let storageRef = FIRStorage.storage().reference().child("profile_images").child("\(name)_\(imageId).png") // add more .child();
-            let storageRef = FIRStorage.storage().reference().child("profile_images").child("\(name)_\(imageId).jpg") // add more .child();
+            let storageRef = FIRStorage.storage().reference().child("profile_images").child(imageId) // add more .child();
             
             //if let uploadData = UIImagePNGRepresentation(self.profileImageView.image!) {
             //if let uploadData = UIImageJPEGRepresentation(self.profileImageView.image!, 0.1) { // make img smaller!

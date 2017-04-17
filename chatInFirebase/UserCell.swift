@@ -12,6 +12,10 @@ import Firebase
 
 class UserCell : UITableViewCell {
  
+    var user : User?
+
+    var newMsgVC : NewMessageViewController?
+    
     var message: Message? {
         didSet {
             setupNameAndProfileImg()
@@ -47,15 +51,14 @@ class UserCell : UITableViewCell {
         }
         
     }
-    
     var profileImageView: UIImageView = {
-        var imgView = UIImageView()
-        imgView.translatesAutoresizingMaskIntoConstraints = false // for our modify affect;
-        imgView.image = #imageLiteral(resourceName: "guaiqiao01")
-        imgView.contentMode = .scaleAspectFill
-        imgView.layer.cornerRadius = 23
-        imgView.layer.masksToBounds = true
-        return imgView
+        var v = UIImageView()
+        v.translatesAutoresizingMaskIntoConstraints = false // for our modify affect;
+        v.image = #imageLiteral(resourceName: "guaiqiao01")
+        v.contentMode = .scaleAspectFill
+        v.layer.cornerRadius = 23
+        v.layer.masksToBounds = true
+        return v
     }()
     
     var timeLabel: UILabel = {
@@ -70,9 +73,10 @@ class UserCell : UITableViewCell {
     // use this to avoid image blocks labels:
     override func layoutSubviews() {
         super.layoutSubviews()
-        
+
         textLabel?.frame = CGRect(x: 64, y: textLabel!.frame.origin.y - 2, width: textLabel!.frame.width, height: textLabel!.frame.height)
         detailTextLabel?.frame = CGRect(x: 64, y: detailTextLabel!.frame.origin.y + 2, width: detailTextLabel!.frame.width, height: detailTextLabel!.frame.height)
+        detailTextLabel?.numberOfLines = 1
     }
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
@@ -85,11 +89,13 @@ class UserCell : UITableViewCell {
         profileImageView.heightAnchor.constraint(equalToConstant: 46).isActive = true
         
         self.addSubview(timeLabel)
-        timeLabel.rightAnchor.constraint(equalTo: self.rightAnchor, constant: 10).isActive = true
-        timeLabel.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        timeLabel.centerYAnchor.constraint(equalTo: self.topAnchor, constant: 30).isActive = true
+        timeLabel.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -1).isActive = true
+        timeLabel.widthAnchor.constraint(equalToConstant: 120).isActive = true
+        timeLabel.centerYAnchor.constraint(equalTo: self.topAnchor, constant: 26).isActive = true
         timeLabel.heightAnchor.constraint(equalToConstant: 15).isActive = true
     }
+    
+    
     // and add this:
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder) has not been implented!! NewMessageViewController.swift: 90")

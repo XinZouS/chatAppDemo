@@ -62,7 +62,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         super.viewDidLoad()
         view.backgroundColor = .white
         
-        updateUserAndView()
+//        updateUserAndView()
         
         view.addSubview(profileImageView)
         profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
@@ -82,7 +82,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        //updateUserAndView()
+        updateUserAndView()
     }
     private func updateUserAndView(){
         if let getUser = msgViewController?.currUser {

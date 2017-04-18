@@ -21,13 +21,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 
+        FIRApp.configure()
+
         // add my main.storyboard by code: ================================
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.makeKeyAndVisible()
         //window?.rootViewController = UINavigationController(rootViewController: MessagesViewController())
         window?.rootViewController = TabBarController() // replace above line, use tabbar;
-        
-        FIRApp.configure()
         
         registerForPushNotifications(application: application)
         

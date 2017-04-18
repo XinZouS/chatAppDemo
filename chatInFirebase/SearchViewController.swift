@@ -98,6 +98,7 @@ class SearchViewController : UICollectionViewController, UICollectionViewDelegat
         FIRDatabase.database().reference().child("users").observe(.value, with: { (snapshot) in
             guard let userDictionary = snapshot.value as? [String:AnyObject] else { return }
             //print(userDictionary) // [id:{email,name,img..}; id:{email,name,img..}]
+            self.candidateFriends.removeAll()
             for obj in userDictionary {
                 //print(obj.value) // {name = xx, email = xx..}
                 if let content = obj.value as? [String : AnyObject] {
@@ -114,15 +115,15 @@ class SearchViewController : UICollectionViewController, UICollectionViewDelegat
     }
     func setCandidateListBy(user: User){
         guard let getName = user.name, let getEmail = user.email, user.id != currUser?.id,
-              let keyword = inputContainerView.inputTxFd.text, keyword != "" else {return}
+              let keyword = inputContainerView.inputTxFd.text?.lowercased(), keyword != "" else {return}
         if isSubstring(testStr: keyword, longstr: getEmail) || isSubstring(testStr: keyword, longstr: getName) {
             candidateFriends.append(user)
         }
     }
     private func isSubstring(testStr:String, longstr:String) -> Bool {
         var i = 0, j = 0
-        let test = Array(testStr.characters)
-        let long = Array(longstr.characters)
+        let test = Array(testStr.lowercased().characters)
+        let long = Array(longstr.lowercased().characters)
         while i < test.count, j < long.count {
             if test[i] == long[j] { i += 1 }
             j += 1
@@ -133,7 +134,6 @@ class SearchViewController : UICollectionViewController, UICollectionViewDelegat
     func sendFriendRequestTo(userId: String?){
         guard let myId = currUser?.id, let friendId = userId else { return }
         let ref = FIRDatabase.database().reference().child("friendRequests").child(friendId)
-        
         ref.observeSingleEvent(of: .value, with: { (snapshot) in
             var newRequests = [String:Bool]()
             if let getList = snapshot.value as? [String:Bool] {

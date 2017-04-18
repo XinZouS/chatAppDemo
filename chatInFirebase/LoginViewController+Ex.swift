@@ -49,7 +49,7 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
     
     //=== save user data into fierbase ======================================================
     
-    func loginOrRegister(){ // handleLogin(): loginSignup button tapped():
+    func loginOrRegister(){
         if emailTextField.text == "" || passwordTextField.text == "" {
             showAlertWith(title: "Missing Info", message: "You need to input both your email and password. Please try again.")
             return
@@ -69,6 +69,7 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
             performSelector(inBackground: #selector(registerUser), with: nil)
         }
     }
+    
     //
     func loginUser(){
         guard let email = emailTextField.text, let pw = passwordTextField.text else {
@@ -83,8 +84,10 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
             }
             // see user login successfully:
             if user?.email != nil {
-                self.messagesViewController?.fetchUserAndSetUpNavBarTitle() // update navBar.title
                 self.messagesViewController?.currUser.id = user?.uid
+                self.messagesViewController?.currUser.email = user?.email
+                self.messagesViewController?.saveUserIntoDisk()
+                self.messagesViewController?.fetchUserAndSetUpNavBarTitle() // update navBar.title
                 self.dismiss(animated: true, completion: nil)
             }
         })
@@ -108,6 +111,11 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
                 return
             }
             
+            self.messagesViewController?.currUser.id = user?.uid
+            self.messagesViewController?.currUser.email = user?.email
+            self.messagesViewController?.saveUserIntoDisk()
+            self.messagesViewController?.fetchUserAndSetUpNavBarTitle() // update navBar.title
+
             //--- when new user successfully ----------------
             // use fireBase storage to save image:
             let imageId = "\(email)Profile.jpg" // NSUUID().uuidString

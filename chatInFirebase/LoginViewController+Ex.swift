@@ -110,39 +110,31 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
                 print("------- did NOT access to current user: LoginViewController.swift:registerUser()")
                 return
             }
-            
-            self.messagesViewController?.currUser.id = user?.uid
-            self.messagesViewController?.currUser.email = user?.email
-            self.messagesViewController?.saveUserIntoDisk()
-            self.messagesViewController?.fetchUserAndSetUpNavBarTitle() // update navBar.title
-
             //--- when new user successfully ----------------
             // use fireBase storage to save image:
             let imageId = "\(email)Profile.jpg" // NSUUID().uuidString
-//            let storageRef = FIRStorage.storage().reference().child("\(name)_\(imageId).png") // add .child(name) or it will crash;
-//            let storageRef = FIRStorage.storage().reference().child("profile_images").child("\(name)_\(imageId).png") // add more .child();
             let storageRef = FIRStorage.storage().reference().child("profile_images").child(imageId) // add more .child();
             
-            //if let uploadData = UIImagePNGRepresentation(self.profileImageView.image!) {
+            //if let uploadData = UIImagePNGRepresentation(self.profileImageView.image!) {  // png is too big
             //if let uploadData = UIImageJPEGRepresentation(self.profileImageView.image!, 0.1) { // make img smaller!
             // a safer way to get image data upload: 
             if let profileImage = self.profileImageView.image, let uploadData = UIImageJPEGRepresentation(profileImage, 0.1) {
                 storageRef.put(uploadData, metadata: nil, completion: {(metadata, error) in
                     if error != nil {
-                        print("get error when putting user profile image: [LoginViewController+Ex.swift:109]", error)
+                        print("get error when putting user profile image: [LoginViewController+Ex.swift:109]", error!)
                         return
-                    }
-                    
+                    }                    
                     if let profileImgURL = metadata?.downloadURL()?.absoluteString {
                         let friends : [String] = [""]
                         // let userValue = ["name":name, "email":email, "profileImgURL":metadata.downloadUrl()]
                         let userValue = ["name":name, "email":email, "profileImgURL":profileImgURL, "friends":friends] as [String:Any]
                         self.registerUserIntoDatabaseWithUID(uid: uid, userValue: userValue)
                         //print(metadata)  // to get its info and key;
+                        
+                        self.loginUser() // for user image refresh after new user register
                     }
                 })
             }
-
         })
     }
     

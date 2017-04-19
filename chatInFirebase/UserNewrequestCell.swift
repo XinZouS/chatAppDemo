@@ -14,6 +14,7 @@ class UserNewrequestCell : UserCell {
         let b = UIButton()
         b.setTitle("✅Add", for: .normal)
         b.titleLabel?.font = UIFont.boldSystemFont(ofSize: 12)
+        b.setTitleColor(.black, for: .normal)
         b.backgroundColor = buttonColorGreen
         b.layer.cornerRadius = 6
         b.layer.masksToBounds = true
@@ -26,6 +27,7 @@ class UserNewrequestCell : UserCell {
         let b = UIButton()
         b.setTitle("⛔️Ignore", for: .normal)
         b.titleLabel?.font = UIFont.boldSystemFont(ofSize: 12)
+        b.setTitleColor(.black, for: .normal)
         b.backgroundColor = buttonColorRed
         b.layer.cornerRadius = 6
         b.layer.masksToBounds = true
@@ -33,6 +35,7 @@ class UserNewrequestCell : UserCell {
         b.translatesAutoresizingMaskIntoConstraints = false
         return b
     }()
+
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -40,11 +43,13 @@ class UserNewrequestCell : UserCell {
         //TODO: self.timeLabel
         
         addSubview(rejectButton)
-        rejectButton.addConstraints(left: nil, top: topAnchor, right: rightAnchor, bottom: bottomAnchor, leftConstent: 0, topConstent: 15, rightConstent: 5, bottomConstent: 15, width: 80, height: 0)
+        rejectButton.addConstraints(left: nil, top: topAnchor, right: rightAnchor, bottom: bottomAnchor, leftConstent: 0, topConstent: 15, rightConstent: 5, bottomConstent: 15, width: 68, height: 0)
         
         addSubview(acceptButton)
-        acceptButton.addConstraints(left: nil, top: rejectButton.topAnchor, right: rejectButton.leftAnchor, bottom: rejectButton.bottomAnchor, leftConstent: 0, topConstent: 0, rightConstent: 5, bottomConstent: 0, width: 80, height: 0)
+        acceptButton.addConstraints(left: nil, top: rejectButton.topAnchor, right: rejectButton.leftAnchor, bottom: rejectButton.bottomAnchor, leftConstent: 0, topConstent: 0, rightConstent: 5, bottomConstent: 0, width: 68, height: 0)
         
+        profileImageView.isUserInteractionEnabled = true
+        profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(zoomInProfileImage)))
         
     }
     
@@ -55,6 +60,9 @@ class UserNewrequestCell : UserCell {
         newMsgVC?.rejectRequest(of: self.user)
     }
     
+    func zoomInProfileImage(){
+        newMsgVC?.performZoomInFor(imgView: self.profileImageView)
+    }
     
     
     required init(coder aDecoder: NSCoder) {

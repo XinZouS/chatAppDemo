@@ -234,7 +234,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     // remove the keyboardObserver if we leave this page:
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
         NotificationCenter.default.removeObserver(self)
     }
     // changing between vertical and landscape:

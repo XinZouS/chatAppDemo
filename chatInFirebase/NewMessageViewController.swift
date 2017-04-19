@@ -50,6 +50,7 @@ class NewMessageViewController: UITableViewController {
         tableView.register(UserCell.self, forCellReuseIdentifier: cellId)
         tableView.register(UserNewrequestCell.self, forCellReuseIdentifier: requestCellId)
 
+//        setupNewRequestObserver()
         fetchMyFriendUsersFromFirebase()
     }
     override func viewDidAppear(_ animated: Bool) {
@@ -128,11 +129,12 @@ class NewMessageViewController: UITableViewController {
     // support editing the table view.
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            // TODO: consider if it has 2 section or 1 section;
+            if tableView.numberOfSections == 2, indexPath.section == 0 {
+                let newFriend = myRequests[indexPath.row]
+                rejectRequest(of: newFriend)
+                return
+            }
             removeContactOnFirebase(of: indexPath.row)
-            //tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
         }
     }
     
@@ -143,27 +145,32 @@ class NewMessageViewController: UITableViewController {
     // when tapping at one row:
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         //dismiss(animated: true, completion: nil)
+        if tableView.numberOfSections == 2, indexPath.section == 0 {
+            let selectedCell = tableView.cellForRow(at: indexPath) as! UserNewrequestCell
+            selectedCell.zoomInProfileImage()
+            return
+        }
+        
         tabBarController?.selectedIndex = 0
-        
         let user = self.myFriends[indexPath.row]
-        self.messageVC?.showChatControllerForUser(partnerUser: user) // jump to new page
-        
+        self.messageVC?.showChatControllerForUser(partnerUser: user)
     }
     
     func removeContactOnFirebase(of friendIndex: Int){
         guard let removeId = myFriends[friendIndex].id, let myId = currUser?.id else { return }
-        let usersRef = FIRDatabase.database().reference().child("users")
-        usersRef.child(myId).child("friends").child("\(friendIndex)").removeValue { (err, reference) in
-            if err != nil {
-                self.showAlertWith(title: "⛔️ Update Failed", message: "Unable to remove this contact for now, please try again later; Info: \(err!)")
-            }
+        var newList = [String]()
+        for oldFriend in myFriends {
+            if oldFriend.id == removeId { continue }
+            newList.append(oldFriend.id!)
         }
+        newList.sort()
+        let usersRef = FIRDatabase.database().reference().child("users")
+        usersRef.child(myId).child("friends").setValue(newList)
     }
     
+    
     func tableViewReloadData(){
-        DispatchQueue.main.async(execute: {
-            self.tableView.reloadData()
-        })
+        DispatchQueue.main.async(execute: { self.tableView.reloadData() })
     }
     
     func setupCurrUser(){
@@ -215,7 +222,7 @@ class NewMessageViewController: UITableViewController {
     }
     func fetchFriendsForCurrUserBy(friendId: String?, fromRef: FIRDatabaseReference?){
         guard let id = friendId, id != "", id != " ", let ref = fromRef else { return }
-        ref.child(id).observe( .value, with: { (snapshot) in    // using this, loading faster, yet too much
+        ref.child(id).observe( .value, with: { (snapshot) in    // using this, loading faster, yet too much when requests > 1
 //        ref.child(id).observeSingleEvent(of: .value, with: { (snapshot) in    // using this loading a little bit slow, and too much..
             //print("-- fetchFriendsForCurrUserBy(): snapshot: ", snapshot) // (id){User obj}
             if let dictionary = snapshot.value as? [String:AnyObject] { // User()
@@ -260,8 +267,8 @@ class NewMessageViewController: UITableViewController {
             return
         }
         let ref = FIRDatabase.database().reference()
-//        ref.child("friendRequests").child(myId).observe(.value, with: { (snapshot) in // use this, request will not disappear.
-        ref.child("friendRequests").child(myId).observeSingleEvent(of: .value, with: { (snapshot) in
+        ref.child("friendRequests").child(myId).observe(.value, with: { (snapshot) in // use this, request will not disappear.
+//        ref.child("friendRequests").child(myId).observeSingleEvent(of: .value, with: { (snapshot) in
             print("--- fetchMyFriendRequests(): snapshot: ", snapshot)
             if let requestDict = snapshot.value as? [String:Bool], requestDict.count > 0  {
                 self.myRequests.removeAll()
@@ -281,6 +288,15 @@ class NewMessageViewController: UITableViewController {
             self.tableView.reloadData() // request will not out of range, yet load too much..
         })
 //        self.tableViewReloadData()
+    }
+    
+    func setupNewRequestObserver(){
+        guard let myId = currUser?.id else { return }
+        print("- setupNewRequestObserver:")
+        let ref = FIRDatabase.database().reference().child("friendRequests").child(myId)
+        ref.observe(.childAdded, with: {(snapshot) in
+            print("-------- observe new request: ", snapshot)
+        })
     }
     
     
@@ -364,6 +380,50 @@ class NewMessageViewController: UITableViewController {
             }
             //self.tableViewReloadData() ///// async or sync no different.. and run or not run no different
         })
+    }
+    
+    
+    private var startFrame : CGRect?
+    private var blurEffectView: UIVisualEffectView!
+    private var zoomingImgView: UIImageView!
+    
+    func performZoomInFor(imgView: UIImageView) {
+        startFrame = imgView.superview?.convert(imgView.frame, to: nil)
+        zoomingImgView = UIImageView(frame: startFrame!)
+        zoomingImgView.image = imgView.image
+        zoomingImgView.isHidden = false
+        zoomingImgView.isUserInteractionEnabled = true
+        zoomingImgView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(performZoomOutImage)))
+        
+        if let keyWindow = UIApplication.shared.keyWindow {
+            blurEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .light) )
+            blurEffectView.isHidden = false
+            blurEffectView.frame = self.view.bounds
+            blurEffectView.effect = UIBlurEffect(style: .light)
+            blurEffectView.alpha = 0
+            
+            keyWindow.addSubview(blurEffectView)
+            keyWindow.addSubview(zoomingImgView)
+            
+            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: { 
+                let newW = keyWindow.frame.width
+                let newH = imgView.frame.height / imgView.frame.width * newW
+                self.zoomingImgView.frame = CGRect(x: 0, y: 0, width: newW, height: newH)
+                self.zoomingImgView.center = keyWindow.center
+                self.blurEffectView.alpha = 1
+            }, completion: nil)
+        }
+    }
+    func performZoomOutImage(){
+        zoomingImgView.layer.cornerRadius = 60
+        zoomingImgView.layer.masksToBounds = true
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: { 
+            self.zoomingImgView.frame = self.startFrame!
+            self.blurEffectView.alpha = 0
+        }) { (completed: Bool) in
+            self.blurEffectView.isHidden = true
+            self.zoomingImgView.isHidden = true
+        }
     }
     
     

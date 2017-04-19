@@ -12,6 +12,7 @@ import UserNotifications
 
 class MessagesViewController: UITableViewController {
     
+    var newMsgVC : NewMessageViewController?
 
     let cellId = "cellId"
     
@@ -396,6 +397,9 @@ class MessagesViewController: UITableViewController {
         self.removeUserFromDisk()
         self.removeMessageFromDisk()
         self.navigationItem.title = "New user"
+        self.newMsgVC?.myFriends.removeAll()
+        self.newMsgVC?.myRequests.removeAll()
+        
         let loginVC = LoginViewController()
         loginVC.messagesViewController = self // for setting bar.title;
         present(loginVC, animated: true, completion: nil) // this need to be dismiss when its done!

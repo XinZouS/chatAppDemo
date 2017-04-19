@@ -15,7 +15,11 @@ class NewMessageViewController: UITableViewController {
     
     var currUser : User?
     
-    var myFriends = [User]()
+    var myFriends = [User]() {
+        didSet {
+            tableViewReloadData()
+        }
+    }
     var myRequests = [User]() {
         didSet {
             if myRequests.count < 1 { // ["myRequests", "myFriends"]
@@ -38,7 +42,6 @@ class NewMessageViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
 //        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "🔍", style: .plain, target: self, action: #selector(searchFriends))
         let rb1 = UIBarButtonItem(title: "🔍", style: .plain, target: self, action: #selector(searchFriends))
         // let rb2 = UIBarButtonItem(title: "🔄", style: .plain, target: self, action: #selector(tableViewReloadData))
@@ -49,24 +52,20 @@ class NewMessageViewController: UITableViewController {
         // change tableViewCell at UserCell.class (at bottom of this file)
         tableView.register(UserCell.self, forCellReuseIdentifier: cellId)
         tableView.register(UserNewrequestCell.self, forCellReuseIdentifier: requestCellId)
-
+/*
 //        setupNewRequestObserver()
         fetchMyFriendUsersFromFirebase()
-    }
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+ */
         
-        print("viewDidAppear, myFriends.count = ", myFriends.count)
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        print("== viewWillAppear, myFriends.count : ", myFriends.count)
         setupCurrUser()
-        fetchMyFriendRequests()
-        self.tableView.reloadData()
-    }
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+        fetchMyFriendsOnFirebase()
+        fetchMyRequestOnFirebase()
         
-        print("-- viewWillDisappear(), remove myRequest.")
-        myRequests.removeAll()
-        saveMyFriendUsersIntoDisk()
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -134,10 +133,9 @@ class NewMessageViewController: UITableViewController {
                 rejectRequest(of: newFriend)
                 return
             }
-            removeContactOnFirebase(of: indexPath.row)
+            removeContactOnFirebaseAndLocally(of: indexPath.row)
         }
     }
-    
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 72
     }
@@ -156,8 +154,12 @@ class NewMessageViewController: UITableViewController {
         self.messageVC?.showChatControllerForUser(partnerUser: user)
     }
     
-    func removeContactOnFirebase(of friendIndex: Int){
+    func removeContactOnFirebaseAndLocally(of friendIndex: Int){
         guard let removeId = myFriends[friendIndex].id, let myId = currUser?.id else { return }
+        if removeId != myId {
+            showAlertWith(title: "😅Hate yourself?", message: "Learn to love yourself😇. You should keep your contact in friends list.")
+            return
+        }
         var newList = [String]()
         for oldFriend in myFriends {
             if oldFriend.id == removeId { continue }
@@ -166,21 +168,25 @@ class NewMessageViewController: UITableViewController {
         newList.sort()
         let usersRef = FIRDatabase.database().reference().child("users")
         usersRef.child(myId).child("friends").setValue(newList)
+        self.myFriends.remove(at: friendIndex)
     }
     
     
     func tableViewReloadData(){
-        DispatchQueue.main.async(execute: { self.tableView.reloadData() })
+        DispatchQueue.main.async(execute: {
+            print(" - tableViewReloadData() - ")
+            self.tableView.reloadData()
+        })
     }
     
     func setupCurrUser(){
         if let msgUser = messageVC?.currUser {
             self.currUser = msgUser
             navigationController?.setupNavBarWithUser(user: currUser!, in: self)
-            fetchMyFriendUsersFromFirebase()
         }
     }
     
+    /*
     func fetchMyFriendUsersFromFirebase(){
         guard let currId = currUser?.id else { return }
         let usersRef = FIRDatabase.database().reference().child("users")
@@ -220,26 +226,45 @@ class NewMessageViewController: UITableViewController {
 //        }, withCancel: nil)
         
     }
-    func fetchFriendsForCurrUserBy(friendId: String?, fromRef: FIRDatabaseReference?){
-        guard let id = friendId, id != "", id != " ", let ref = fromRef else { return }
-        ref.child(id).observe( .value, with: { (snapshot) in    // using this, loading faster, yet too much when requests > 1
-//        ref.child(id).observeSingleEvent(of: .value, with: { (snapshot) in    // using this loading a little bit slow, and too much..
-            //print("-- fetchFriendsForCurrUserBy(): snapshot: ", snapshot) // (id){User obj}
-            if let dictionary = snapshot.value as? [String:AnyObject] { // User()
-                let user = User()
-                user.id = snapshot.key
-                user.setValuesForKeys(dictionary)
-                print("-- myFriends.append: ", user.name)
-                self.myFriends.append(user)
-                self.tableViewReloadData() // without this, it loads right, but after back, unable to load friends list..
-//                self.tableView.reloadData() // same as above, without this, it loads right, but after back, unable to load friends list..
+ */
+//    func fetchMyRequestOnFirebase(){
+//        guard let myId = currUser?.id else { return }
+//        let reqRef = FIRDatabase.database().reference().child("friendRequests").child(myId)
+//        reqRef.observeSingleEvent(of: .value, with: {(snapshot) in
+//            if let reqDict = snapshot.value as? [String:Bool] {
+//                for req in reqDict {
+//                    self.fetchOneRequestingUserBy(id: req.key)
+//                }
+//            }
+//        })
+//    }
+    func fetchMyFriendsOnFirebase(){
+        guard let myId = currUser?.id else { return }
+        let frdRef = FIRDatabase.database().reference().child("users").child(myId).child("friends")
+        frdRef.observe( .value, with: {(snapshot) in
+            print("--- fetchMyFriendsOnFirebase()")
+            if let frdDict = snapshot.value as? [String] {
+                for friendId in frdDict {
+                    self.fetchOneFriendUserBy(id: friendId)
+                }
+                self.tableViewReloadData()
             }
-        }, withCancel: nil)
-        self.tableViewReloadData() // without this, it loads tooo much, but after back, it loads right.. 
+        })
     }
+    func fetchMyRequestOnFirebase(){
+        guard let myId = currUser?.id else { return }
+        let reqRef = FIRDatabase.database().reference().child("friendRequests").child(myId)
+        reqRef.observe(.childAdded, with: {(snapshot)in
+            print("get a new request: ", snapshot)
+            if let newReqId = snapshot.key as? String, newReqId != "", newReqId != " " {
+                self.fetchOneRequestingUserBy(id: newReqId)
+            }
+        })
+        
+    }
+
     
     let userDefaults = UserDefaults.standard
-    
     private func saveMyFriendUsersIntoDisk(){
         if myFriends.count == 0 { return }
         let encodedData : Data = NSKeyedArchiver.archivedData(withRootObject: myFriends)
@@ -258,9 +283,10 @@ class NewMessageViewController: UITableViewController {
         }
     }
     func removeMyFriendUsersFromDisk(){
+        print("---- removeMyFriendUsersFromDisk() -----")
         messageVC?.removeUserFromDisk()
     }
-    
+    /*
     func fetchMyFriendRequests(){
         guard let myId = currUser?.id else {
             print("did not get currUser id in NewMessageViewController.swift:fetchMyFriendRequests()", currUser?.id)
@@ -298,7 +324,7 @@ class NewMessageViewController: UITableViewController {
             print("-------- observe new request: ", snapshot)
         })
     }
-    
+    */
     
     // for new friend requests button action: 
     func acceptRequest(from newUser: User?){
@@ -321,7 +347,8 @@ class NewMessageViewController: UITableViewController {
             updateFriendsListInFirebaseFor(me: friendId, friend: myId) // add me to my friend's list
         }
         //saveMyFriendUsersIntoDisk()
-        fetchMyFriendRequests()
+/*        fetchMyFriendRequests()
+ */
     }
     func rejectRequest(of newUser: User?){
         guard let newUser = newUser else { return }
@@ -344,6 +371,7 @@ class NewMessageViewController: UITableViewController {
     private func updateFriendsListInFirebaseFor(me: String, friend: String){
         let ref = FIRDatabase.database().reference().child("users")
         print("--------- WILL updateFriendsListInFirebaseFor(friend).")
+        
         ref.child(me).child("friends").observeSingleEvent(of: .value, with: {(snapshot) in
             if var friendsList = snapshot.value as? [String] {
                 print("--------- Doing updateFriendsListInFirebaseFor(friend).")
@@ -355,6 +383,7 @@ class NewMessageViewController: UITableViewController {
             }
         })
         
+        
     }
     
     func searchFriends(){
@@ -363,8 +392,12 @@ class NewMessageViewController: UITableViewController {
         navigationController?.pushViewController(searchVC, animated: true)
     }
     
-    func fetchRequestingUserBy(id:String) {
-        FIRDatabase.database().reference().child("users").child(id).observe(.value, with: { (snapshot) in
+    
+    func fetchOneRequestingUserBy(id : String?) {
+        guard let id = id, id != "", id != " " else { return }
+/*        FIRDatabase.database().reference().child("users").child(id).observe(.value, with: { (snapshot) in
+ */
+        FIRDatabase.database().reference().child("users").child(id).observeSingleEvent(of: .value, with: { (snapshot) in
             let getId = snapshot.key as String
             var noDuplicate = true
             if self.myRequests.count > 0 {
@@ -377,12 +410,32 @@ class NewMessageViewController: UITableViewController {
                 let newUser = User(dictionary: dict)
                 newUser.id = snapshot.key as String
                 self.myRequests.append(newUser)
+                print("-- fetchOneRequestingUserBy(id), 111 myRequests.append(), count = ", self.myFriends.count)
             }
             //self.tableViewReloadData() ///// async or sync no different.. and run or not run no different
         })
     }
+    func fetchOneFriendUserBy(id : String?) {
+        guard let id = id, id != "", id != " " else { return }
+        FIRDatabase.database().reference().child("users").child(id).observeSingleEvent(of: .value, with: { (snapshot) in
+            let getId = snapshot.key as String
+            var noDuplicate = true
+            if self.myFriends.count > 0 {
+                for frdUser in self.myFriends {
+                    if getId == "\(frdUser.id!)" { noDuplicate = false }
+                }
+            }
+            if let dict = snapshot.value as? [String:AnyObject], noDuplicate {
+                let newUser = User(dictionary: dict)
+                newUser.id = snapshot.key as String
+                self.myFriends.append(newUser)
+                print("-- fetchFriendUserBy(id), 222 myFriends.append(), count = ", self.myFriends.count)
+            }
+        })
+    }
     
     
+    //=== For Profile image zooming ====================
     private var startFrame : CGRect?
     private var blurEffectView: UIVisualEffectView!
     private var zoomingImgView: UIImageView!

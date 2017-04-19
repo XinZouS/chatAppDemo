@@ -125,10 +125,10 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
                         return
                     }                    
                     if let profileImgURL = metadata?.downloadURL()?.absoluteString {
-                        let friends : [String] = [""]
+                        let friends : [String] = [uid]
                         // let userValue = ["name":name, "email":email, "profileImgURL":metadata.downloadUrl()]
                         let userValue = ["name":name, "email":email, "profileImgURL":profileImgURL, "friends":friends] as [String:Any]
-                        self.registerUserIntoDatabaseWithUID(uid: uid, userValue: userValue)
+                        self.registerUserIntoDatabaseWithUID(uid: uid, userValue: userValue)                        
                         //print(metadata)  // to get its info and key;
                         
                         self.loginUser() // for user image refresh after new user register

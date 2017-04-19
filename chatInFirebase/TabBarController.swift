@@ -20,6 +20,7 @@ class TabBarController: UITabBarController {
         
         let newMsgView = NewMessageViewController()
         newMsgView.messageVC = messagesView
+        messagesView.newMsgVC = newMsgView
         //newMsgView.currUser = messagesView.currUser // BUG: if run this line, will crash by nil;
         let newMsgNavController = UINavigationController(rootViewController: newMsgView)
         newMsgNavController.title = "Friends"

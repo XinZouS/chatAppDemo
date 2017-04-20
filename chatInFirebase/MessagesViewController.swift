@@ -185,7 +185,6 @@ class MessagesViewController: UITableViewController {
         self.messages.sort(by: { (m1, m2) -> Bool in
             return (m1.timeStamp?.intValue)! > (m2.timeStamp?.intValue)!
         })
-        // save messages into disk:
         saveMessageToDisk()
         DispatchQueue.main.async(execute: {
             self.tableView.reloadData()

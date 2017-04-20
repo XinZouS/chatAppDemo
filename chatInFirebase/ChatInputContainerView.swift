@@ -17,7 +17,7 @@ class ChatInputContainerView: UIView, UITextFieldDelegate {
         b.setTitle("Send", for: .normal)
         b.translatesAutoresizingMaskIntoConstraints = false
         b.layer.cornerRadius = 6
-        b.backgroundColor = UIColor(r: 90, g: 220, b: 90)
+        b.backgroundColor = buttonColorGreen // UIColor(r: 90, g: 220, b: 90)
         b.tintColor = UIColor.white
         return b
     }()
@@ -49,10 +49,6 @@ class ChatInputContainerView: UIView, UITextFieldDelegate {
         
         backgroundColor = UIColor.white
         translatesAutoresizingMaskIntoConstraints = false
-//        self.view.addSubview(cv) // BUG: do NOT add these in the view.self:
-//        cv.leftAnchor.constraint(equalTo: self.view.leftAnchor).isActive = true
-//        cv.rightAnchor.constraint(equalTo: self.view.rightAnchor).isActive = true
-//        cv.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
         addSubview(sendBtn)
         sendBtn.addTarget(chatLogController, action: #selector(chatLogController!.sendingInputMsg), for: .touchUpInside)

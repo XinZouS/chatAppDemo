@@ -35,6 +35,8 @@ class TabBarController: UITabBarController {
 
         
         self.viewControllers = [msgNavController, newMsgNavController, profileController]
+        
+        
     }
 }
 

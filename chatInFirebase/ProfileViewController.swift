@@ -40,7 +40,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         b.setTitle("Save changes", for: .normal)
         b.setTitleColor(.white, for: .normal)
         b.titleLabel?.font = UIFont.systemFont(ofSize: 16)
-        b.backgroundColor = buttonColorPurple
+        b.backgroundColor = buttonColorBlue // buttonColorPurple
         b.addTarget(self, action: #selector(saveChangesToFirebase), for: .touchUpInside)
         return b
     }()
@@ -62,6 +62,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         super.viewDidLoad()
         view.backgroundColor = .white
         
+        navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.white]
 //        updateUserAndView()
         
         view.addSubview(profileImageView)
@@ -71,7 +72,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         profileImageView.heightAnchor.constraint(equalToConstant: 260).isActive = true
         
         view.addSubview(nameTextField)
-        nameTextField.addConstraints(left: profileImageView.leftAnchor, top: nil, right: profileImageView.rightAnchor, bottom: profileImageView.topAnchor, leftConstent: 0, topConstent: 0, rightConstent: 0, bottomConstent: 20, width: 0, height: 36)
+        nameTextField.addConstraints(left: view.leftAnchor, top: topLayoutGuide.bottomAnchor, right: view.rightAnchor, bottom: nil, leftConstent: 0, topConstent: 0, rightConstent: 0, bottomConstent: 0, width: 0, height: 46)
         
         view.addSubview(logoutButton)
         logoutButton.addConstraints(left: view.leftAnchor, top: nil, right: view.rightAnchor, bottom: view.bottomAnchor, leftConstent: 0, topConstent: 0, rightConstent: 0, bottomConstent: 60, width: 0, height: 40)

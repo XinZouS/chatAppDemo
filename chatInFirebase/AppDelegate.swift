@@ -27,7 +27,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.makeKeyAndVisible()
         //window?.rootViewController = UINavigationController(rootViewController: MessagesViewController())
-        window?.rootViewController = TabBarController() // replace above line, use tabbar;
+        let tabBarController = TabBarController() // replace above line, use tabbar;
+        UITabBar.appearance().tintColor = buttonColorPurple
+        UINavigationBar.appearance().barTintColor = buttonColorPurple
+        window?.rootViewController = tabBarController
         
         registerForPushNotifications(application: application)
         

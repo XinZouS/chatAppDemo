@@ -20,7 +20,7 @@ class UserCell : UITableViewCell {
         didSet {
             setupNameAndProfileImg()
             
-            detailTextLabel?.text = message?.text
+            detailTextLabel?.text = message?.text ?? (message?.videoURL != nil ? "[Video]" : "[Image]" )
  
             if let seconds = message?.timeStamp?.doubleValue {
                 // NSNumber(value: Int(Date().timeIntervalSince1970))
@@ -65,6 +65,7 @@ class UserCell : UITableViewCell {
         var lab = UILabel()
         lab.translatesAutoresizingMaskIntoConstraints = false
         //lab.text = "HH:MM:SS"
+        lab.textAlignment = .right
         lab.textColor = UIColor(r: 200, g: 200, b: 200)
         lab.font = UIFont.systemFont(ofSize: 12)
         return lab
@@ -77,6 +78,7 @@ class UserCell : UITableViewCell {
         textLabel?.frame = CGRect(x: 64, y: textLabel!.frame.origin.y - 2, width: textLabel!.frame.width, height: textLabel!.frame.height)
         detailTextLabel?.frame = CGRect(x: 64, y: detailTextLabel!.frame.origin.y + 2, width: detailTextLabel!.frame.width, height: detailTextLabel!.frame.height)
         detailTextLabel?.numberOfLines = 1
+        detailTextLabel?.textColor = .gray
     }
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
@@ -89,8 +91,8 @@ class UserCell : UITableViewCell {
         profileImageView.heightAnchor.constraint(equalToConstant: 46).isActive = true
         
         self.addSubview(timeLabel)
-        timeLabel.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -1).isActive = true
-        timeLabel.widthAnchor.constraint(equalToConstant: 120).isActive = true
+        timeLabel.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -6).isActive = true
+        timeLabel.widthAnchor.constraint(equalToConstant: 126).isActive = true
         timeLabel.centerYAnchor.constraint(equalTo: self.topAnchor, constant: 26).isActive = true
         timeLabel.heightAnchor.constraint(equalToConstant: 15).isActive = true
     }

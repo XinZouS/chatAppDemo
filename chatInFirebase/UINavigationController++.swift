@@ -36,6 +36,7 @@ extension UINavigationController {
         
         let nameLabel = UILabel()
         nameLabel.text = user.name
+        nameLabel.textColor = .white
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         containerView.addSubview(nameLabel)
         nameLabel.leftAnchor.constraint(equalTo: profileImageView.rightAnchor, constant: 9).isActive = true
@@ -48,7 +49,6 @@ extension UINavigationController {
         
         vc.navigationItem.titleView = titleView
         
-        // titleView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showChatController)))
     }
     
     

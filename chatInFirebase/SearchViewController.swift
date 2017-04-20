@@ -18,11 +18,13 @@ class SearchViewController : UICollectionViewController, UICollectionViewDelegat
     lazy var inputContainerView : ChatInputContainerView = {
         let frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50)
         let c = ChatInputContainerView(frame: frame)
-        c.imgBtn.isHidden = true
+        c.imgBtn.setTitle("❎", for: .normal)
+        c.imgBtn.addTarget(self, action: #selector(clearTextField), for: .touchUpInside)
         c.sendBtn.setTitle("Search", for: .normal)
         c.sendBtn.backgroundColor = buttonColorPurple
         c.sendBtn.addTarget(self, action: #selector(searchFriendUsers), for: .touchUpInside)
-        c.inputTxFd.placeholder = "Search by email or name"
+        c.inputTxFd.placeholder = "Search by name or email"
+        c.inputTxFd.delegate = self // allow use Enter key to send msg, and add UITextFieldDelegate for class;
         return c
     }()
     
@@ -47,11 +49,13 @@ class SearchViewController : UICollectionViewController, UICollectionViewDelegat
             layout.scrollDirection = .vertical
             layout.minimumLineSpacing = 2
         }
-        collectionView?.contentInset = UIEdgeInsets(top: 50, left: 0, bottom: 90, right: 0) // margin ??????
+        collectionView?.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 90, right: 0) // margin ??????
         collectionView?.alwaysBounceVertical = true
         collectionView?.backgroundColor = UIColor(r: 240, g: 230, b: 252)
         collectionView?.register(SearchViewCell.self, forCellWithReuseIdentifier: cellId)
         collectionView?.keyboardDismissMode = .interactive
+        
+        navigationController?.navigationBar.tintColor = .white
         
         setupKeyboardObserver()
     }
@@ -92,6 +96,9 @@ class SearchViewController : UICollectionViewController, UICollectionViewDelegat
         return CGSize(width: self.view.frame.width, height: 52)
     }
     
+    func clearTextField(){
+        inputContainerView.inputTxFd.text = ""
+    }
     
     func searchFriendUsers(){
         guard let uid = currUser?.id else { return }
@@ -111,12 +118,15 @@ class SearchViewController : UICollectionViewController, UICollectionViewDelegat
                     }
                 }
             }
+            if self.candidateFriends.count == 0 {
+                self.showAlertWith(title: "❓Oops, nobody❓", message: "Can not find any user by the keyword, try to use a shorter word or change another one please.")
+            }
         })
     }
     func setCandidateListBy(user: User){
-        guard let getName = user.name, let getEmail = user.email, user.id != currUser?.id,
+        guard let getName = user.name, let getEmail = (user.email)?.components(separatedBy: "@"), user.id != currUser?.id,
               let keyword = inputContainerView.inputTxFd.text?.lowercased(), keyword != "" else {return}
-        if isSubstring(testStr: keyword, longstr: getEmail) || isSubstring(testStr: keyword, longstr: getName) {
+        if isSubstring(testStr: keyword, longstr: getEmail[0]) || isSubstring(testStr: keyword, longstr: getName) {
             candidateFriends.append(user)
         }
     }

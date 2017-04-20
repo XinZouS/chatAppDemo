@@ -60,7 +60,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                         //self.messages.append(message)
                     let newMessage = Message(dictionary: getDictionary)
                     if self.hasMsgInDiskTheSameAs(newMessage) == false {
-                        print("messages not contains newMsg, start fetch from firebase;=====")
                         self.messages.append( newMessage )
                     
                         DispatchQueue.main.async {
@@ -158,7 +157,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             //cell.bubbleView.backgroundColor = ChatMessageCell.blueColor // replaced by bubble image:
             // use image for background in bubbleView, UIEdgeInsetsMake(top, right, bottom, left;), withRenderingMode to allow color change;
             cell.bubbleImageView.image = #imageLiteral(resourceName: "chatbubbleR").resizableImage(withCapInsets: UIEdgeInsetsMake(33, 33, 33, 36)).withRenderingMode(.alwaysTemplate)
-            cell.bubbleImageView.tintColor = ChatMessageCell.blueColor
+            cell.bubbleImageView.tintColor = ChatMessageCell.purpleColor
             cell.textView.textColor = UIColor.white
             cell.bubbleRightAnchor?.isActive = true
             cell.bubbleLeftAnchor?.isActive = false
@@ -218,11 +217,12 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         collectionView?.register(ChatMessageCell.self, forCellWithReuseIdentifier: cellId)
         
         collectionView?.keyboardDismissMode = .interactive // allow user to drag down keyboard
-        
 //        Solution I : use our original items: ---------------
 //        setupInputComponents() // do not need it in II;
-        
         setupKeyboardObservers()
+        
+        navigationController?.navigationBar.tintColor = .white
+        navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.white]
         
     }
     func setupKeyboardObservers(){

@@ -42,20 +42,13 @@ class NewMessageViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "🔍", style: .plain, target: self, action: #selector(searchFriends))
         let rb1 = UIBarButtonItem(title: "🔍", style: .plain, target: self, action: #selector(searchFriends))
         // let rb2 = UIBarButtonItem(title: "🔄", style: .plain, target: self, action: #selector(tableViewReloadData))
         navigationItem.rightBarButtonItems = [rb1]
-        //navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelNewMessage))
-//        setupCurrUser()
         
         // change tableViewCell at UserCell.class (at bottom of this file)
         tableView.register(UserCell.self, forCellReuseIdentifier: cellId)
         tableView.register(UserNewrequestCell.self, forCellReuseIdentifier: requestCellId)
-/*
-//        setupNewRequestObserver()
-        fetchMyFriendUsersFromFirebase()
- */
         
     }
     override func viewWillAppear(_ animated: Bool) {
@@ -66,6 +59,12 @@ class NewMessageViewController: UITableViewController {
         fetchMyFriendsOnFirebase()
         fetchMyRequestOnFirebase()
         
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        saveMyFriendUsersIntoDisk()
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -156,7 +155,7 @@ class NewMessageViewController: UITableViewController {
     
     func removeContactOnFirebaseAndLocally(of friendIndex: Int){
         guard let removeId = myFriends[friendIndex].id, let myId = currUser?.id else { return }
-        if removeId != myId {
+        if removeId == myId {
             showAlertWith(title: "😅Hate yourself?", message: "Learn to love yourself😇. You should keep your contact in friends list.")
             return
         }
@@ -227,17 +226,6 @@ class NewMessageViewController: UITableViewController {
         
     }
  */
-//    func fetchMyRequestOnFirebase(){
-//        guard let myId = currUser?.id else { return }
-//        let reqRef = FIRDatabase.database().reference().child("friendRequests").child(myId)
-//        reqRef.observeSingleEvent(of: .value, with: {(snapshot) in
-//            if let reqDict = snapshot.value as? [String:Bool] {
-//                for req in reqDict {
-//                    self.fetchOneRequestingUserBy(id: req.key)
-//                }
-//            }
-//        })
-//    }
     func fetchMyFriendsOnFirebase(){
         guard let myId = currUser?.id else { return }
         let frdRef = FIRDatabase.database().reference().child("users").child(myId).child("friends")
@@ -286,45 +274,6 @@ class NewMessageViewController: UITableViewController {
         print("---- removeMyFriendUsersFromDisk() -----")
         messageVC?.removeUserFromDisk()
     }
-    /*
-    func fetchMyFriendRequests(){
-        guard let myId = currUser?.id else {
-            print("did not get currUser id in NewMessageViewController.swift:fetchMyFriendRequests()", currUser?.id)
-            return
-        }
-        let ref = FIRDatabase.database().reference()
-        ref.child("friendRequests").child(myId).observe(.value, with: { (snapshot) in // use this, request will not disappear.
-//        ref.child("friendRequests").child(myId).observeSingleEvent(of: .value, with: { (snapshot) in
-            print("--- fetchMyFriendRequests(): snapshot: ", snapshot)
-            if let requestDict = snapshot.value as? [String:Bool], requestDict.count > 0  {
-                self.myRequests.removeAll()
-                for req in requestDict {
-                    if let friendId = req.key as? String, friendId != "" {
-                        print("--- get request id: ", friendId)
-                        self.fetchRequestingUserBy(id: friendId)
-                        if self.sectionNames.count == 1 {
-                            self.sectionNames.insert(self.nameStrOfNewRequest, at: 0)
-                        }
-                        print("---- find num of user: ", self.myRequests.count)
-                    }
-                }
-            }else{ // does not get request;
-                self.sectionNames = [self.nameStrOfMyFriends]
-            }
-            self.tableView.reloadData() // request will not out of range, yet load too much..
-        })
-//        self.tableViewReloadData()
-    }
-    
-    func setupNewRequestObserver(){
-        guard let myId = currUser?.id else { return }
-        print("- setupNewRequestObserver:")
-        let ref = FIRDatabase.database().reference().child("friendRequests").child(myId)
-        ref.observe(.childAdded, with: {(snapshot) in
-            print("-------- observe new request: ", snapshot)
-        })
-    }
-    */
     
     // for new friend requests button action: 
     func acceptRequest(from newUser: User?){
@@ -346,9 +295,6 @@ class NewMessageViewController: UITableViewController {
             updateFriendsListInFirebaseFor(me: myId, friend: friendId) // add friend to my list
             updateFriendsListInFirebaseFor(me: friendId, friend: myId) // add me to my friend's list
         }
-        //saveMyFriendUsersIntoDisk()
-/*        fetchMyFriendRequests()
- */
     }
     func rejectRequest(of newUser: User?){
         guard let newUser = newUser else { return }
@@ -395,8 +341,6 @@ class NewMessageViewController: UITableViewController {
     
     func fetchOneRequestingUserBy(id : String?) {
         guard let id = id, id != "", id != " " else { return }
-/*        FIRDatabase.database().reference().child("users").child(id).observe(.value, with: { (snapshot) in
- */
         FIRDatabase.database().reference().child("users").child(id).observeSingleEvent(of: .value, with: { (snapshot) in
             let getId = snapshot.key as String
             var noDuplicate = true

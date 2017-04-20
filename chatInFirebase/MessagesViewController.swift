@@ -39,6 +39,8 @@ class MessagesViewController: UITableViewController {
 
         //navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Log out", style: .plain, target: self, action: #selector(handleLogout))
         //navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .compose, target: self, action: #selector(addNewMessage))
+        navigationController?.navigationBar.tintColor = .white
+        navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.white]
         
 //        use this after user sign in successfully:
 //        let ref = FIRDatabase.database().reference(fromURL: "https://chatdemo-4eb7c.firebaseio.com/")
@@ -78,8 +80,6 @@ class MessagesViewController: UITableViewController {
                 print("get error when deleting msg : MessagesViewController.swift: editingStyle(): ", err!)
                 return
             }
-            //print("deleting message success: key:\(ref.key), value: \(ref)") // ref.key == chatPartnerId;
-            //self.deleteMessageAt(indexPath: indexPath, forPartnerId: partnerId)
             self.deleteMessageLocallyFor(partnerId: partnerId)
         }
     }
@@ -142,8 +142,6 @@ class MessagesViewController: UITableViewController {
             }
             // print("fild deleted!!")
         }
-        
-
     }
     
     

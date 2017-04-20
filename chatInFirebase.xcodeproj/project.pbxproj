@@ -17,6 +17,8 @@
 		663C18B41E1C739A0014A359 /* ChatLogController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663C18B31E1C739A0014A359 /* ChatLogController.swift */; };
 		664630D21E1DD73C00E18F41 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 664630D11E1DD73C00E18F41 /* Message.swift */; };
 		6649CE1A1E1EBD5A006633CD /* UserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6649CE191E1EBD5A006633CD /* UserCell.swift */; };
+		66561D991EA90E7C00200ECD /* String++.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66561D981EA90E7C00200ECD /* String++.swift */; };
+		66561D9B1EA9356600200ECD /* ChatLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66561D9A1EA9356600200ECD /* ChatLogView.swift */; };
 		668DC3BE1E2039CA005EC99B /* ChatMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 668DC3BD1E2039CA005EC99B /* ChatMessageCell.swift */; };
 		6690F5391E2E7F4800F1B6E0 /* ChatInputContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6690F5381E2E7F4800F1B6E0 /* ChatInputContainerView.swift */; };
 		6690F53E1E31154900F1B6E0 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6690F53D1E31154900F1B6E0 /* TabBarController.swift */; };
@@ -43,6 +45,8 @@
 		663C18B31E1C739A0014A359 /* ChatLogController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatLogController.swift; sourceTree = "<group>"; };
 		664630D11E1DD73C00E18F41 /* Message.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		6649CE191E1EBD5A006633CD /* UserCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserCell.swift; sourceTree = "<group>"; };
+		66561D981EA90E7C00200ECD /* String++.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String++.swift"; sourceTree = "<group>"; };
+		66561D9A1EA9356600200ECD /* ChatLogView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatLogView.swift; sourceTree = "<group>"; };
 		668DC3BD1E2039CA005EC99B /* ChatMessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatMessageCell.swift; sourceTree = "<group>"; };
 		6690F5381E2E7F4800F1B6E0 /* ChatInputContainerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatInputContainerView.swift; sourceTree = "<group>"; };
 		6690F53A1E2EA09500F1B6E0 /* chatInFirebase.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = chatInFirebase.entitlements; sourceTree = "<group>"; };
@@ -102,6 +106,7 @@
 				6604EE571EA128FF00E28DCE /* UserNewrequestCell.swift */,
 				6690F5381E2E7F4800F1B6E0 /* ChatInputContainerView.swift */,
 				668DC3BD1E2039CA005EC99B /* ChatMessageCell.swift */,
+				66561D9A1EA9356600200ECD /* ChatLogView.swift */,
 				6690F5411E31496D00F1B6E0 /* SearchViewCell.swift */,
 			);
 			name = View;
@@ -172,6 +177,7 @@
 				66F5C2F51E97D50300AA568C /* UIView++.swift */,
 				66E5F8081E97465C0070ADEB /* Date++.swift */,
 				6608BCF71EA4F2E400DBB87F /* UINavigationController++.swift */,
+				66561D981EA90E7C00200ECD /* String++.swift */,
 			);
 			name = Helpers;
 			sourceTree = "<group>";
@@ -311,6 +317,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				66561D991EA90E7C00200ECD /* String++.swift in Sources */,
 				663C18B41E1C739A0014A359 /* ChatLogController.swift in Sources */,
 				6690F53E1E31154900F1B6E0 /* TabBarController.swift in Sources */,
 				66F5C2F61E97D50300AA568C /* UIView++.swift in Sources */,
@@ -323,6 +330,7 @@
 				6608BCF81EA4F2E400DBB87F /* UINavigationController++.swift in Sources */,
 				669985D11E15A1CE00DCA278 /* AppDelegate.swift in Sources */,
 				6604EE581EA128FF00E28DCE /* UserNewrequestCell.swift in Sources */,
+				66561D9B1EA9356600200ECD /* ChatLogView.swift in Sources */,
 				663C18AE1E195AA60014A359 /* User.swift in Sources */,
 				6690F5401E313E7200F1B6E0 /* SearchViewController.swift in Sources */,
 				663C18AC1E1816680014A359 /* NewMessageViewController.swift in Sources */,

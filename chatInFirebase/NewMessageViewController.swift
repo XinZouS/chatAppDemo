@@ -46,6 +46,9 @@ class NewMessageViewController: UITableViewController {
         // let rb2 = UIBarButtonItem(title: "🔄", style: .plain, target: self, action: #selector(tableViewReloadData))
         navigationItem.rightBarButtonItems = [rb1]
         
+        navigationController?.navigationBar.tintColor = .white
+        navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.white]
+
         // change tableViewCell at UserCell.class (at bottom of this file)
         tableView.register(UserCell.self, forCellReuseIdentifier: cellId)
         tableView.register(UserNewrequestCell.self, forCellReuseIdentifier: requestCellId)

@@ -62,6 +62,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         super.viewDidLoad()
         view.backgroundColor = .white
         
+        navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.white]
 //        updateUserAndView()
         

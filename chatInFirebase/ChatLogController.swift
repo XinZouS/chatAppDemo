@@ -20,17 +20,58 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
 
     let cellId = "cellId"
     
-    var messages = [Message]()
+    var messages = [Message]() {
+        didSet{
+            if let t = messages.last?.text {
+                animateCurveFlowFor(inputStr: t, num: 10)
+            }
+        }
+    }
     
     var currUser : User?
     
     var partnerUser : User? { // as the 'user' in video
         didSet {
             navigationItem.title = partnerUser?.name
-            
             observeMessages()
         }
     }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        navigationController?.navigationBar.tintColor = .white
+        navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.white]
+        
+        collectionView?.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 76, right: 0) // margin on top;
+        // collectionView?.scrollIndicatorInsets = UIEdgeInsets(top: 1, left: 0, bottom: 60, right: 0)
+        collectionView?.alwaysBounceVertical = true
+        collectionView?.backgroundColor = UIColor.white
+        collectionView?.register(ChatMessageCell.self, forCellWithReuseIdentifier: cellId)
+        
+        collectionView?.keyboardDismissMode = .interactive // allow user to drag down keyboard
+//        Solution I : use our original items: ---------------
+//        setupInputComponents() // do not need it in II;
+        setupKeyboardObservers()
+        
+    }
+    func setupKeyboardObservers(){
+        NotificationCenter.default.addObserver(self, selector: #selector(moveCollectionViewWhenKeyboardDidShow), name: NSNotification.Name.UIKeyboardDidShow, object: nil)
+    }
+    func moveCollectionViewWhenKeyboardDidShow(){
+        self.scrollerViewMoveToBottom()
+    }
+    // remove the keyboardObserver if we leave this page:
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        NotificationCenter.default.removeObserver(self)
+    }
+    // changing between vertical and landscape:
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        collectionView?.collectionViewLayout.invalidateLayout()
+    }
+    
+
     func observeMessages(){
         guard let myid = FIRAuth.auth()?.currentUser?.uid, let toId = partnerUser?.id, let ptrName = partnerUser?.name else {return}
 
@@ -38,43 +79,35 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         
         let ref = FIRDatabase.database().reference().child("user-messages").child(myid).child(toId)
         ref.observe(.childAdded, with: { (snapshot) in
-            
-            //print(snapshot) // == MsgId, already did it above...
-//            let partnerId = snapshot.key
-//            let refParner = FIRDatabase.database().reference().child("user-messages").child(myid).child(partnerId)
-//            refParner.observe(.childAdded, with: { (snapshot) in
-            
-                //print(snapshot)
-                let msgId = snapshot.key
-                let msgRef = FIRDatabase.database().reference().child("messages").child(msgId)
-                msgRef.observeSingleEvent(of: .value, with: { (snapshot) in
-                    
-                    // print(snapshot)
-                    guard let getDictionary = snapshot.value as? [String: AnyObject] else {return}
-                    // potential crashing if the keys don't match:
-                    // let message = Message() // we change as Msg(dict), so not need following line:
-                    // message.setValuesForKeys(getDictionary)
-                    // print(message)
-                    
-                    //if message.chatPartnerId() == self.partnerUser?.id {
-                        //self.messages.append(message)
-                    let newMessage = Message(dictionary: getDictionary)
-                    if self.hasMsgInDiskTheSameAs(newMessage) == false {
-                        self.messages.append( newMessage )
-                    
-                        DispatchQueue.main.async {
-                            self.collectionView?.reloadData()
-                            self.scrollerViewMoveToBottom()
-                            
-                            self.saveMessagesToDiskFor(partnerName: ptrName)
-                        }
-                    }
-                    //}
-                    
-                }, withCancel: nil)
+            //print(snapshot)
+            let msgId = snapshot.key
+            let msgRef = FIRDatabase.database().reference().child("messages").child(msgId)
+            msgRef.observeSingleEvent(of: .value, with: { (snapshot) in
                 
-//            }, withCancel: nil)
-            
+                // print(snapshot)
+                guard let getDictionary = snapshot.value as? [String: AnyObject] else {return}
+                // potential crashing if the keys don't match:
+                // let message = Message() // we change as Msg(dict), so not need following line:
+                // message.setValuesForKeys(getDictionary)
+                // print(message)
+                
+                //if message.chatPartnerId() == self.partnerUser?.id {
+                    //self.messages.append(message)
+                let newMessage = Message(dictionary: getDictionary)
+                if self.hasMsgInDiskTheSameAs(newMessage) == false {
+                    self.messages.append( newMessage )
+                
+                    DispatchQueue.main.async {
+                        self.collectionView?.reloadData()
+                        self.scrollerViewMoveToBottom()
+                        
+                        self.saveMessagesToDiskFor(partnerName: ptrName)
+                    }
+                }
+                //}
+                
+            }, withCancel: nil)
+                
         }, withCancel: nil)
     }
     
@@ -122,7 +155,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         cell.message = msg // for ChatMessageCell to get VideoURL
         cell.textView.text = msg.text
 
-        setupCell(cell: cell, msg: msg)
+        setupCell(cell: cell, msg: msg) // in View: ChatLogView.swift
         
         if let msgtx = msg.text {
             // mdf width for cell here:
@@ -138,48 +171,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         cell.playButton.isHidden = (msg.videoURL == nil)
         
         return cell
-    }
-    private func setupCell(cell: ChatMessageCell, msg: Message){
-        if let imgUrl = msg.imgURL {
-            cell.messageImgView.loadImageUsingCacheWith(urlString: imgUrl)
-            cell.textView.isHidden = true
-            cell.messageImgView.isHidden = false
-        }else{
-            cell.textView.isHidden = false
-            cell.messageImgView.isHidden = true
-        }
-        
-        if msg.fromId == FIRAuth.auth()?.currentUser?.uid {
-            //outgoing blue:
-            if let myImgURL = self.currUser?.profileImgURL {
-                cell.profileImgView.loadImageUsingCacheWith(urlString: myImgURL)
-            }
-            //cell.bubbleView.backgroundColor = ChatMessageCell.blueColor // replaced by bubble image:
-            // use image for background in bubbleView, UIEdgeInsetsMake(top, right, bottom, left;), withRenderingMode to allow color change;
-            cell.bubbleImageView.image = #imageLiteral(resourceName: "chatbubbleR").resizableImage(withCapInsets: UIEdgeInsetsMake(33, 33, 33, 36)).withRenderingMode(.alwaysTemplate)
-            cell.bubbleImageView.tintColor = ChatMessageCell.purpleColor
-            cell.textView.textColor = UIColor.white
-            cell.bubbleRightAnchor?.isActive = true
-            cell.bubbleLeftAnchor?.isActive = false
-            //cell.profileImgView.isHidden = true
-            cell.profileImgRightAnchor?.isActive = true
-            cell.profileImgLeftAnchor?.isActive = false
-        }else{
-            //incoming gray:
-            if let profileImgURL = self.partnerUser?.profileImgURL {
-                cell.profileImgView.loadImageUsingCacheWith(urlString: profileImgURL)
-            }
-            //cell.bubbleView.backgroundColor = ChatMessageCell.grayColor // replaced by bubble image:
-            // use image for background in bubbleView, UIEdgeInsetsMake(top, right, bottom, left;), withRenderingMode to allow color change;
-            cell.bubbleImageView.image = #imageLiteral(resourceName: "chatbubbleL").resizableImage(withCapInsets: UIEdgeInsetsMake(33, 33, 33, 36)).withRenderingMode(.alwaysTemplate)
-            cell.bubbleImageView.tintColor = ChatMessageCell.grayColor
-            cell.textView.textColor = UIColor.black
-            cell.bubbleRightAnchor?.isActive = false
-            cell.bubbleLeftAnchor?.isActive = true
-            //cell.profileImgView.isHidden = false
-            cell.profileImgLeftAnchor?.isActive = true
-            cell.profileImgRightAnchor?.isActive = false
-        }
     }
     
     // cell size:
@@ -204,41 +195,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         let sz = CGSize(width: 200, height: 1000)
         let opts = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
         return NSString(string: text).boundingRect(with: sz, options: opts, attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 15)], context:nil)
-    }
-    
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        collectionView?.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 76, right: 0) // margin on top;
-        // collectionView?.scrollIndicatorInsets = UIEdgeInsets(top: 1, left: 0, bottom: 60, right: 0)
-        collectionView?.alwaysBounceVertical = true
-        collectionView?.backgroundColor = UIColor.white
-        collectionView?.register(ChatMessageCell.self, forCellWithReuseIdentifier: cellId)
-        
-        collectionView?.keyboardDismissMode = .interactive // allow user to drag down keyboard
-//        Solution I : use our original items: ---------------
-//        setupInputComponents() // do not need it in II;
-        setupKeyboardObservers()
-        
-        navigationController?.navigationBar.tintColor = .white
-        navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.white]
-        
-    }
-    func setupKeyboardObservers(){
-        NotificationCenter.default.addObserver(self, selector: #selector(moveCollectionViewWhenKeyboardDidShow), name: NSNotification.Name.UIKeyboardDidShow, object: nil)
-    }
-    func moveCollectionViewWhenKeyboardDidShow(){
-        self.scrollerViewMoveToBottom()
-    }
-    // remove the keyboardObserver if we leave this page:
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        NotificationCenter.default.removeObserver(self)
-    }
-    // changing between vertical and landscape:
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        collectionView?.collectionViewLayout.invalidateLayout()
     }
     
 /*  //Moving input area with keyboard and make it stick on top of keyboard;
@@ -478,7 +434,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         let toId = partnerUser!.id
         let fromId = FIRAuth.auth()?.currentUser?.uid
         let timestamp = NSNumber(value: Int(Date().timeIntervalSince1970))
-        let isDeletedByPartner = false
+        let isDeletedByPartner = (fromId == toId) // if sending to self, then should allow to delete;
         
         var value: [String:Any] = ["toId":toId, "fromId": fromId, "timeStamp": timestamp, "isDeletedByPartner": isDeletedByPartner]
         // then append coming in properties to this value: 

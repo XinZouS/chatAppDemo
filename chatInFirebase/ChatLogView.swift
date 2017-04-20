@@ -1,0 +1,141 @@
+//
+//  ChatLogView.swift
+//  chatInFirebase
+//
+//  Created by Xin Zou on 4/20/17.
+//  Copyright © 2017 Xin Zou. All rights reserved.
+//
+
+import UIKit
+import Firebase
+
+
+extension ChatLogController {
+    
+    func setupCell(cell: ChatMessageCell, msg: Message){
+        if let imgUrl = msg.imgURL {
+            cell.messageImgView.loadImageUsingCacheWith(urlString: imgUrl)
+            cell.textView.isHidden = true
+            cell.messageImgView.isHidden = false
+        }else{
+            cell.textView.isHidden = false
+            cell.messageImgView.isHidden = true
+        }
+        
+        if msg.fromId == FIRAuth.auth()?.currentUser?.uid {
+            //outgoing blue:
+            if let myImgURL = self.currUser?.profileImgURL {
+                cell.profileImgView.loadImageUsingCacheWith(urlString: myImgURL)
+            }
+            //cell.bubbleView.backgroundColor = ChatMessageCell.blueColor // replaced by bubble image:
+            // use image for background in bubbleView, UIEdgeInsetsMake(top, right, bottom, left;), withRenderingMode to allow color change;
+            cell.bubbleImageView.image = #imageLiteral(resourceName: "chatbubbleR").resizableImage(withCapInsets: UIEdgeInsetsMake(33, 33, 33, 36)).withRenderingMode(.alwaysTemplate)
+            cell.bubbleImageView.tintColor = ChatMessageCell.purpleColor
+            cell.textView.textColor = UIColor.white
+            cell.bubbleRightAnchor?.isActive = true
+            cell.bubbleLeftAnchor?.isActive = false
+            //cell.profileImgView.isHidden = true
+            cell.profileImgRightAnchor?.isActive = true
+            cell.profileImgLeftAnchor?.isActive = false
+        }else{
+            //incoming gray:
+            if let profileImgURL = self.partnerUser?.profileImgURL {
+                cell.profileImgView.loadImageUsingCacheWith(urlString: profileImgURL)
+            }
+            //cell.bubbleView.backgroundColor = ChatMessageCell.grayColor // replaced by bubble image:
+            // use image for background in bubbleView, UIEdgeInsetsMake(top, right, bottom, left;), withRenderingMode to allow color change;
+            cell.bubbleImageView.image = #imageLiteral(resourceName: "chatbubbleL").resizableImage(withCapInsets: UIEdgeInsetsMake(33, 33, 33, 36)).withRenderingMode(.alwaysTemplate)
+            cell.bubbleImageView.tintColor = ChatMessageCell.grayColor
+            cell.textView.textColor = UIColor.black
+            cell.bubbleRightAnchor?.isActive = false
+            cell.bubbleLeftAnchor?.isActive = true
+            //cell.profileImgView.isHidden = false
+            cell.profileImgLeftAnchor?.isActive = true
+            cell.profileImgRightAnchor?.isActive = false
+        }
+    }
+
+    // for animate effect of emoji characters: 
+    func animateCurveFlowFor(inputStr: String, num: Int){
+        if num < 1 { return }
+        
+        if inputStr.containsEmoji {
+            let str = inputStr.emojiString
+            animateCurveFlowBy(emojiStr: str, num: 10)
+        }else{ // see if it has some keywords:
+            let words = (inputStr.lowercased()).components(separatedBy: " ")
+            let wSet = Set<String>(words)
+            if wSet.contains("birthday") {
+                animateCurveFlowBy(emojiStr: "🎂", num: 16)
+            }else if wSet.contains("happy") || wSet.contains("hi") {
+                animateCurveFlowBy(emojiStr: "😄", num: 16)
+            }
+            
+        }
+    }
+    
+    func animateCurveFlowBy(emojiStr: String, num: Int){
+        (0...num).forEach { (_) in
+            for emoji in emojiStr.unicodeScalars {
+                generateAnimationOf(emoji: String(emoji))
+            }
+        }
+    }
+    
+    fileprivate func generateAnimationOf(emoji: String){
+        let curvedView = CurvedView(frame: self.view.frame)
+        
+        let animation = CAKeyframeAnimation(keyPath: "position")
+        animation.path = curvedView.customPath().cgPath // convert UIBezierPath to CGPath/CGGraph!
+        animation.duration = 2 + drand48() * 4
+        animation.fillMode = kCAFillModeForwards // not go back to original point after animation;
+        animation.isRemovedOnCompletion = false  // will remove node after completion
+        animation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+        
+        let dimension = 60
+        let node = UILabel(frame: CGRect(x: -30, y: 0, width: dimension, height: dimension))
+        node.text = emoji // "🤣"
+        node.font = UIFont.systemFont(ofSize: 15 + CGFloat(drand48() * 30))
+        node.layer.add(animation, forKey: nil)
+        view.addSubview(node)
+    }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+}
+
+
+
+class CurvedView : UIView {
+    
+    override func draw(_ rect: CGRect) {
+        
+        let path = customPath()
+        //path.lineWidth = 3
+        path.stroke()
+    }
+    
+    func customPath() -> UIBezierPath {
+        let path = UIBezierPath()
+        
+        // starting point
+        let yshift = CGFloat(100 + drand48() * 100)
+        path.move(to: CGPoint(x:0, y: yshift))
+        let xlen = self.frame.width + 60
+        let endPoint = CGPoint(x: xlen, y: yshift)
+        //path.addLine(to: endPoint) // also, we need curve, not only line:
+        let dx = drand48() * 100
+        let dy = drand48() * 300
+        let cp1 = CGPoint(x: 50 + Double(xlen / 3) - dx, y: 100 - dy)
+        let cp2 = CGPoint(x: Double(xlen / 1.5) + dx, y: 400 + dy)
+        path.addCurve(to: endPoint, controlPoint1: cp1, controlPoint2: cp2)
+        
+        path.stroke()
+        
+        return path
+    }
+}
+
+

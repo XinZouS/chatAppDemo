@@ -8,6 +8,7 @@
 
 import UIKit
 import Firebase
+import FBSDKLoginKit
 
 extension LoginViewController : UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -72,13 +73,13 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
     
     //
     func loginUser(){
-        guard let email = emailTextField.text, let pw = passwordTextField.text else {
+        guard let email = emailTextField.text, email != "", let pw = passwordTextField.text, pw != "" else {
             showAlertWith(title: "Missing Info", message: "You need to input both your email and password. Please try again.")
             return
         }
         FIRAuth.auth()?.signIn(withEmail: email, password: pw, completion: { (user:FIRUser?, err:Error?) in
             if err != nil {
-                self.showAlertWith(title: "Login Failed", message: "Got an error when signing in: \(err!)")
+                self.showAlertWith(title: "‼️Login Failed", message: "Got an error when signing in: \(err!)")
                 print("get error when sign in: LoginViewController+Ex:loginUser(): \(err!)")
                 return
             }
@@ -112,30 +113,36 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
             }
             //--- when new user successfully ----------------
             // use fireBase storage to save image:
-            let imageId = "\(email)Profile.jpg" // NSUUID().uuidString
-            let storageRef = FIRStorage.storage().reference().child("profile_images").child(imageId) // add more .child();
-            
-            //if let uploadData = UIImagePNGRepresentation(self.profileImageView.image!) {  // png is too big
-            //if let uploadData = UIImageJPEGRepresentation(self.profileImageView.image!, 0.1) { // make img smaller!
-            // a safer way to get image data upload: 
-            if let profileImage = self.profileImageView.image, let uploadData = UIImageJPEGRepresentation(profileImage, 0.1) {
-                storageRef.put(uploadData, metadata: nil, completion: {(metadata, error) in
-                    if error != nil {
-                        print("get error when putting user profile image: [LoginViewController+Ex.swift:109]", error!)
-                        return
-                    }                    
-                    if let profileImgURL = metadata?.downloadURL()?.absoluteString {
-                        let friends : [String] = [uid]
-                        // let userValue = ["name":name, "email":email, "profileImgURL":metadata.downloadUrl()]
-                        let userValue = ["name":name, "email":email, "profileImgURL":profileImgURL, "friends":friends] as [String:Any]
-                        self.registerUserIntoDatabaseWithUID(uid: uid, userValue: userValue)                        
-                        //print(metadata)  // to get its info and key;
-                        
+            self.uploadProfileImageForAccount(uid: uid, name: name, email: email, needLogin: true)
+        })
+    }
+    fileprivate func uploadProfileImageForAccount(uid:String, name:String, email:String, needLogin:Bool){
+        let imageId = "\(email)Profile.jpg" // NSUUID().uuidString
+        let storageRef = FIRStorage.storage().reference().child("profile_images").child(imageId) // add more .child();
+        
+        //if let uploadData = UIImagePNGRepresentation(self.profileImageView.image!) {  // png is too big
+        //if let uploadData = UIImageJPEGRepresentation(self.profileImageView.image!, 0.1) { // make img smaller!
+        // a safer way to get image data upload:
+        if let profileImage = self.profileImageView.image, let uploadData = UIImageJPEGRepresentation(profileImage, 0.1) {
+            storageRef.put(uploadData, metadata: nil, completion: {(metadata, error) in
+                if error != nil {
+                    print("get error when putting user profile image: [LoginViewController+Ex.swift:109]", error!)
+                    return
+                }
+                if let profileImgURL = metadata?.downloadURL()?.absoluteString {
+                    let friends : [String] = [uid]
+                    // let userValue = ["name":name, "email":email, "profileImgURL":metadata.downloadUrl()]
+                    let userValue = ["name":name, "email":email, "profileImgURL":profileImgURL, "friends":friends] as [String:Any]
+                    self.registerUserIntoDatabaseWithUID(uid: uid, userValue: userValue)
+                    //print(metadata)  // to get its info and key;
+                    
+                    if needLogin {
                         self.loginUser() // for user image refresh after new user register
                     }
-                })
-            }
-        })
+                }
+            })
+        }
+        
     }
     
     private func registerUserIntoDatabaseWithUID(uid:String, userValue: [String:Any] ) {
@@ -161,6 +168,56 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
         })
 
     }
+    
+    //=== facebook login ====================================
+    func loginButton(_ loginButton: FBSDKLoginButton!, didCompleteWith result: FBSDKLoginManagerLoginResult!, error: Error!) {
+        if error != nil {
+            showAlertWith(title: "‼️Got an Error", message: "Facebook login failed, please try again later. Error: \(error)")
+            return
+        }
+        loginFirebaseByFacebookEmail()
+    }
+    func loginButtonDidLogOut(_ loginButton: FBSDKLoginButton!) {
+        showAlertWith(title: "✅Logout Success", message: "You already logout your facebook account.")
+    }
+    func loginFirebaseByFacebookEmail(){
+        let accessToken = FBSDKAccessToken.current()
+        guard let tokenString = accessToken?.tokenString else { return }
+        let credentials = FIRFacebookAuthProvider.credential(withAccessToken: tokenString)
+        FIRAuth.auth()?.signIn(with: credentials, completion: {(user, err) in
+            if err != nil {
+                self.showAlertWith(title: "‼️Got an Error", message: "Facebook login failed, please try again later. Error: \(err!)")
+                return
+            }
+            if let id = user?.uid, let email = user?.email, let name = user?.displayName {
+                print("--- Async: 2. loginFirbaseByFB email()")
+                self.messagesViewController?.currUser.id = id
+                self.messagesViewController?.currUser.email = email
+                self.messagesViewController?.currUser.name = name
+                self.messagesViewController?.saveUserIntoDisk()
+                self.messagesViewController?.fetchUserAndSetUpNavBarTitle() // update navBar.title
+
+                self.uploadProfileImageForAccount(uid: id, name: name, email: email, needLogin: false)
+            }
+        })
+        FBSDKGraphRequest(graphPath: "/me", parameters: ["fields": "id, name, email"]).start(completionHandler: {(requestConnection, result, err) in
+            if err != nil {
+                self.showAlertWith(title: "‼️Got an Error", message: "Facebook login failed, please try again later. Error: \(err!)")
+                return
+            }
+            if let dict = result as? [String:AnyObject], let myFbId = dict["id"] as? String {
+                //let url = NSURL(string: "https://graph.facebook.com/445552045792897/picture?type=normal")
+                //an 200x200 image: https://graph.facebook.com/445552045792897/picture?height=200&width=200
+                let myImgUrlStr = "https://graph.facebook.com/\(myFbId)/picture?height=200&width=200"
+                self.profileImageView.loadImageUsingCacheWith(urlString: myImgUrlStr)
+                self.messagesViewController?.newMsgVC?.setupCurrUser()
+                self.messagesViewController?.profileVC?.setupProfileImage()
+                print("--- Async: 1. this will run first: after load image for profile")
+//                self.dismiss(animated: true, completion: nil)
+            }
+        })
+    }
+
     
     private func showAlertWith(title:String, message:String){
         let alertCtrl = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)

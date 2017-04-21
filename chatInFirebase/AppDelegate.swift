@@ -13,6 +13,8 @@ import Firebase
 import FirebaseInstanceID
 import FirebaseMessaging
 
+import FBSDKCoreKit
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, FIRMessagingDelegate {
 
@@ -33,6 +35,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         window?.rootViewController = tabBarController
         
         registerForPushNotifications(application: application)
+        
+        // for facebook login: 
+        //[[FBSDKApplicationDelegate sharedInstance] application:application didFinishLaunchingWithOptions:launchOptions]
+        FBSDKApplicationDelegate.sharedInstance().application(application, didFinishLaunchingWithOptions: launchOptions)
+        
         
         return true
     }
@@ -134,7 +141,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     //=================================================================
 
-    
+    //=== for facebook login ==========================================
+    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
+        let optionString = options[UIApplicationOpenURLOptionsKey.sourceApplication] as! String
+        let annotations = options[UIApplicationOpenURLOptionsKey.annotation]
+        let handled = FBSDKApplicationDelegate.sharedInstance().application(app, open: url, sourceApplication: optionString, annotation: annotations)
+        return handled
+    }
     
     
     func applicationWillResignActive(_ application: UIApplication) {

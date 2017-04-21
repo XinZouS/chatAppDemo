@@ -19,6 +19,7 @@
 		6649CE1A1E1EBD5A006633CD /* UserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6649CE191E1EBD5A006633CD /* UserCell.swift */; };
 		66561D991EA90E7C00200ECD /* String++.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66561D981EA90E7C00200ECD /* String++.swift */; };
 		66561D9B1EA9356600200ECD /* ChatLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66561D9A1EA9356600200ECD /* ChatLogView.swift */; };
+		66561D9D1EA9570C00200ECD /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66561D9C1EA9570C00200ECD /* FBSDKLoginKit.framework */; };
 		668DC3BE1E2039CA005EC99B /* ChatMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 668DC3BD1E2039CA005EC99B /* ChatMessageCell.swift */; };
 		6690F5391E2E7F4800F1B6E0 /* ChatInputContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6690F5381E2E7F4800F1B6E0 /* ChatInputContainerView.swift */; };
 		6690F53E1E31154900F1B6E0 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6690F53D1E31154900F1B6E0 /* TabBarController.swift */; };
@@ -47,6 +48,7 @@
 		6649CE191E1EBD5A006633CD /* UserCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserCell.swift; sourceTree = "<group>"; };
 		66561D981EA90E7C00200ECD /* String++.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String++.swift"; sourceTree = "<group>"; };
 		66561D9A1EA9356600200ECD /* ChatLogView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatLogView.swift; sourceTree = "<group>"; };
+		66561D9C1EA9570C00200ECD /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FBSDKLoginKit.framework; sourceTree = "<group>"; };
 		668DC3BD1E2039CA005EC99B /* ChatMessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatMessageCell.swift; sourceTree = "<group>"; };
 		6690F5381E2E7F4800F1B6E0 /* ChatInputContainerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatInputContainerView.swift; sourceTree = "<group>"; };
 		6690F53A1E2EA09500F1B6E0 /* chatInFirebase.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = chatInFirebase.entitlements; sourceTree = "<group>"; };
@@ -74,6 +76,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				66561D9D1EA9570C00200ECD /* FBSDKLoginKit.framework in Frameworks */,
 				469C62760433F34121605A7F /* Pods_chatInFirebase.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -84,6 +87,7 @@
 		3B7022276C3421E85CFAFBD7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				66561D9C1EA9570C00200ECD /* FBSDKLoginKit.framework */,
 				A9965A7F4372D5FADABFC4ED /* Pods_chatInFirebase.framework */,
 			);
 			name = Frameworks;
@@ -454,6 +458,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = chatInFirebase/chatInFirebase.entitlements;
 				DEVELOPMENT_TEAM = 4G3CY5ZV6E;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = chatInFirebase/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -471,6 +479,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = chatInFirebase/chatInFirebase.entitlements;
 				DEVELOPMENT_TEAM = 4G3CY5ZV6E;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = chatInFirebase/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

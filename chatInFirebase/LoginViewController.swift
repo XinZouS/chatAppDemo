@@ -9,13 +9,10 @@
 import UIKit
 import Firebase
 
+import FBSDKLoginKit
 
-let buttonColorPurple = UIColor(r: 160, g: 90, b: 253)
-let buttonColorGreen  = UIColor(r: 100, g: 255, b: 100)
-let buttonColorBlue   = UIColor(r: 63, g: 133, b: 253)
-let buttonColorRed    = UIColor(r: 255, g: 100, b: 100)
 
-class LoginViewController: UIViewController {
+class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
 
     var messagesViewController: MessagesViewController? // for access its func; 
 
@@ -107,6 +104,13 @@ class LoginViewController: UIViewController {
         return seg
     }()
 
+    lazy var fbLoginButton : FBSDKLoginButton = {
+        let b = FBSDKLoginButton()
+        b.translatesAutoresizingMaskIntoConstraints = false
+        b.delegate = self
+        b.readPermissions = ["email", "public_profile"]
+        return b
+    }()
     
     //=== setup UI ============================================================
     override func viewDidLoad() {
@@ -119,10 +123,12 @@ class LoginViewController: UIViewController {
         self.view.addSubview(profileImageView)
         self.view.addSubview(inputsContainerView)
         self.view.addSubview(loginRegisterButton)
+        self.view.addSubview(fbLoginButton)
         setupLoginSegmentControl()
         setupInputsContainerView()
         setupLoginRegisterButton()
         setupProfileImageView()
+        setupFbLoginButton()
     
     }
     
@@ -257,6 +263,13 @@ class LoginViewController: UIViewController {
         loginRegisterButton.widthAnchor.constraint(equalTo: inputsContainerView.widthAnchor).isActive = true
         loginRegisterButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
+    
+    func setupFbLoginButton(){
+        fbLoginButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        fbLoginButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30).isActive = true
+        fbLoginButton.widthAnchor.constraint(equalTo: loginRegisterButton.widthAnchor).isActive = true
+        fbLoginButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+    }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return UIStatusBarStyle.lightContent
@@ -264,8 +277,3 @@ class LoginViewController: UIViewController {
 
 }
 
-extension UIColor {
-    convenience init(r:CGFloat, g:CGFloat, b:CGFloat) {
-        self.init(red: r/255, green: g/255, blue: b/255, alpha: 1)
-    }
-}

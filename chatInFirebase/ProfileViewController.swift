@@ -28,8 +28,8 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         let i = UIImageView()
         i.translatesAutoresizingMaskIntoConstraints = false
         i.contentMode = .scaleAspectFit
-        i.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(pickImg)))
         i.isUserInteractionEnabled = true
+        i.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(pickImg)))
         i.image = #imageLiteral(resourceName: "guaiqiao01")
         return i
     }()
@@ -64,7 +64,6 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.white]
-//        updateUserAndView()
         
         view.addSubview(profileImageView)
         profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
@@ -121,7 +120,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         dismiss(animated: true, completion: nil)
     }
     
-    func fetchUserFromFirebase(){
+    private func fetchUserFromFirebase(){
         guard let uid = FIRAuth.auth()?.currentUser?.uid else { return }
         FIRDatabase.database().reference().child("users").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
             if let dictionary = snapshot.value as? [String: Any] {
@@ -130,7 +129,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         }, withCancel: nil)
     }
     
-    func setupNavigaionBar(){
+    private func setupNavigaionBar(){
         navigationItem.title = "My Profile"
     }
     func setupProfileImage(){
@@ -189,6 +188,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         self.currUser = nil as User?
         msgViewController?.handleLogout()
     }
+    
     
     private func showAlertWith(title:String, message:String){
         let alertCtrl = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)

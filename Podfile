@@ -6,6 +6,10 @@ target 'chatInFirebase' do
   use_frameworks!
 
   # Pods for chatInFirebase
+  pod ‘FBSDKCoreKit’
+  pod ‘FBSDKShareKit’
+  pod ‘FBSDKLoginKit’
+
   pod 'Firebase'
   pod 'Firebase/Core'
   pod 'Firebase/Auth'

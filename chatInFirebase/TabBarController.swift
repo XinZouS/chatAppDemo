@@ -29,6 +29,7 @@ class TabBarController: UITabBarController {
         
         let myProfileView = ProfileViewController()
         myProfileView.msgViewController = messagesView
+        messagesView.profileVC = myProfileView
         let profileController = UINavigationController(rootViewController: myProfileView)
         profileController.title = "About me"
         profileController.tabBarItem.image = #imageLiteral(resourceName: "dogID_80x80@1x")

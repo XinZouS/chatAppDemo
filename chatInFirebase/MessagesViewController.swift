@@ -13,10 +13,15 @@ import UserNotifications
 class MessagesViewController: UITableViewController {
     
     var newMsgVC : NewMessageViewController?
+    var profileVC: ProfileViewController?
 
     let cellId = "cellId"
     
-    var currUser = User()
+    var currUser = User(){
+        didSet {
+            setupNavBarWithUser(user: currUser)
+        }
+    }
     
     var messages = [Message]()  // sorted by timeStamp for tableView
     var messageOfPartnerId = [String:Message]() // dict[chatPartnerId] for latest msgs;

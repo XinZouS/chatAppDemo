@@ -8,9 +8,18 @@
 
 import UIKit
 
+let buttonColorPurple = UIColor(r: 160, g: 90, b: 253)
+let buttonColorGreen  = UIColor(r: 100, g: 255, b: 100)
+let buttonColorBlue   = UIColor(r: 63, g: 133, b: 253)
+let buttonColorRed    = UIColor(r: 255, g: 100, b: 100)
+
+
 extension UIColor {
     static func rgb(r:CGFloat, g:CGFloat, b:CGFloat) -> UIColor {
         return UIColor(red: r/255, green: g/255, blue: b/255, alpha: 1)
+    }
+    convenience init(r:CGFloat, g:CGFloat, b:CGFloat) {
+        self.init(red: r/255, green: g/255, blue: b/255, alpha: 1)
     }
 }
 

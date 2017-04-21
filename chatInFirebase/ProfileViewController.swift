@@ -151,7 +151,8 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
                 print("get error when deleting prifile image form firebase: ProfileViewController.swift:saveChangesToFirebase() : ", err!)
                 //return
             }
-        } // 2, put new image file into it:
+        }
+        // 2, put new image file into it:
         if let pImg = profileImageView.image, let uploadData = UIImageJPEGRepresentation(pImg, 0.1) {
             storageRef.put(uploadData, metadata: nil, completion: { (metadata, error) in
                 if error != nil {

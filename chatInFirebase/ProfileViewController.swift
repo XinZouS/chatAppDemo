@@ -8,8 +8,10 @@
 
 import UIKit
 import Firebase
+import FBSDKLoginKit
 
-class ProfileViewController : UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+
+class ProfileViewController : UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, FBSDKLoginButtonDelegate {
     
     var msgViewController : MessagesViewController?
     var currUser: User?
@@ -56,6 +58,12 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         return b
     }()
     
+    lazy var fbLoginButton : FBSDKLoginButton = {
+        let b = FBSDKLoginButton()
+        b.delegate = self
+        b.readPermissions = ["email", "public_profile"]
+        return b
+    }()
     
     
     override func viewDidLoad() {
@@ -80,6 +88,9 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         view.addSubview(saveButton)
         saveButton.addConstraints(left: view.leftAnchor, top: nil, right: view.rightAnchor, bottom: logoutButton.topAnchor, leftConstent: 0, topConstent: 0, rightConstent: 0, bottomConstent: 15, width: 0, height: 40)
         
+        view.addSubview(fbLoginButton)
+        fbLoginButton.addConstraints(left: view.leftAnchor, top: nil, right: view.rightAnchor, bottom: logoutButton.bottomAnchor, leftConstent: 0, topConstent: 0, rightConstent: 0, bottomConstent: 0, width: 0, height: 42)
+        
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -94,6 +105,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         setupNavigaionBar()
         setupProfileImage()
         nameTextField.text = currUser?.name
+        setupFbLoginButton()
     }
     
     func pickImg(){
@@ -138,6 +150,11 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         }else{
             profileImageView.image = #imageLiteral(resourceName: "guaiqiao01")
         }
+    }
+    private func setupFbLoginButton(){
+        if let tx = fbLoginButton.titleLabel?.text {
+            fbLoginButton.isHidden = (tx == "Log in")
+        }        
     }
 
     
@@ -189,6 +206,18 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         self.currUser = nil as User?
         msgViewController?.handleLogout()
     }
+
+    // facebook login button
+    func loginButton(_ loginButton: FBSDKLoginButton!, didCompleteWith result: FBSDKLoginManagerLoginResult!, error: Error!) {
+        if error != nil {
+            showAlertWith(title: "‼️Got an Error", message: "Facebook login failed, please try again later. Error: \(error)")
+            return
+        }
+    }
+    func loginButtonDidLogOut(_ loginButton: FBSDKLoginButton!) {
+        handleLogout()
+    }
+
     
     
     private func showAlertWith(title:String, message:String){

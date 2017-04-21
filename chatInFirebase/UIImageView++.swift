@@ -20,10 +20,10 @@ extension UIImageView {
             return
         }
         // else, download image: 
-        let url = URL(string: urlString)
+        guard let url = URL(string: urlString) else { return }
         // URLSession provides download content to perform background downloads:
         // https://developer.apple.com/reference/foundation/urlsession
-        URLSession.shared.dataTask(with: url!, completionHandler: { (data, response, err) in
+        URLSession.shared.dataTask(with: url, completionHandler: { (data, response, err) in
             if err != nil {
                 print("loading user image error: \(err). ----- UIImageView++.swift: 19")
                 return

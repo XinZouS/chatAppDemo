@@ -205,12 +205,13 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
                 self.showAlertWith(title: "‼️Got an Error", message: "Facebook login failed, please try again later. Error: \(err!)")
                 return
             }
-            if let dict = result as? [String:AnyObject], let myFbId = dict["id"] as? String {
+            if let dict = result as? [String:AnyObject], let myFbId = dict["id"] as? String, myFbId != "" {
                 //let url = NSURL(string: "https://graph.facebook.com/445552045792897/picture?type=normal")
                 //an 200x200 image: https://graph.facebook.com/445552045792897/picture?height=200&width=200
                 let myImgUrlStr = "https://graph.facebook.com/\(myFbId)/picture?height=200&width=200"
                 self.profileImageView.loadImageUsingCacheWith(urlString: myImgUrlStr)
                 self.messagesViewController?.newMsgVC?.setupCurrUser()
+                print("--- Async: 0. will load image after fbLogging, url=", myImgUrlStr)
                 self.messagesViewController?.profileVC?.setupProfileImage()
                 print("--- Async: 1. this will run first: after load image for profile")
 //                self.dismiss(animated: true, completion: nil)

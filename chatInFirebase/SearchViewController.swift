@@ -55,11 +55,18 @@ class SearchViewController : UICollectionViewController, UICollectionViewDelegat
         collectionView?.register(SearchViewCell.self, forCellWithReuseIdentifier: cellId)
         collectionView?.keyboardDismissMode = .interactive
         
-        navigationController?.navigationBar.tintColor = .white
+        setupNavigationBar()
         
         setupKeyboardObserver()
     }
-    func setupKeyboardObserver() {
+    
+    private func setupNavigationBar(){
+        navigationController?.navigationBar.tintColor = .white
+        navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.white]
+        navigationItem.title = "Find new friends"
+    }
+
+    private func setupKeyboardObserver() {
         NotificationCenter.default.addObserver(self, selector: #selector(moveCollectionViewWhenKeyboardDidShow),
                                                name: NSNotification.Name.UIKeyboardDidShow, object: nil)
     }

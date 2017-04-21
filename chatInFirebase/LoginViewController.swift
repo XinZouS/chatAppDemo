@@ -124,19 +124,27 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
         self.view.addSubview(inputsContainerView)
         self.view.addSubview(loginRegisterButton)
         self.view.addSubview(fbLoginButton)
+        setupProfileImageView()
         setupLoginSegmentControl()
         setupInputsContainerView()
         setupLoginRegisterButton()
-        setupProfileImageView()
         setupFbLoginButton()
     
     }
     
-    func setupLoginSegmentControl(){
+    private func setupProfileImageView(){
+        profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        //profileImageView.bottomAnchor.constraint(equalTo: loginRegisterSegmentedControl.topAnchor, constant: -26).isActive = true
+        profileImageView.topAnchor.constraint(equalTo: view.topAnchor, constant: 60).isActive = true
+        profileImageView.widthAnchor.constraint(equalToConstant: 150).isActive = true
+        profileImageView.heightAnchor.constraint(equalToConstant: 150).isActive = true
+    }
+    
+    private func setupLoginSegmentControl(){
         loginRegisterSegmentedControl.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         loginRegisterSegmentedControl.widthAnchor.constraint(equalTo:inputsContainerView.widthAnchor, multiplier: 2/3).isActive = true
         loginRegisterSegmentedControl.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        loginRegisterSegmentedControl.bottomAnchor.constraint(equalTo: inputsContainerView.topAnchor, constant: -12).isActive = true
+        loginRegisterSegmentedControl.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 20).isActive = true
     }
     func loginRegisterModeChanged(){
         let mode = loginRegisterSegmentedControl.selectedSegmentIndex // 0=login, 1=register
@@ -172,14 +180,6 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
         passwordConfernTextField.isHidden = (mode == 0)
     }
 
-    func setupProfileImageView(){
-        profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        profileImageView.bottomAnchor.constraint(equalTo: loginRegisterSegmentedControl.topAnchor, constant: -26).isActive = true
-        profileImageView.widthAnchor.constraint(equalToConstant: 150).isActive = true
-        profileImageView.heightAnchor.constraint(equalToConstant: 150).isActive = true
-        
-    }
-    
     private func setupBackgroundGradientLayer(){
         let gradientLayer = CAGradientLayer()
         gradientLayer.frame = self.view.frame
@@ -198,7 +198,8 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     func setupInputsContainerView(){
         // set up x, y, width, hight:
         inputsContainerView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        inputsContainerView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        //inputsContainerView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        inputsContainerView.topAnchor.constraint(equalTo: loginRegisterSegmentedControl.bottomAnchor, constant: 20).isActive = true
         inputsContainerView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -30).isActive = true
         // inputsContainerView.heightAnchor.constraint(equalToConstant: 150).isActive = true
         inputContainerViewHeightConstraint = inputsContainerView.heightAnchor.constraint(equalToConstant: 160)
@@ -257,7 +258,6 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     }
 
     func setupLoginRegisterButton(){
-        // set up x, y, width, hight:
         loginRegisterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         loginRegisterButton.topAnchor.constraint(equalTo: inputsContainerView.bottomAnchor, constant: 20).isActive = true
         loginRegisterButton.widthAnchor.constraint(equalTo: inputsContainerView.widthAnchor).isActive = true

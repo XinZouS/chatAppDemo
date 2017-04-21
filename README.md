@@ -3,11 +3,14 @@ An iOS chatting app using Firebase, UI by code, no storyboard;
 
 ## Login Page
 - Users can login with their facebook account, or create a new profile by email and name;
-![alt tag](https://raw.githubusercontent.com/username/projectname/branch/path/to/img.png)
+![alt tag](https://github.com/XinZouS/chatAppDemo/blob/master/chatInFirebase/01.png)
+
+## Search and add your friends
+![alt tag](https://github.com/XinZouS/chatAppDemo/blob/master/chatInFirebase/02.png)
 
 ## Alive Emoji chat with fun
 - When sending or receiving message with emoji or some keywords, some of them will fly from side to side;
-![alt tag](https://raw.githubusercontent.com/username/projectname/branch/path/to/img.png)
+![alt tag](https://github.com/XinZouS/chatAppDemo/blob/master/chatInFirebase/03.png)
 
 ## Requirement
 * Swift 3.0

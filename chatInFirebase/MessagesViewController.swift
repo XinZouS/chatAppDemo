@@ -58,14 +58,10 @@ class MessagesViewController: UITableViewController {
         // observeUserMessages() // move to func setupNavBarWithUser()
         
         tableView.allowsMultipleSelectionDuringEditing = true // allow delete at row;
-        
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        // remove notification badge number:
-        if UIApplication.shared.applicationIconBadgeNumber > 0 {
-            UIApplication.shared.applicationIconBadgeNumber = 0
-        }        
+        UIApplication.shared.applicationIconBadgeNumber = 0
     }
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
@@ -132,7 +128,7 @@ class MessagesViewController: UITableViewController {
     // the other way to delete message, remove reference from db:------------
     private func deleteMessageLocallyFor(partnerId: String){
         messageOfPartnerId.removeValue(forKey: partnerId)
-        reloadTable()
+        reloadAndSortTable()
     }
     private func deleteFileInFireBaseAt(folder:String, fileName:String){
         if folder.compare("message_image") != ComparisonResult.orderedSame && folder.compare("message_video") != ComparisonResult.orderedSame {
@@ -142,7 +138,7 @@ class MessagesViewController: UITableViewController {
         let ref = FIRStorage.storage().reference().child(folder).child(fileName)
         ref.delete { (err) in
             if err != nil {
-                print("get error when try to delete file [\(fileName)]: ", err)
+                print("get error when try to delete file [\(fileName)]: ", err!)
                 return
             }
             // print("fild deleted!!")
@@ -150,8 +146,7 @@ class MessagesViewController: UITableViewController {
     }
     
     
-    var observingTimer = Timer() // for forcing it reload table only once;
-    func observeUserMessages(){
+    private func observeUserMessages(){
         guard let myid = FIRAuth.auth()?.currentUser?.uid else {return}
         self.currUser.id = myid
 
@@ -175,15 +170,10 @@ class MessagesViewController: UITableViewController {
         
         // also if the message been removed(delete) in db already:--------
         ref.observe(.childRemoved, with: { (snapshot) in
-            //print(snapshot.key) // == the key of message in msgDict,
-            //print(self.messageOfPartnerId) // == all messages got in DB;
-            //self.messageOfPartnerId.removeValue(forKey: snapshot.key)
-            //self.reloadTable()
             self.deleteMessageLocallyFor(partnerId: snapshot.key)
-            
         }, withCancel: nil)
     }
-    func reloadTable(){
+    func reloadAndSortTable(){
         self.messages = Array(self.messageOfPartnerId.values)
         self.messages.sort(by: { (m1, m2) -> Bool in
             return (m1.timeStamp?.intValue)! > (m2.timeStamp?.intValue)!
@@ -192,10 +182,15 @@ class MessagesViewController: UITableViewController {
         DispatchQueue.main.async(execute: {
             self.tableView.reloadData()
             if let getMsg = self.messages.first {
-                self.newMsgNotification(newMsg: getMsg)
+                let indexpath = IndexPath(row: 0, section: 0)
+                let topCell = self.tableView.cellForRow(at: indexpath) as? UserCell
+                let latestSenderName = topCell?.textLabel?.text ?? "my friend"
+                //print("---- get name: ", latestSenderName, ", topCell=", topCell, ", all cells=", self.tableView.visibleCells)
+                self.newMsgNotification(newMsg: getMsg, senderName: latestSenderName)
             }
         })
     }
+    var observingTimer = Timer() // for forcing it reload table only once while loading messages;
     private func fetchMessageWithMessageID(messageId:String) {
         let msgRef = FIRDatabase.database().reference().child("messages").child(messageId)
         msgRef.observeSingleEvent(of: .value, with: { (snapshot) in
@@ -212,7 +207,7 @@ class MessagesViewController: UITableViewController {
                     // sorting move to reloadTable();
                 }
                 self.observingTimer.invalidate()
-                self.observingTimer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(self.reloadTable), userInfo: nil, repeats: false)
+                self.observingTimer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(self.reloadAndSortTable), userInfo: nil, repeats: false)
             }
             
         }, withCancel: nil)
@@ -266,14 +261,12 @@ class MessagesViewController: UITableViewController {
         UserDefaults.standard.removeObject(forKey: "myFriends")
         print("-------- 2. removed user and myFriends list success. ")
     }
-    private func newMsgNotification(newMsg: Message){
-        guard let newText = newMsg.text,
-              let senderName = messageOfPartnerId[newMsg.fromId!] else { return }
-//        how to get the name of sender??? add sender name into message!
+    private func newMsgNotification(newMsg: Message, senderName: String){
+        guard let newText = newMsg.text, let senderId = newMsg.fromId else { return }
         // push notifications for new msg coming;
         let content = UNMutableNotificationContent()
         content.title = "New Message"
-        content.subtitle = "From \(senderName), \(newMsg.fromId!): "
+        content.subtitle = "From \(senderName): "
         content.body = newText
         content.badge = 1
         content.sound = UNNotificationSound.default()
@@ -337,8 +330,8 @@ class MessagesViewController: UITableViewController {
         if let getuser = fetchUserFromDisk() { // setup currUser;
             currUser = getuser
         }
-        let uid = FIRAuth.auth()?.currentUser?.uid
-        if uid != nil || currUser.id != "" {
+        if let uid = FIRAuth.auth()?.currentUser?.uid, uid != "", let curId = currUser.id, curId != "" {
+        print(" - checkIfUserIsLogin(), uid = \(uid), currUser.id = \(curId)")
             // get user by id in firebase:
             fetchUserAndSetUpNavBarTitle()
         }else{

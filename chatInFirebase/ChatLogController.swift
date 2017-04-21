@@ -54,6 +54,8 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
 //        setupInputComponents() // do not need it in II;
         setupKeyboardObservers()
         
+        UIApplication.shared.applicationIconBadgeNumber = 0
+
     }
     func setupKeyboardObservers(){
         NotificationCenter.default.addObserver(self, selector: #selector(moveCollectionViewWhenKeyboardDidShow), name: NSNotification.Name.UIKeyboardDidShow, object: nil)

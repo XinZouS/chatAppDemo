@@ -63,7 +63,7 @@ extension ChatLogController {
             let str = inputStr.emojiString
             animateCurveFlowBy(emojiStr: str, num: 10)
         }else{ // see if it has some keywords:
-            let words = (inputStr.lowercased()).components(separatedBy: " ")
+            let words = (inputStr.lowercased()).components(separatedBy: [" ", "!", "~", "@", ",", ".", "?"])
             let wSet = Set<String>(words)
             if wSet.contains("birthday") {
                 animateCurveFlowBy(emojiStr: "🎂", num: 16)
@@ -75,8 +75,11 @@ extension ChatLogController {
     }
     
     func animateCurveFlowBy(emojiStr: String, num: Int){
-        (0...num).forEach { (_) in
-            for emoji in emojiStr.unicodeScalars {
+        var count = 1
+        for emoji in emojiStr.unicodeScalars {
+            if !emoji.isEmoji || count > 5 { continue }
+            count += 1
+            (0...num).forEach { (_) in
                 generateAnimationOf(emoji: String(emoji))
             }
         }
@@ -87,7 +90,7 @@ extension ChatLogController {
         
         let animation = CAKeyframeAnimation(keyPath: "position")
         animation.path = curvedView.customPath().cgPath // convert UIBezierPath to CGPath/CGGraph!
-        animation.duration = 2 + drand48() * 4
+        animation.duration = 2 + drand48() * 5
         animation.fillMode = kCAFillModeForwards // not go back to original point after animation;
         animation.isRemovedOnCompletion = false  // will remove node after completion
         animation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
@@ -121,15 +124,16 @@ class CurvedView : UIView {
         let path = UIBezierPath()
         
         // starting point
-        let yshift = CGFloat(100 + drand48() * 100)
-        path.move(to: CGPoint(x:0, y: yshift))
-        let xlen = self.frame.width + 60
+        let xlen = Double(self.frame.width + 60)
+        let ylen = Double(self.frame.height - 100) * 0.7
+        let yshift = 100 + drand48() * ylen
+        path.move(to: CGPoint(x: -20, y: yshift)) // start point
         let endPoint = CGPoint(x: xlen, y: yshift)
         //path.addLine(to: endPoint) // also, we need curve, not only line:
         let dx = drand48() * 100
-        let dy = drand48() * 300
-        let cp1 = CGPoint(x: 50 + Double(xlen / 3) - dx, y: 100 - dy)
-        let cp2 = CGPoint(x: Double(xlen / 1.5) + dx, y: 400 + dy)
+        //let dy = drand48() * ylen
+        let cp1 = CGPoint(x: 50 + Double(xlen / 3) - dx, y: drand48() * ylen)
+        let cp2 = CGPoint(x: Double(xlen / 1.5) + dx, y: drand48() * ylen)
         path.addCurve(to: endPoint, controlPoint1: cp1, controlPoint2: cp2)
         
         path.stroke()

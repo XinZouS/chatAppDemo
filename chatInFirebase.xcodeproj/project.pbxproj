@@ -20,6 +20,10 @@
 		66561D991EA90E7C00200ECD /* String++.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66561D981EA90E7C00200ECD /* String++.swift */; };
 		66561D9B1EA9356600200ECD /* ChatLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66561D9A1EA9356600200ECD /* ChatLogView.swift */; };
 		66561D9D1EA9570C00200ECD /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66561D9C1EA9570C00200ECD /* FBSDKLoginKit.framework */; };
+		668A407A1EAAA7E90048B166 /* 01.png in Resources */ = {isa = PBXBuildFile; fileRef = 668A40761EAAA7E90048B166 /* 01.png */; };
+		668A407B1EAAA7E90048B166 /* 02.png in Resources */ = {isa = PBXBuildFile; fileRef = 668A40771EAAA7E90048B166 /* 02.png */; };
+		668A407C1EAAA7E90048B166 /* 03.png in Resources */ = {isa = PBXBuildFile; fileRef = 668A40781EAAA7E90048B166 /* 03.png */; };
+		668A407D1EAAA7E90048B166 /* 04.png in Resources */ = {isa = PBXBuildFile; fileRef = 668A40791EAAA7E90048B166 /* 04.png */; };
 		668DC3BE1E2039CA005EC99B /* ChatMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 668DC3BD1E2039CA005EC99B /* ChatMessageCell.swift */; };
 		6690F5391E2E7F4800F1B6E0 /* ChatInputContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6690F5381E2E7F4800F1B6E0 /* ChatInputContainerView.swift */; };
 		6690F53E1E31154900F1B6E0 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6690F53D1E31154900F1B6E0 /* TabBarController.swift */; };
@@ -49,6 +53,10 @@
 		66561D981EA90E7C00200ECD /* String++.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String++.swift"; sourceTree = "<group>"; };
 		66561D9A1EA9356600200ECD /* ChatLogView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatLogView.swift; sourceTree = "<group>"; };
 		66561D9C1EA9570C00200ECD /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FBSDKLoginKit.framework; sourceTree = "<group>"; };
+		668A40761EAAA7E90048B166 /* 01.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 01.png; sourceTree = "<group>"; };
+		668A40771EAAA7E90048B166 /* 02.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 02.png; sourceTree = "<group>"; };
+		668A40781EAAA7E90048B166 /* 03.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 03.png; sourceTree = "<group>"; };
+		668A40791EAAA7E90048B166 /* 04.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 04.png; sourceTree = "<group>"; };
 		668DC3BD1E2039CA005EC99B /* ChatMessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatMessageCell.swift; sourceTree = "<group>"; };
 		6690F5381E2E7F4800F1B6E0 /* ChatInputContainerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatInputContainerView.swift; sourceTree = "<group>"; };
 		6690F53A1E2EA09500F1B6E0 /* chatInFirebase.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = chatInFirebase.entitlements; sourceTree = "<group>"; };
@@ -128,6 +136,10 @@
 		668A40751EAAA4590048B166 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				668A40761EAAA7E90048B166 /* 01.png */,
+				668A40771EAAA7E90048B166 /* 02.png */,
+				668A40781EAAA7E90048B166 /* 03.png */,
+				668A40791EAAA7E90048B166 /* 04.png */,
 			);
 			name = Images;
 			sourceTree = "<group>";
@@ -268,8 +280,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				668A407B1EAAA7E90048B166 /* 02.png in Resources */,
 				669985DB1E15A1CE00DCA278 /* LaunchScreen.storyboard in Resources */,
 				66CCFBB21E63656500F46ACC /* GoogleService-Info.plist in Resources */,
+				668A407A1EAAA7E90048B166 /* 01.png in Resources */,
+				668A407D1EAAA7E90048B166 /* 04.png in Resources */,
+				668A407C1EAAA7E90048B166 /* 03.png in Resources */,
 				669985D81E15A1CE00DCA278 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

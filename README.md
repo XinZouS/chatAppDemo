@@ -25,4 +25,4 @@ An iOS chatting app using Firebase, UI by code, no storyboard;
 ## Authors
 * **Xin Zou** - *Initial work* - [OgdenChat](https://github.com/XinZouS/chatAppDemo)
 ## Acknowledgments
-* [Lets Build That App](https://www.youtube.com/channel/UCuP2vJ6kRutQBfRmdcI92mA) lectures
+* [Lets Build That App](https://www.youtube.com/channel/UCuP2vJ6kRutQBfRmdcI92mA) Youtube lectures

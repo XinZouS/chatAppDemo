@@ -18,6 +18,9 @@ class NewMessageViewController: UITableViewController {
     var myFriends = [User]() {
         didSet {
             tableViewReloadData()
+            if myFriends.count > 0 {
+                sendNotificationNewRequest(from: myFriends.last!)
+            }
         }
     }
     var myRequests = [User]() {
@@ -380,7 +383,11 @@ class NewMessageViewController: UITableViewController {
             }
         })
     }
-    
+    func sendNotificationNewRequest(from newFriend: User){
+        guard let newName = newFriend.name, newName != "", let newProfileUrl = newFriend.profileImgURL, newProfileUrl != "" else {return}
+        
+    }
+
     
     //=== For Profile image zooming ====================
     private var startFrame : CGRect?

@@ -27,6 +27,7 @@ class ChatInputContainerView: UIView, UITextFieldDelegate {
         i.setTitle("🏞", for: .normal)
         i.translatesAutoresizingMaskIntoConstraints = false
         i.titleLabel?.font = UIFont(name: "System", size: 26)
+        i.addTarget(self.chatLogController, action: #selector(self.chatLogController!.selectingImage), for: .touchUpInside)
         return i
     }()
     
@@ -58,7 +59,6 @@ class ChatInputContainerView: UIView, UITextFieldDelegate {
         sendBtn.heightAnchor.constraint(equalToConstant: 42).isActive = true
         
         addSubview(imgBtn)
-        imgBtn.addTarget(chatLogController, action: #selector(chatLogController!.selectingImage), for: .touchUpInside)
         imgBtn.leftAnchor.constraint(equalTo: leftAnchor).isActive = true
         imgBtn.topAnchor.constraint(equalTo: topAnchor).isActive = true
         imgBtn.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true

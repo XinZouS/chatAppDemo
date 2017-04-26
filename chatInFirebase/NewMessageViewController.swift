@@ -8,19 +8,23 @@
 
 import UIKit
 import Firebase
+import UserNotifications
 
 class NewMessageViewController: UITableViewController {
     
+    var appDelegate = UIApplication.shared.delegate as? AppDelegate // for new request notification
     var messageVC : MessagesViewController? 
     
     var currUser : User?
     
     var myFriends = [User]() {
         didSet {
+            if myFriends.count < 2 { return }
+            myFriends.sort(by: {(u1, u2) -> Bool in
+                guard let name1 = u1.name, let name2 = u2.name else { return false }
+                return Array(name1.characters)[0] < Array(name2.characters)[0]
+            })
             tableViewReloadData()
-            if myFriends.count > 0 {
-                sendNotificationNewRequest(from: myFriends.last!)
-            }
         }
     }
     var myRequests = [User]() {
@@ -29,6 +33,9 @@ class NewMessageViewController: UITableViewController {
                 sectionNames = [nameStrOfMyFriends]
             }else{
                 sectionNames = [nameStrOfNewRequest, nameStrOfMyFriends]
+            }
+            if myRequests.count > 0 {
+                sendNotificationNewRequest(from: myRequests.last!)
             }
             tableView.reloadData()
         }
@@ -45,6 +52,7 @@ class NewMessageViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         let rb1 = UIBarButtonItem(title: "🔍", style: .plain, target: self, action: #selector(searchFriends))
         // let rb2 = UIBarButtonItem(title: "🔄", style: .plain, target: self, action: #selector(tableViewReloadData))
         navigationItem.rightBarButtonItems = [rb1]
@@ -56,10 +64,15 @@ class NewMessageViewController: UITableViewController {
         tableView.register(UserCell.self, forCellReuseIdentifier: cellId)
         tableView.register(UserNewrequestCell.self, forCellReuseIdentifier: requestCellId)
         
+        appDelegate?.newMsgVC = self
+        
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+
         print("== viewWillAppear, myFriends.count : ", myFriends.count)
         setupCurrUser()
         fetchMyFriendsOnFirebase()
@@ -106,7 +119,8 @@ class NewMessageViewController: UITableViewController {
         cell?.user = user
         cell?.newMsgVC = self
         cell?.textLabel?.text = user?.name!
-        cell?.detailTextLabel?.text = user?.email!
+        cell?.textLabel?.font = UIFont.systemFont(ofSize: 18)
+        cell?.detailTextLabel?.text = user?.email!.components(separatedBy: "@")[0]
         
         if let profileImgURL = user?.profileImgURL {
             //--- better way to load img -----------------------------------------
@@ -252,6 +266,7 @@ class NewMessageViewController: UITableViewController {
             print("get a new request: ", snapshot)
             if let newReqId = snapshot.key as? String, newReqId != "", newReqId != " " {
                 self.fetchOneRequestingUserBy(id: newReqId)
+                self.appDelegate?.secheduleNewRequestNotification()
             }
         })
         
@@ -385,7 +400,8 @@ class NewMessageViewController: UITableViewController {
     }
     func sendNotificationNewRequest(from newFriend: User){
         guard let newName = newFriend.name, newName != "", let newProfileUrl = newFriend.profileImgURL, newProfileUrl != "" else {return}
-        
+        appDelegate?.newFriend = newFriend
+        appDelegate?.secheduleNewRequestNotification()
     }
 
     

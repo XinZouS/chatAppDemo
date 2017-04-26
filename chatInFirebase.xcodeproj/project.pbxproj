@@ -10,6 +10,7 @@
 		469C62760433F34121605A7F /* Pods_chatInFirebase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9965A7F4372D5FADABFC4ED /* Pods_chatInFirebase.framework */; };
 		6604EE581EA128FF00E28DCE /* UserNewrequestCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6604EE571EA128FF00E28DCE /* UserNewrequestCell.swift */; };
 		6608BCF81EA4F2E400DBB87F /* UINavigationController++.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6608BCF71EA4F2E400DBB87F /* UINavigationController++.swift */; };
+		661D191E1EAFAF550004CB66 /* yadianwenqing.png in Resources */ = {isa = PBXBuildFile; fileRef = 661D191D1EAFAF550004CB66 /* yadianwenqing.png */; };
 		663C18AC1E1816680014A359 /* NewMessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663C18AB1E1816680014A359 /* NewMessageViewController.swift */; };
 		663C18AE1E195AA60014A359 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663C18AD1E195AA60014A359 /* User.swift */; };
 		663C18B01E1AAE5A0014A359 /* LoginViewController+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663C18AF1E1AAE5A0014A359 /* LoginViewController+Ex.swift */; };
@@ -44,6 +45,7 @@
 /* Begin PBXFileReference section */
 		6604EE571EA128FF00E28DCE /* UserNewrequestCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserNewrequestCell.swift; sourceTree = "<group>"; };
 		6608BCF71EA4F2E400DBB87F /* UINavigationController++.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UINavigationController++.swift"; sourceTree = "<group>"; };
+		661D191D1EAFAF550004CB66 /* yadianwenqing.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = yadianwenqing.png; sourceTree = "<group>"; };
 		663C18AB1E1816680014A359 /* NewMessageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewMessageViewController.swift; sourceTree = "<group>"; };
 		663C18AD1E195AA60014A359 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		663C18AF1E1AAE5A0014A359 /* LoginViewController+Ex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "LoginViewController+Ex.swift"; sourceTree = "<group>"; };
@@ -142,6 +144,7 @@
 				668A40771EAAA7E90048B166 /* 02.png */,
 				668A40781EAAA7E90048B166 /* 03.png */,
 				668A40791EAAA7E90048B166 /* 04.png */,
+				661D191D1EAFAF550004CB66 /* yadianwenqing.png */,
 			);
 			name = Images;
 			sourceTree = "<group>";
@@ -286,6 +289,7 @@
 				668A407B1EAAA7E90048B166 /* 02.png in Resources */,
 				669985DB1E15A1CE00DCA278 /* LaunchScreen.storyboard in Resources */,
 				66CCFBB21E63656500F46ACC /* GoogleService-Info.plist in Resources */,
+				661D191E1EAFAF550004CB66 /* yadianwenqing.png in Resources */,
 				668A407A1EAAA7E90048B166 /* 01.png in Resources */,
 				668A407D1EAAA7E90048B166 /* 04.png in Resources */,
 				668A407C1EAAA7E90048B166 /* 03.png in Resources */,

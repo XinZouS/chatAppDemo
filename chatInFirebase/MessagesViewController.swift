@@ -62,6 +62,8 @@ class MessagesViewController: UITableViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         UIApplication.shared.applicationIconBadgeNumber = 0
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
     }
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
@@ -272,8 +274,7 @@ class MessagesViewController: UITableViewController {
         content.sound = UNNotificationSound.default()
         updateBadgeNumberBy(increment: 1)
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
-        let id = "identifiterNotification"
-        let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
+        let request = UNNotificationRequest(identifier: "identifiterNotification", content: content, trigger: trigger)
         UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
             if let err = err {
                 print("get error when firing UNUserNotification; MessagesVC.swift:newMsgNotification --->", err)

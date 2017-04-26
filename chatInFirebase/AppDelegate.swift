@@ -18,8 +18,14 @@ import FBSDKCoreKit
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, FIRMessagingDelegate {
 
+    var newFriend : User?
+    var newMsgVC : NewMessageViewController? 
+    
+    let notiIdCategoryStr = "newRequest"
+    let notiIdAccept = "acceptRequest"
+    let notiIdReject = "rejectRequest"
+    
     var window: UIWindow?
-
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 
@@ -36,7 +42,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         
         registerForPushNotifications(application: application)
         
-        // for facebook login: 
+        // for facebook login:
         //[[FBSDKApplicationDelegate sharedInstance] application:application didFinishLaunchingWithOptions:launchOptions]
         FBSDKApplicationDelegate.sharedInstance().application(application, didFinishLaunchingWithOptions: launchOptions)
         
@@ -88,7 +94,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     UIApplication.shared.registerForRemoteNotifications()
                 }
                 else{
-                    //Do stuff if unsuccessful...
+                    print(" - get UNUserNotificationCenter.current().requestAuthorization() failed: \(error!)")
                 }
             })
             
@@ -104,23 +110,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             let settings = UIUserNotificationSettings(types: [.alert, .badge, .sound], categories: nil)
             application.registerUserNotificationSettings(settings)
         }
+        
+        // media notification actions: ------------
+        let acceptRequest = UNNotificationAction(identifier: notiIdAccept, title: "✅ Accept", options: [])
+        let rejectRequest = UNNotificationAction(identifier: notiIdReject, title: "⛔️ Ignore", options: [])
+//        let acceptRequest = UNNotificationAction(identifier: notiIdAccept, title: "Accept", options: [])
+//        let rejectRequest = UNNotificationAction(identifier: notiIdReject, title: "Ignore", options: [])
+        let category = UNNotificationCategory(identifier: "newRequest", actions: [acceptRequest, rejectRequest], intentIdentifiers: [], options: [])
+        UNUserNotificationCenter.current().setNotificationCategories( [category] )
+
+        // normal notification: -------------------
         application.registerForRemoteNotifications()
-        application.registerUserNotificationSettings(UIUserNotificationSettings(types:  [.alert, .badge, .sound], categories: nil))
         application.beginBackgroundTask(withName: "showNotification", expirationHandler: nil)
     }
-    // handle notification messages when receiving one: ============
+    
+    // handle notification messages when receiving one: -----------
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
         // If you are receiving a notification message while your app is in the background,
         // this callback will not be fired till the user taps on the notification launching the application.
         // TODO: Handle data of notification
         
-        // Print message ID.
-//        if let messageID = userInfo[gcmMessageIDKey] {
-//            print("Message ID: \(messageID)")
-//        }
-        
-        // Print full message.
-        //print(userInfo)
     }
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any],
                      fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
@@ -128,16 +137,63 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // this callback will not be fired till the user taps on the notification launching the application.
         // TODO: Handle data of notification
         
-        // Print message ID.
-//        if let messageID = userInfo[gcmMessageIDKey] {
-//            print("Message ID: \(messageID)")
-//        }
-        
-        // Print full message.
-        //print(userInfo)
-        
         completionHandler(UIBackgroundFetchResult.newData)
     }
+    
+    //--- show request notification -------------------------------
+    func secheduleNewRequestNotification() {
+        guard let newFriend = self.newFriend, let imgPath = Bundle.main.path(forResource: "yadianwenqing", ofType: "png") else { return }
+        
+        UNUserNotificationCenter.current().delegate = self
+        
+        let triggerTimmer = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        
+        // set content for notification: 
+        let content = UNMutableNotificationContent()
+        content.title = "New Friend Request"
+        content.subtitle = "\(newFriend.name!) wants to add you as friend."
+        content.body = "Do you want to add this new friend?"
+        content.sound = UNNotificationSound.default()
+        content.categoryIdentifier = "newRequest"
+        
+        let url = URL(fileURLWithPath: imgPath)
+        do{
+            let attachment = try UNNotificationAttachment(identifier: "newRequestImg", url: url, options: nil)
+            content.attachments = [attachment]
+        }catch{
+            print(" -- loading notification image fail, AppDelegate.swift: secheduleNewRequestNotification() ")
+        }
+        // send request
+        let request = UNNotificationRequest(identifier: "newRequest", content: content, trigger: triggerTimmer)
+        
+        // show notification: 
+        print(" -- .removeAllPendingNotificationRequests()")
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        UNUserNotificationCenter.current().add(request) { (err) in
+            if err != nil {
+                print(" -- sending notification image fail, AppDelegate.swift: secheduleNewRequestNotification() \(err!)")
+            }
+        }
+    }
+    // use UNUserNotificationCenterDelegate, response to selection on buttons in notification
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        guard let newFriend = self.newFriend, self.newMsgVC != nil else { return }
+
+        print(" --- 0. get response: \(response.actionIdentifier)")
+        switch response.actionIdentifier {
+        case notiIdAccept:
+            print(" --- 1. response: \(notiIdAccept), from newFriend: \(newFriend.name)")
+            newMsgVC?.acceptRequest(from: newFriend)
+        case notiIdReject:
+            print(" --- 2. response: \(notiIdReject), of newFriend: \(newFriend.name)")
+            newMsgVC?.rejectRequest(of: newFriend)
+        default:
+            return
+        }
+        
+        completionHandler()
+    }
+
     
     //=================================================================
 

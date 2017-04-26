@@ -255,7 +255,8 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     
     func selectingImage(){
         let picker = UIImagePickerController()
-        picker.allowsEditing = true
+        picker.navigationBar.tintColor = .white
+        picker.allowsEditing = false
         picker.delegate = self
         picker.mediaTypes = [kUTTypeImage as String, kUTTypeMovie as String] //add this for picking videos; need import MobileCoreServices,AVFoundation
         

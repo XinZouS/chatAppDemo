@@ -95,6 +95,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         updateUserAndView()
+        setupFbLoginButton()
     }
     private func updateUserAndView(){
         if let getUser = msgViewController?.currUser {
@@ -105,7 +106,6 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         setupNavigaionBar()
         setupProfileImage()
         nameTextField.text = currUser?.name
-        setupFbLoginButton()
     }
     
     func pickImg(){
@@ -153,8 +153,11 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
     }
     private func setupFbLoginButton(){
         if let tx = fbLoginButton.titleLabel?.text {
-            fbLoginButton.isHidden = (tx == "Log in")
-        }        
+            let arr = tx.components(separatedBy: " ")
+            fbLoginButton.isHidden = arr.contains("in")
+        }else{
+            fbLoginButton.isHidden = true
+        }
     }
 
     

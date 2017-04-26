@@ -84,6 +84,8 @@ class UserCell : UITableViewCell {
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
         
+        self.textLabel?.font = UIFont.systemFont(ofSize: 18)
+
         self.addSubview(profileImageView)
         profileImageView.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 9).isActive = true
         profileImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true

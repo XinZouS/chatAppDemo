@@ -47,10 +47,6 @@ class MessagesViewController: UITableViewController {
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.white]
         
-//        use this after user sign in successfully:
-//        let ref = FIRDatabase.database().reference(fromURL: "https://chatdemo-4eb7c.firebaseio.com/")
-//        ref.updateChildValues(["Key" : "value"])
-        
         tableView.register(UserCell.self, forCellReuseIdentifier: cellId)
         
         checkIfUserIsLogin()
@@ -149,11 +145,13 @@ class MessagesViewController: UITableViewController {
     
     
     private func observeUserMessages(){
-        guard let myid = FIRAuth.auth()?.currentUser?.uid else {return}
+        guard let myid = FIRAuth.auth()?.currentUser?.uid else { return }
         self.currUser.id = myid
 
         // get current user ID:
         let ref = FIRDatabase.database().reference().child("user-messages").child(myid)
+        fetchMessageFromDisk()
+
         // observe for new messages:------------------
         ref.observe(.childAdded, with: { (snapshot) in
             
@@ -202,14 +200,14 @@ class MessagesViewController: UITableViewController {
                 let getMsg = Message(dictionary: dictionary)
                 //let getMsg = Message() // replaced by one line above;
                 //getMsg.setValuesForKeys(dictionary)
-                self.messages.append(getMsg)
+//                self.messages.append(getMsg)
                 
                 if let chatPartnerId = getMsg.chatPartnerId() {
-                    self.messageOfPartnerId[chatPartnerId] = getMsg
-                    // sorting move to reloadTable();
+                    self.messages.append(getMsg)
+                    self.messageOfPartnerId[chatPartnerId] = getMsg // sorting move to reloadTable();
                 }
                 self.observingTimer.invalidate()
-                self.observingTimer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(self.reloadAndSortTable), userInfo: nil, repeats: false)
+                self.observingTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(self.reloadAndSortTable), userInfo: nil, repeats: false)
             }
             
         }, withCancel: nil)
@@ -221,7 +219,7 @@ class MessagesViewController: UITableViewController {
             let encodedData : Data = NSKeyedArchiver.archivedData(withRootObject: self.messages)
             userDefaults.set(encodedData, forKey: "\(currName)\(currId)Messages")
             userDefaults.synchronize()
-            print("------ save messages to disk success!!")
+            print("- save messages to disk success!!")
         }
     }
     private func fetchMessageFromDisk(){
@@ -230,9 +228,9 @@ class MessagesViewController: UITableViewController {
             let decodedData = UserDefaults.standard.object(forKey: "\(currName)\(currId)Messages") as? Data {
             let decodedMessages = NSKeyedUnarchiver.unarchiveObject(with: decodedData) as! [Message]
             self.messages = decodedMessages
-            print("======= load messages success: ", decodedMessages)
+            print(" - 4.0 fetchMessageFromDisk() success: self.messages.count = ", self.messages.count)
         }else{
-            print("======= unable to load messages from disk: for userName,id = ", currUser.name, currUser.id )
+            print("======= can NOT to load messages from disk: for userName,id = ", currUser.name, currUser.id )
         }
     }
     private func removeMessageFromDisk(){
@@ -328,11 +326,12 @@ class MessagesViewController: UITableViewController {
     
     
     func checkIfUserIsLogin(){
+        print(" - 1. checkIfUserIsLogin(): ")
         if let getuser = fetchUserFromDisk() { // setup currUser;
             currUser = getuser
+            print(" - 2. getUser: \(currUser.name), img: \(currUser.profileImgURL)")
         }
         if let uid = FIRAuth.auth()?.currentUser?.uid, uid != "", let curId = currUser.id, curId != "" {
-        print(" - checkIfUserIsLogin(), uid = \(uid), currUser.id = \(curId)")
             // get user by id in firebase:
             fetchUserAndSetUpNavBarTitle()
         }else{
@@ -342,7 +341,9 @@ class MessagesViewController: UITableViewController {
     }
     
     func fetchUserAndSetUpNavBarTitle() {
+        print(" -- 3. fetchUserAndSetUpNavBarTitle(), ")
         guard let uid = FIRAuth.auth()?.currentUser?.uid else {
+            print(" -- 3.0 no connect from FIRAuth, try fetchUserFromDisk():")
             if let getuser = fetchUserFromDisk(){
                 currUser = getuser
             }
@@ -351,6 +352,7 @@ class MessagesViewController: UITableViewController {
         }
         // get current user by id in database:
         FIRDatabase.database().reference().child("users").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
+            print(" -- 3.1 get connect to FIRAuth, load currUser:")
             // get snapshot is a JSON obj, so unwap it to get info:
             if let dictionary = snapshot.value as? [String:Any] {
                 self.currUser.setValuesForKeys(dictionary) // profileImgURL, name, email (already has id,friends)

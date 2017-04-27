@@ -33,6 +33,12 @@ class ChatLogViewMenuLuncher : NSObject, UICollectionViewDelegate, UICollectionV
     
     let blackBackground = UIView()
     
+    let menuView : UIView = {
+        let v = UIView()
+        v.backgroundColor = .white
+        return v
+    }()
+    
     let collectionMenuView : UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let v = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -55,17 +61,20 @@ class ChatLogViewMenuLuncher : NSObject, UICollectionViewDelegate, UICollectionV
         collectionMenuView.register(MenuCell.self, forCellWithReuseIdentifier: menuCellId)
         if let layout = collectionMenuView.collectionViewLayout as? UICollectionViewFlowLayout {
             layout.scrollDirection = .vertical
-            layout.minimumLineSpacing = 0
+            layout.minimumLineSpacing = 20
         }
         
         setupMenuItems()
+        
+        menuView.addSubview(collectionMenuView)
+        collectionMenuView.addConstraints(left: menuView.leftAnchor, top: menuView.topAnchor, right: menuView.rightAnchor, bottom: menuView.bottomAnchor, leftConstent: 20, topConstent: 20, rightConstent: 20, bottomConstent: 20, width: 0, height: 0)
     }
     
     private func setupMenuItems(){
-        let mImage = MenuItem(MenuString.Image, UIImage(named: "bear02n80x80")! )
-        let mCamera = MenuItem(MenuString.Camera, UIImage(named: "catNdog80x80@1x")! )
-        let mGifs  = MenuItem(MenuString.Gifs, UIImage(named: "bear02n80x80")! )
-        menuItems = [mImage, mCamera, mGifs]
+        let mImage = MenuItem(MenuString.Image, UIImage(named: "photoGallery80x80")! )
+        let mCamera = MenuItem(MenuString.Camera, UIImage(named: "camera122x122")! )
+        let mGifs  = MenuItem(MenuString.Gifs, UIImage(named: "guaiqiao80x80")! )
+        menuItems = [mImage, mCamera]
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -73,16 +82,18 @@ class ChatLogViewMenuLuncher : NSObject, UICollectionViewDelegate, UICollectionV
     }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: menuCellId, for: indexPath) as! MenuCell
-        cell.backgroundColor = .orange
+        // cell.backgroundColor = .orange
         let item = menuItems[indexPath.item]
-        cell.imageViwe.image = item.icon
+        cell.imageViwe.image = item.icon.withRenderingMode(.alwaysTemplate)
+        cell.tintColor = .gray
         cell.titleLabel.text = item.name.rawValue
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let margin : CGFloat = 0
-        let sideLen = UIScreen.main.bounds.width / 4 - margin
-        return CGSize(width: sideLen, height: sideLen)
+        let ratio : CGFloat = UIDevice.current.userInterfaceIdiom == .phone ? 4 : 6
+        let margin : CGFloat = 30
+        let sideLen = UIScreen.main.bounds.width / ratio - margin
+        return CGSize(width: sideLen + 10, height: sideLen)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -97,30 +108,33 @@ class ChatLogViewMenuLuncher : NSObject, UICollectionViewDelegate, UICollectionV
         blackBackground.backgroundColor = .black
         blackBackground.alpha = 0
         blackBackground.isUserInteractionEnabled = true
-        blackBackground.addGestureRecognizer( UITapGestureRecognizer(target: self, action: #selector(menuViewDismissForSelected)))
+        blackBackground.addGestureRecognizer( UITapGestureRecognizer(target: self, action: #selector(menuViewDismiss)))
         window.addSubview(blackBackground)
         
         // init position for menu
-        let height = CGFloat(window.frame.height / 3)
-        collectionMenuView.frame = CGRect(x: 0, y: window.frame.maxY, width: window.frame.width, height: 0)
-        window.addSubview(collectionMenuView)
+        let height = CGFloat(window.frame.height / 4)
+//        collectionMenuView.frame = CGRect(x: 0, y: window.frame.maxY, width: window.frame.width, height: 0)
+//        window.addSubview(collectionMenuView)
+        menuView.frame = CGRect(x: 0, y: window.frame.maxY, width: window.frame.width, height: 0)
+        window.addSubview(menuView)
         
         let dy = chatLogController?.inputContainerView.frame.height
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1.2, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
-            self.collectionMenuView.frame = CGRect(x: 0, y: window.frame.height - height - dy!, width: window.frame.width, height: height)
+//            self.collectionMenuView.frame = CGRect(x: 0, y: window.frame.height - height - dy!, width: window.frame.width, height: height)
+            self.menuView.frame = CGRect(x: 0, y: window.frame.height - height - dy!, width: window.frame.width, height: height)
             self.blackBackground.alpha = 0.5
         }, completion: nil)
     }
     
     func menuViewDismissForSelected(item: MenuItem?){
-        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1.2, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1.2, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
             self.blackBackground.alpha = 0
             if let currWindow = UIApplication.shared.keyWindow {
-                self.collectionMenuView.frame = CGRect(x: 0, y: currWindow.frame.maxY, width: currWindow.frame.width, height: 0)
+//                self.collectionMenuView.frame = CGRect(x: 0, y: currWindow.frame.maxY, width: currWindow.frame.width, height: 0)
+                self.menuView.frame = CGRect(x: 0, y: currWindow.frame.maxY, width: currWindow.frame.width, height: 0)
             }
         }) { (finish) in
             self.blackBackground.isHidden = true
-//            guard let item = item, item < self.menuItems.count else { return }
             guard let itemName = item?.name else { return }
             switch itemName {
             case MenuString.Image:
@@ -134,41 +148,21 @@ class ChatLogViewMenuLuncher : NSObject, UICollectionViewDelegate, UICollectionV
             }
         }
     }
+    func menuViewDismiss(){
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1.2, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
+            self.blackBackground.alpha = 0
+            if let currWindow = UIApplication.shared.keyWindow {
+//                self.collectionMenuView.frame = CGRect(x: 0, y: currWindow.frame.maxY, width: currWindow.frame.width, height: 0)
+                self.menuView.frame = CGRect(x: 0, y: currWindow.frame.maxY, width: currWindow.frame.width, height: 0)
+            }
+        }) { (finish) in
+            self.blackBackground.isHidden = true
+        }
+    }
     
 }
 
 
-class MenuCell : UICollectionViewCell {
-    
-    var imageViwe : UIImageView = {
-        let i = UIImageView()
-        i.contentMode = .scaleAspectFit
-        return i
-    }()
-    
-    var titleLabel : UILabel = {
-        let t = UILabel()
-        t.backgroundColor = .yellow
-        t.font = UIFont.systemFont(ofSize: 16)
-        t.textColor = .gray
-        t.text = "titleLabel"
-        return t
-    }()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
-        addSubview(imageViwe)
-        imageViwe.addConstraints(left: leftAnchor, top: topAnchor, right: rightAnchor, bottom: bottomAnchor, leftConstent: 0, topConstent: 0, rightConstent: 0, bottomConstent: 30, width: 0, height: 0)
-        
-        addSubview(titleLabel)
-        titleLabel.addConstraints(left: leftAnchor, top: imageViwe.bottomAnchor, right: rightAnchor, bottom: bottomAnchor, leftConstent: 0, topConstent: 0, rightConstent: 0, bottomConstent: 0, width: 0, height: 0)
-    }
-    
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-}
+
+
 

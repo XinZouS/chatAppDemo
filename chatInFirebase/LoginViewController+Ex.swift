@@ -79,7 +79,8 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
         }
         FIRAuth.auth()?.signIn(withEmail: email, password: pw, completion: { (user:FIRUser?, err:Error?) in
             if err != nil {
-                self.showAlertWith(title: "‼️Login Failed", message: "Got an error when signing in: \(err!)")
+                let msg = "My apologizes😢, somehow we unable to signin for you. Please make sure your device is connecting to the Internet📶 and try again later."
+                self.showAlertWith(title: "‼️ Login Failed", message: msg)
                 print("get error when sign in: LoginViewController+Ex:loginUser(): \(err!)")
                 return
             }

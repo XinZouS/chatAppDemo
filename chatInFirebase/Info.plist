@@ -46,6 +46,8 @@
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Select your profile image.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Take photo for you to send to friends.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

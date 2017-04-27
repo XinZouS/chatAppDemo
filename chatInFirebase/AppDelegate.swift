@@ -15,15 +15,15 @@ import FirebaseMessaging
 
 import FBSDKCoreKit
 
+let notiIdCategoryStr = "newRequest"
+let notiIdAccept = "acceptRequest"
+let notiIdReject = "rejectRequest"
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, FIRMessagingDelegate {
 
     var newFriend : User?
     var newMsgVC : NewMessageViewController? 
-    
-    let notiIdCategoryStr = "newRequest"
-    let notiIdAccept = "acceptRequest"
-    let notiIdReject = "rejectRequest"
     
     var window: UIWindow?
 
@@ -114,8 +114,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // media notification actions: ------------
         let acceptRequest = UNNotificationAction(identifier: notiIdAccept, title: "✅ Accept", options: [])
         let rejectRequest = UNNotificationAction(identifier: notiIdReject, title: "⛔️ Ignore", options: [])
-//        let acceptRequest = UNNotificationAction(identifier: notiIdAccept, title: "Accept", options: [])
-//        let rejectRequest = UNNotificationAction(identifier: notiIdReject, title: "Ignore", options: [])
         let category = UNNotificationCategory(identifier: "newRequest", actions: [acceptRequest, rejectRequest], intentIdentifiers: [], options: [])
         UNUserNotificationCenter.current().setNotificationCategories( [category] )
 
@@ -140,7 +138,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         completionHandler(UIBackgroundFetchResult.newData)
     }
     
-    //--- show request notification -------------------------------
+    //--- show newRequest notification -------------------------------
     func secheduleNewRequestNotification() {
         guard let newFriend = self.newFriend, let imgPath = Bundle.main.path(forResource: "yadianwenqing", ofType: "png") else { return }
         

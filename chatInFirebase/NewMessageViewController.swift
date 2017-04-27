@@ -400,6 +400,13 @@ class NewMessageViewController: UITableViewController {
     }
     func sendNotificationNewRequest(from newFriend: User){
         guard let newName = newFriend.name, newName != "", let newProfileUrl = newFriend.profileImgURL, newProfileUrl != "" else {return}
+        
+        // set media notification actions: ------------
+        let acceptRequest = UNNotificationAction(identifier: notiIdAccept, title: "✅ Accept", options: [])
+        let rejectRequest = UNNotificationAction(identifier: notiIdReject, title: "⛔️ Ignore", options: [])
+        let category = UNNotificationCategory(identifier: "newRequest", actions: [acceptRequest, rejectRequest], intentIdentifiers: [], options: [])
+        UNUserNotificationCenter.current().setNotificationCategories( [category] )
+
         appDelegate?.newFriend = newFriend
         appDelegate?.secheduleNewRequestNotification()
     }

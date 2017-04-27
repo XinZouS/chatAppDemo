@@ -12,7 +12,8 @@ import MobileCoreServices // for picking videos
 import AVFoundation
 
 
-class ChatLogController: UICollectionViewController, UITextFieldDelegate, UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class ChatLogController: UICollectionViewController, UITextFieldDelegate, UICollectionViewDelegateFlowLayout,
+                        UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     //let containerView = UIView() // replaced by inputView on top of keyboard;
     
@@ -253,11 +254,23 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         }
     }
     
-    func selectingImage(){
+    lazy var menu : ChatLogViewMenuLuncher = {
+        let m = ChatLogViewMenuLuncher()
+        m.chatLogController = self
+        return m
+    }()
+
+    func showMenuLuncher(){
+        inputContainerView.keyboardDismiss()
+        menu.menuViewShowup()
+    }
+    
+    func selectingImage(fromCamera:Bool){
         let picker = UIImagePickerController()
         picker.navigationBar.tintColor = .white
         picker.allowsEditing = false
         picker.delegate = self
+        picker.sourceType = fromCamera ? .camera : .photoLibrary
         picker.mediaTypes = [kUTTypeImage as String, kUTTypeMovie as String] //add this for picking videos; need import MobileCoreServices,AVFoundation
         
         present(picker, animated: true, completion: nil)

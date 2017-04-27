@@ -15,9 +15,9 @@ class SearchViewController : UICollectionViewController, UICollectionViewDelegat
     var currUser : User?
     var candidateFriends = [User]()
     
-    lazy var inputContainerView : ChatInputContainerView = {
+    lazy var inputContainerView : BaseInputContainerView = {
         let frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50)
-        let c = ChatInputContainerView(frame: frame)
+        let c = BaseInputContainerView(frame: frame)
         c.imgBtn.setTitle("❎", for: .normal)
         c.imgBtn.addTarget(self, action: #selector(clearTextField), for: .touchUpInside)
         c.sendBtn.setTitle("Search", for: .normal)

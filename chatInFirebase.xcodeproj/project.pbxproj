@@ -11,6 +11,8 @@
 		6604EE581EA128FF00E28DCE /* UserNewrequestCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6604EE571EA128FF00E28DCE /* UserNewrequestCell.swift */; };
 		6608BCF81EA4F2E400DBB87F /* UINavigationController++.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6608BCF71EA4F2E400DBB87F /* UINavigationController++.swift */; };
 		661D191E1EAFAF550004CB66 /* yadianwenqing.png in Resources */ = {isa = PBXBuildFile; fileRef = 661D191D1EAFAF550004CB66 /* yadianwenqing.png */; };
+		661D19201EB03ADA0004CB66 /* BaseInputContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 661D191F1EB03ADA0004CB66 /* BaseInputContainerView.swift */; };
+		662ABB8D1EB0F1E4002ACDC2 /* ChatLogViewMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 662ABB8C1EB0F1E4002ACDC2 /* ChatLogViewMenu.swift */; };
 		663C18AC1E1816680014A359 /* NewMessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663C18AB1E1816680014A359 /* NewMessageViewController.swift */; };
 		663C18AE1E195AA60014A359 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663C18AD1E195AA60014A359 /* User.swift */; };
 		663C18B01E1AAE5A0014A359 /* LoginViewController+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663C18AF1E1AAE5A0014A359 /* LoginViewController+Ex.swift */; };
@@ -46,6 +48,8 @@
 		6604EE571EA128FF00E28DCE /* UserNewrequestCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserNewrequestCell.swift; sourceTree = "<group>"; };
 		6608BCF71EA4F2E400DBB87F /* UINavigationController++.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UINavigationController++.swift"; sourceTree = "<group>"; };
 		661D191D1EAFAF550004CB66 /* yadianwenqing.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = yadianwenqing.png; sourceTree = "<group>"; };
+		661D191F1EB03ADA0004CB66 /* BaseInputContainerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseInputContainerView.swift; sourceTree = "<group>"; };
+		662ABB8C1EB0F1E4002ACDC2 /* ChatLogViewMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatLogViewMenu.swift; sourceTree = "<group>"; };
 		663C18AB1E1816680014A359 /* NewMessageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewMessageViewController.swift; sourceTree = "<group>"; };
 		663C18AD1E195AA60014A359 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		663C18AF1E1AAE5A0014A359 /* LoginViewController+Ex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "LoginViewController+Ex.swift"; sourceTree = "<group>"; };
@@ -120,9 +124,11 @@
 				669985E31E15A46700DCA278 /* LoginViewController.swift */,
 				6649CE191E1EBD5A006633CD /* UserCell.swift */,
 				6604EE571EA128FF00E28DCE /* UserNewrequestCell.swift */,
+				661D191F1EB03ADA0004CB66 /* BaseInputContainerView.swift */,
 				6690F5381E2E7F4800F1B6E0 /* ChatInputContainerView.swift */,
 				668DC3BD1E2039CA005EC99B /* ChatMessageCell.swift */,
 				66561D9A1EA9356600200ECD /* ChatLogView.swift */,
+				662ABB8C1EB0F1E4002ACDC2 /* ChatLogViewMenu.swift */,
 				6690F5411E31496D00F1B6E0 /* SearchViewCell.swift */,
 			);
 			name = View;
@@ -352,6 +358,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				662ABB8D1EB0F1E4002ACDC2 /* ChatLogViewMenu.swift in Sources */,
 				66561D991EA90E7C00200ECD /* String++.swift in Sources */,
 				663C18B41E1C739A0014A359 /* ChatLogController.swift in Sources */,
 				6690F53E1E31154900F1B6E0 /* TabBarController.swift in Sources */,
@@ -360,6 +367,7 @@
 				669985E41E15A46700DCA278 /* LoginViewController.swift in Sources */,
 				669985D31E15A1CE00DCA278 /* MessagesViewController.swift in Sources */,
 				664630D21E1DD73C00E18F41 /* Message.swift in Sources */,
+				661D19201EB03ADA0004CB66 /* BaseInputContainerView.swift in Sources */,
 				668A407F1EAAA8DC0048B166 /* README.md in Sources */,
 				6690F5421E31496D00F1B6E0 /* SearchViewCell.swift in Sources */,
 				66F5C2F41E97D4A900AA568C /* ProfileViewController.swift in Sources */,

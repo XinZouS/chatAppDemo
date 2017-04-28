@@ -48,25 +48,65 @@ class MessagesViewController: UITableViewController {
         navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.white]
         
         tableView.register(UserCell.self, forCellReuseIdentifier: cellId)
+        tableView.allowsMultipleSelectionDuringEditing = true // allow delete at row;
         
         checkIfUserIsLogin()
         
         // observeUserMessages() // move to func setupNavBarWithUser()
-        
-        tableView.allowsMultipleSelectionDuringEditing = true // allow delete at row;
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        if let user = fetchUserFromDisk() {
+            currUser = user
+            navigationController?.setupNavBarWithUser(user: currUser, in: self)
+        }
+        //remove all notifications:
         UIApplication.shared.applicationIconBadgeNumber = 0
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         UNUserNotificationCenter.current().removeAllDeliveredNotifications()
     }
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return messages.count
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        // let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cellId")
+        // bcz tableView.register(UserCell.self, forCellReuseIdentifier: cellId)
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellId, for: indexPath) as! UserCell
+        
+        let msg = messages[indexPath.row]
+        cell.message = msg
+        cell.layer.shouldRasterize = true // 2 lines for better image loading
+        cell.layer.rasterizationScale = UIScreen.main.scale
+        return cell
+    }
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 72
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let msg = messages[indexPath.row] // get the latest msg
+        guard let chartPartnerId = msg.chatPartnerId() else {
+            return
+        }
+        let ref = FIRDatabase.database().reference().child("users").child(chartPartnerId)
+        ref.observeSingleEvent(of: .value, with: { (snapshot) in
+            // get the partner as a new user:
+            guard let dictionary = snapshot.value as? [String: Any] else {return}
+            let partnerUser = User()
+            partnerUser.id = chartPartnerId
+            partnerUser.setValuesForKeys(dictionary)
+            
+            self.showChatControllerForUser(partnerUser: partnerUser)
+            
+        }, withCancel: nil)
+    }
+        
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
     }
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        removeMessageFromDisk()
-        //print("selecting at : ", indexPath.row) // delete this partner and all msgs in databas:
         guard let myId = FIRAuth.auth()?.currentUser?.uid else {return}
         let msg = messages[indexPath.row]
         guard let partnerId = msg.chatPartnerId() else {return}
@@ -82,6 +122,58 @@ class MessagesViewController: UITableViewController {
             self.deleteMessageLocallyFor(partnerId: partnerId)
         }
     }
+    
+    
+    func checkIfUserIsLogin(){
+        print(" - 1. checkIfUserIsLogin(): ")
+        if let getuser = fetchUserFromDisk() { // setup currUser;
+            currUser = getuser
+            print(" - 2. getUser: \(currUser.name), img: \(currUser.profileImgURL)")
+        }
+        if let uid = FIRAuth.auth()?.currentUser?.uid, uid != "", let curId = currUser.id, curId != "" {
+            // get user by id in firebase:
+            fetchUserAndSetUpNavBarTitle()
+        }else{
+            // handleLogout()  //but we use a better way to call that func:
+            performSelector(inBackground: #selector(handleLogout), with: nil)
+        }
+    }
+    
+    func fetchUserAndSetUpNavBarTitle() {
+        print(" -- 3.0 fetchUserAndSetUpNavBarTitle(), ")
+        guard let uid = FIRAuth.auth()?.currentUser?.uid else { return }
+        if let getuser = fetchUserFromDisk(){
+            print(" -- 3.1 first try fetchUserFromDisk(): getuser=\(getuser)")
+            currUser = getuser
+            setupNavBarWithUser(user: currUser)
+        }
+        // get current user by id in database:
+        FIRDatabase.database().reference().child("users").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
+            print(" -- 3.2 get connect to FIRAuth, load currUser:")
+            // get snapshot is a JSON obj, so unwap it to get info:
+            if let dictionary = snapshot.value as? [String:Any] {
+                self.currUser.setValuesForKeys(dictionary) // profileImgURL, name, email (already has id,friends)
+                self.setupNavBarWithUser(user: self.currUser)
+                self.saveUserIntoDisk()
+            }
+        }, withCancel: nil)
+    }
+    
+    func setupNavBarWithUser(user: User) {
+        //        messages.removeAll()
+        //        messageOfPartnerId.removeAll()
+        //        tableView.reloadData()
+        //
+        navigationController?.setupNavBarWithUser(user: user, in: self) // in
+        
+        observeUserMessages() // fetch msgs ONLY for current user;
+        
+        // titleView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showChatController)))
+        
+    }
+    
+    
+    
     private func deleteMessageInDataBaseFor(partnerId: String, myId: String){
         let msgsRef = FIRDatabase.database().reference().child("user-messages").child(myId).child(partnerId)
         msgsRef.observeSingleEvent(of: .value, with: { (snapshot) in
@@ -118,6 +210,7 @@ class MessagesViewController: UITableViewController {
             
         }, withCancel: nil)
     }
+    
     // one way to delete message, but not so save, bcz db may delay:---------
     //private func deleteMessageAt(indexPath: IndexPath){
         //self.messages.remove(at: indexPath.row)
@@ -126,6 +219,13 @@ class MessagesViewController: UITableViewController {
     // the other way to delete message, remove reference from db:------------
     private func deleteMessageLocallyFor(partnerId: String){
         messageOfPartnerId.removeValue(forKey: partnerId)
+        for idx in 0...messages.count - 1 {
+            let msg = messages[idx]
+            if msg.chatPartnerId() == partnerId {
+                messages.remove(at: idx)
+                return
+            }
+        }
         reloadAndSortTable()
     }
     private func deleteFileInFireBaseAt(folder:String, fileName:String){
@@ -240,7 +340,7 @@ class MessagesViewController: UITableViewController {
         }
     }
     func saveUserIntoDisk(){
-        if self.currUser.name != nil, self.currUser.id != nil {
+        if self.currUser.name != nil, self.currUser.id != nil, self.currUser.profileImgURL != nil {
             let userDefaults = UserDefaults.standard
             let encodedData : Data = NSKeyedArchiver.archivedData(withRootObject: self.currUser)
             userDefaults.set(encodedData, forKey: "currUser")
@@ -285,95 +385,6 @@ class MessagesViewController: UITableViewController {
         if newBadgeNumber > 0 {//-1 {
             UIApplication.shared.applicationIconBadgeNumber = newBadgeNumber
         }
-    }
-    
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return messages.count
-    }
-    
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cellId")
-        // bcz tableView.register(UserCell.self, forCellReuseIdentifier: cellId)
-        let cell = tableView.dequeueReusableCell(withIdentifier: cellId, for: indexPath) as! UserCell
-        
-        let msg = messages[indexPath.row]
-        cell.message = msg
-        cell.layer.shouldRasterize = true // 2 lines for better image loading
-        cell.layer.rasterizationScale = UIScreen.main.scale
-        return cell
-    }
-    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 72
-    }
-    
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let msg = messages[indexPath.row] // get the latest msg
-        guard let chartPartnerId = msg.chatPartnerId() else {
-            return
-        }
-        let ref = FIRDatabase.database().reference().child("users").child(chartPartnerId)
-        ref.observeSingleEvent(of: .value, with: { (snapshot) in
-            // get the partner as a new user: 
-            guard let dictionary = snapshot.value as? [String: Any] else {return}
-            let partnerUser = User()
-            partnerUser.id = chartPartnerId
-            partnerUser.setValuesForKeys(dictionary)
-            
-            self.showChatControllerForUser(partnerUser: partnerUser)
-
-        }, withCancel: nil)
-    }
-    
-    
-    func checkIfUserIsLogin(){
-        print(" - 1. checkIfUserIsLogin(): ")
-        if let getuser = fetchUserFromDisk() { // setup currUser;
-            currUser = getuser
-            print(" - 2. getUser: \(currUser.name), img: \(currUser.profileImgURL)")
-        }
-        if let uid = FIRAuth.auth()?.currentUser?.uid, uid != "", let curId = currUser.id, curId != "" {
-            // get user by id in firebase:
-            fetchUserAndSetUpNavBarTitle()
-        }else{
-            // handleLogout()  //but we use a better way to call that func:
-            performSelector(inBackground: #selector(handleLogout), with: nil)
-        }
-    }
-    
-    func fetchUserAndSetUpNavBarTitle() {
-        print(" -- 3. fetchUserAndSetUpNavBarTitle(), ")
-        guard let uid = FIRAuth.auth()?.currentUser?.uid else {
-            print(" -- 3.0 no connect from FIRAuth, try fetchUserFromDisk():")
-            if let getuser = fetchUserFromDisk(){
-                currUser = getuser
-            }
-            setupNavBarWithUser(user: currUser)
-            return
-        }
-        // get current user by id in database:
-        FIRDatabase.database().reference().child("users").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
-            print(" -- 3.1 get connect to FIRAuth, load currUser:")
-            // get snapshot is a JSON obj, so unwap it to get info:
-            if let dictionary = snapshot.value as? [String:Any] {
-                self.currUser.setValuesForKeys(dictionary) // profileImgURL, name, email (already has id,friends)
-                self.setupNavBarWithUser(user: self.currUser)
-                self.saveUserIntoDisk()
-            }
-        }, withCancel: nil)        
-    }
-    
-    func setupNavBarWithUser(user: User) {
-        messages.removeAll()
-        messageOfPartnerId.removeAll()
-        tableView.reloadData()
-        
-        observeUserMessages() // fetch msgs ONLY for current user;
-        
-        // self.navigationItem.title = user.name // but this can only set name, we need img using:
-        navigationController?.setupNavBarWithUser(user: user, in: self) // in
-        
-        // titleView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showChatController)))
-
     }
     
     func showChatControllerForUser(partnerUser: User) { //--- go to ChatLogViewController.swift ---

@@ -100,7 +100,7 @@ class UserCell : UITableViewCell {
     }
     
     
-    // and add this:
+
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder) has not been implented!! NewMessageViewController.swift: 90")
     }

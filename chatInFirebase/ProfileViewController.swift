@@ -73,6 +73,8 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.white]
         
+        updateUserAndView()
+
         view.addSubview(profileImageView)
         profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         profileImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -50).isActive = true
@@ -94,7 +96,6 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        updateUserAndView()
         setupFbLoginButton()
     }
     private func updateUserAndView(){
@@ -110,6 +111,8 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
     
     func pickImg(){
         let imgPicker = UIImagePickerController()
+        imgPicker.navigationBar.tintColor = .white
+        imgPicker.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.white]
         imgPicker.sourceType = .photoLibrary
         imgPicker.delegate = self
         imgPicker.allowsEditing = true
@@ -162,7 +165,9 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
 
     
     func saveChangesToFirebase(){
-        guard let userName = currUser?.name, let userEmail = currUser?.email, let userId = currUser?.id else { return }
+        guard let userName = currUser?.name, let userEmail = currUser?.email,
+              let userId = currUser?.id, let url = currUser?.profileImgURL else { return }
+        
         let imgId = "\(userEmail)Profile.jpg"
         let storageRef = FIRStorage.storage().reference().child("profile_images").child(imgId)
         // 1, remove old file from firebase:
@@ -171,6 +176,9 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
                 print("get error when deleting prifile image form firebase: ProfileViewController.swift:saveChangesToFirebase() : ", err!)
                 //return
             }
+            //1.1, remove old file form local disk:
+            print("  --------- 1.1, remove old file form local disk.")
+            UserDefaults.standard.removeObject(forKey: url)
         }
         // 2, put new image file into it:
         if let pImg = profileImageView.image, let uploadData = UIImageJPEGRepresentation(pImg, 0.1) {
@@ -185,6 +193,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
                     self.msgViewController?.currUser.profileImgURL = newImgUrl
                     self.msgViewController?.currUser.name = self.nameTextField.text
                     self.msgViewController?.saveUserIntoDisk()
+                    self.saveImageIntoDiskWith(self.profileImageView.image, newImgUrl)
                     self.updateNewInfoFor(id: userId, newName:self.nameTextField.text, newUrl: newImgUrl)
                 }
             })
@@ -198,11 +207,15 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
             if error != nil {
                 print("get error when updating new user name and imgUrl: ProfileViewController.swift: updateNewInfoFor()", error!)
             }
-            //print(reference)
-            self.showAlertWith(title: "Update Success!", message: "Your new profile information has been update to database successfully!")
+            self.showAlertWith(title: "✅ Update Success!", message: "Your new profile information has been update to database successfully!")
         }
-
     }
+    private func saveImageIntoDiskWith(_ image: UIImage?, _ imgUrl: String?){
+        guard let image = image, let imgUrl = imgUrl, imgUrl != "" else { return }
+        UserDefaults.standard.set(UIImageJPEGRepresentation(image, 1.0), forKey: imgUrl)
+        UserDefaults.standard.synchronize()
+    }
+
     
     func handleLogout(){
         tabBarController?.selectedIndex = 0

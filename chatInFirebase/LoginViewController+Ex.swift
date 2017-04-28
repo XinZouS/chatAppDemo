@@ -137,6 +137,8 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
                     self.registerUserIntoDatabaseWithUID(uid: uid, userValue: userValue)
                     //print(metadata)  // to get its info and key;
                     
+                    self.saveImgToDiskWith(profileImage, profileImgURL)
+                    
                     if needLogin {
                         self.loginUser() // for user image refresh after new user register
                     }
@@ -169,6 +171,14 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
         })
 
     }
+    
+    private func saveImgToDiskWith(_ img: UIImage?, _ imgUrl: String?){
+        guard let img = img, let imgUrl = imgUrl else { return }
+        print(" - save image of url: \(imgUrl) ... ")
+        UserDefaults.standard.set(UIImageJPEGRepresentation(img, 1.0), forKey: imgUrl)
+        UserDefaults.standard.synchronize()
+    }
+
     
     //=== facebook login ====================================
     func loginButton(_ loginButton: FBSDKLoginButton!, didCompleteWith result: FBSDKLoginManagerLoginResult!, error: Error!) {

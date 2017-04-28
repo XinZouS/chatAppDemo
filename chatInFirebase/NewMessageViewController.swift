@@ -50,6 +50,7 @@ class NewMessageViewController: UITableViewController {
     let savingKeyForMyFriends = "myFriends"
 
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -176,7 +177,7 @@ class NewMessageViewController: UITableViewController {
     func removeContactOnFirebaseAndLocally(of friendIndex: Int){
         guard let removeId = myFriends[friendIndex].id, let myId = currUser?.id else { return }
         if removeId == myId {
-            showAlertWith(title: "😅Hate yourself?", message: "Learn to love yourself😇. You should keep your contact in friends list.")
+            showAlertWith(title: "😅Nope, my friend", message: "Learn to love yourself😇. You should keep your contact in friends list.")
             return
         }
         var newList = [String]()
@@ -274,6 +275,7 @@ class NewMessageViewController: UITableViewController {
 
     
     let userDefaults = UserDefaults.standard
+    
     private func saveMyFriendUsersIntoDisk(){
         if myFriends.count == 0 { return }
         let encodedData : Data = NSKeyedArchiver.archivedData(withRootObject: myFriends)

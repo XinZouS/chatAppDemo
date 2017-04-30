@@ -9,9 +9,12 @@
 import UIKit
 
 class TabBarController: UITabBarController {
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        DispatchQueue.main.async {
+            
         let messagesView = MessagesViewController()
         let msgNavController = UINavigationController(rootViewController: messagesView)
         msgNavController.title = "Chats"
@@ -37,6 +40,7 @@ class TabBarController: UITabBarController {
         
         self.viewControllers = [msgNavController, newMsgNavController, profileController]
         
+        }
         
     }
 }

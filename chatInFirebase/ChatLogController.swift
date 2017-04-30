@@ -244,7 +244,6 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     }()
     override var inputAccessoryView: UIView? { // move it with keyboard;
         get{ // put my inputViewItems:UIView inside here!!!!!
-
             return inputContainerView
         }
     }
@@ -254,10 +253,16 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         }
     }
     
-    lazy var menu : ChatLogViewMenuLuncher = {
-        let m = ChatLogViewMenuLuncher()
+    lazy var menu : ChatLogMenuLuncher = {
+        let m = ChatLogMenuLuncher()
         m.chatLogController = self
         return m
+    }()
+    
+    lazy var gifsMenuVC : GifsViewController = {
+        let g = GifsViewController()
+        g.chatLogController = self
+        return g
     }()
 
     func showMenuLuncher(){
@@ -331,6 +336,16 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             print("get err when converting CGimg of 1st frame: \(err), ---> ChatLogController.swift:410")
         }
         return nil
+    }
+    
+    func showGifsLuncher(){
+        inputContainerView.keyboardDismiss()
+        gifsMenuVC.gifMenuViewShowup()
+    }
+    func prepareUploadingGif(item: GifItem){
+        if let url = item.imgUrl {
+            //UIImage.gifImageWithURL(gifUrl: <#T##String#>)
+        }
     }
     
     private func prepareUploadingImageFrom(info: [String:Any]){

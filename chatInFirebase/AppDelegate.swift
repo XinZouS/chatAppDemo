@@ -29,8 +29,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 
-        FIRApp.configure()
-
         // add my main.storyboard by code: ================================
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.makeKeyAndVisible()
@@ -40,7 +38,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         UINavigationBar.appearance().barTintColor = buttonColorPurple
         window?.rootViewController = tabBarController
         
-        registerForPushNotifications(application: application)
+//        registerForLocalNotifications(application: application) // it may cause watchdog timeout, so put it async to try:
+        DispatchQueue.main.async {
+            self.registerForLocalNotifications(application: application)
+            
+            FIRApp.configure()
+        }
         
         // for facebook login:
         //[[FBSDKApplicationDelegate sharedInstance] application:application didFinishLaunchingWithOptions:launchOptions]
@@ -69,7 +72,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     // connect to FCM : https://firebase.google.com/docs/cloud-messaging/ios/receive
     func connectToFcm() {
         // Won't connect since there is no token
-        // guard FIRInstanceID.instanceID().token() != nil else { return }
+        guard FIRInstanceID.instanceID().token() != nil else { return }
         guard let token = FIRInstanceID.instanceID().token() else { return }
         
         // Disconnect previous FCM connection if it exists.
@@ -77,23 +80,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         
         FIRMessaging.messaging().connect { (error) in
             if error != nil {
-                print("=== Unable to connect with FCM. \(error)")
+                print(" === Unable to connect with FCM. \(error)")
             } else {
-                print("=== Connected to FCM.")
+                print(" === Connected to FCM.")
             }
         }
     }
     
     // for receiving notifications: =======================================
-    func registerForPushNotifications(application: UIApplication) {
+    func registerForLocalNotifications(application: UIApplication) {
         if #available(iOS 10.0, *) {
             // For iOS 10 display notification (sent via APNS)
             UNUserNotificationCenter.current().delegate = self
             UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound], completionHandler: {(granted, error) in
                 if (granted) {
-                    UIApplication.shared.registerForRemoteNotifications()
-                }
-                else{
+                    //UIApplication.shared.registerForRemoteNotifications() //// ????? will this on use and crash ??????? replaced by settings:
+                    let settings = UIUserNotificationSettings(types: [.alert, .badge, .sound], categories: nil)
+                    UIApplication.shared.registerUserNotificationSettings(settings)
+                }else{
                     print(" - get UNUserNotificationCenter.current().requestAuthorization() failed: \(error!)")
                 }
             })
@@ -119,7 +123,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         // normal notification: -------------------
         application.registerForRemoteNotifications()
-        application.beginBackgroundTask(withName: "showNotification", expirationHandler: nil)
+        application.beginBackgroundTask(withName: "=== beginBackgroundTask: showNotification", expirationHandler: nil)
     }
     
     // handle notification messages when receiving one: -----------

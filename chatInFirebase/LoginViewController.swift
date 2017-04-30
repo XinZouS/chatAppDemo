@@ -16,6 +16,9 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
 
     var messagesViewController: MessagesViewController? // for access its func; 
 
+    let isIphone5 : Bool = (UIScreen.main.bounds.height < 600)
+    let topMargin : CGFloat = (UIScreen.main.bounds.height < 600) ? 10 : 20
+
     lazy var profileImageView : UIImageView = {
         let img = UIImageView()
         img.translatesAutoresizingMaskIntoConstraints = false
@@ -133,9 +136,10 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     }
     
     private func setupProfileImageView(){
+        let topConstant : CGFloat = isIphone5 ? 30 : 60
         profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         //profileImageView.bottomAnchor.constraint(equalTo: loginRegisterSegmentedControl.topAnchor, constant: -26).isActive = true
-        profileImageView.topAnchor.constraint(equalTo: view.topAnchor, constant: 60).isActive = true
+        profileImageView.topAnchor.constraint(equalTo: view.topAnchor, constant: topConstant).isActive = true
         profileImageView.widthAnchor.constraint(equalToConstant: 150).isActive = true
         profileImageView.heightAnchor.constraint(equalToConstant: 150).isActive = true
     }
@@ -144,7 +148,7 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
         loginRegisterSegmentedControl.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         loginRegisterSegmentedControl.widthAnchor.constraint(equalTo:inputsContainerView.widthAnchor, multiplier: 2/3).isActive = true
         loginRegisterSegmentedControl.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        loginRegisterSegmentedControl.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 20).isActive = true
+        loginRegisterSegmentedControl.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: topMargin).isActive = true
     }
     func loginRegisterModeChanged(){
         let mode = loginRegisterSegmentedControl.selectedSegmentIndex // 0=login, 1=register
@@ -199,7 +203,7 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
         // set up x, y, width, hight:
         inputsContainerView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         //inputsContainerView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        inputsContainerView.topAnchor.constraint(equalTo: loginRegisterSegmentedControl.bottomAnchor, constant: 20).isActive = true
+        inputsContainerView.topAnchor.constraint(equalTo: loginRegisterSegmentedControl.bottomAnchor, constant: topMargin).isActive = true
         inputsContainerView.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -30).isActive = true
         // inputsContainerView.heightAnchor.constraint(equalToConstant: 150).isActive = true
         inputContainerViewHeightConstraint = inputsContainerView.heightAnchor.constraint(equalToConstant: 160)
@@ -259,7 +263,7 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
 
     func setupLoginRegisterButton(){
         loginRegisterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        loginRegisterButton.topAnchor.constraint(equalTo: inputsContainerView.bottomAnchor, constant: 20).isActive = true
+        loginRegisterButton.topAnchor.constraint(equalTo: inputsContainerView.bottomAnchor, constant: topMargin).isActive = true
         loginRegisterButton.widthAnchor.constraint(equalTo: inputsContainerView.widthAnchor).isActive = true
         loginRegisterButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }

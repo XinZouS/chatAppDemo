@@ -81,7 +81,7 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
             if err != nil {
                 let msg = "My apologizes😢, somehow we unable to signin for you. Please make sure your device is connecting to the Internet📶 and try again later."
                 self.showAlertWith(title: "‼️ Login Failed", message: msg)
-                print("get error when sign in: LoginViewController+Ex:loginUser(): \(err!)")
+                print("get error when sign in: LoginViewController+Ex:loginUser(): \(err)")
                 return
             }
             // see user login successfully:
@@ -102,8 +102,8 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
         }
         FIRAuth.auth()?.createUser(withEmail: email, password: password, completion: { (user:FIRUser?, err) in
             if err != nil {
-                self.showAlertWith(title: "Register Failed", message: "Got an error when register new user: \(err!)")
-                print("get error when creating new user: [LoginViewController+Ex.registerUser()]: \(err!)")
+                self.showAlertWith(title: "Register Failed", message: "Got an error when register new user: \(err)")
+                print("get error when creating new user: [LoginViewController+Ex.registerUser()]: \(err)")
                 return
             }
             
@@ -127,7 +127,7 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
         if let profileImage = self.profileImageView.image, let uploadData = UIImageJPEGRepresentation(profileImage, 0.1) {
             storageRef.put(uploadData, metadata: nil, completion: {(metadata, error) in
                 if error != nil {
-                    print("get error when putting user profile image: [LoginViewController+Ex.swift:109]", error!)
+                    print("get error when putting user profile image: [LoginViewController+Ex.swift:109]", error)
                     return
                 }
                 if let profileImgURL = metadata?.downloadURL()?.absoluteString {
@@ -155,7 +155,7 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
         // demo: ref.updateChildValues(["Key" : "value"])
         userReference.updateChildValues(userValue, withCompletionBlock: { (err, ref) in
             if err != nil {
-                print("getting err when updating user info, [LoginViewController+Ex.swift:133]: \(err!)")
+                print("getting err when updating user info, [LoginViewController+Ex.swift:133]: \(err)")
                 return
             }
             // self.messagesViewController?.fetchUserAndSetUpNavBarTitle() // replaced by following:
@@ -181,7 +181,7 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
 
     
     //=== facebook login ====================================
-    func loginButton(_ loginButton: FBSDKLoginButton!, didCompleteWith result: FBSDKLoginManagerLoginResult!, error: Error!) {
+    func loginButton(_ loginButton: FBSDKLoginButton!, didCompleteWith result: FBSDKLoginManagerLoginResult!, error: Error) {
         if error != nil {
             showAlertWith(title: "‼️Got an Error", message: "Facebook login failed, please try again later. Error: \(error)")
             return
@@ -197,7 +197,7 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
         let credentials = FIRFacebookAuthProvider.credential(withAccessToken: tokenString)
         FIRAuth.auth()?.signIn(with: credentials, completion: {(user, err) in
             if err != nil {
-                self.showAlertWith(title: "‼️Got an Error", message: "Facebook login failed, please try again later. Error: \(err!)")
+                self.showAlertWith(title: "‼️Got an Error", message: "Facebook login failed, please try again later. Error: \(err)")
                 return
             }
             if let id = user?.uid, let email = user?.email, let name = user?.displayName {
@@ -213,7 +213,7 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
         })
         FBSDKGraphRequest(graphPath: "/me", parameters: ["fields": "id, name, email"]).start(completionHandler: {(requestConnection, result, err) in
             if err != nil {
-                self.showAlertWith(title: "‼️Got an Error", message: "Facebook login failed, please try again later. Error: \(err!)")
+                self.showAlertWith(title: "‼️Got an Error", message: "Facebook login failed, please try again later. Error: \(err)")
                 return
             }
             if let dict = result as? [String:AnyObject], let myFbId = dict["id"] as? String, myFbId != "" {

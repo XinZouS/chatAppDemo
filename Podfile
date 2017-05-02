@@ -6,9 +6,9 @@ target 'chatInFirebase' do
   use_frameworks!
 
   # Pods for chatInFirebase
-  pod ‘FBSDKCoreKit’
-  pod ‘FBSDKShareKit’
-  pod ‘FBSDKLoginKit’
+  pod 'FBSDKCoreKit'
+  pod 'FBSDKShareKit'
+  pod 'FBSDKLoginKit'
 
   pod 'Firebase'
   pod 'Firebase/Core'
@@ -16,5 +16,9 @@ target 'chatInFirebase' do
   pod 'Firebase/Database'
   pod 'Firebase/Storage'
   pod 'Firebase/Messaging'
+
+  # asynchronous socket libraries for Mac and iOS, https://github.com/robbiehanson/CocoaAsyncSocket
+  pod 'CocoaAsyncSocket'
+
 
 end

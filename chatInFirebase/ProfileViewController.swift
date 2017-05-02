@@ -173,7 +173,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         // 1, remove old file from firebase:
         storageRef.delete { (err) in
             if err != nil {
-                print("get error when deleting prifile image form firebase: ProfileViewController.swift:saveChangesToFirebase() : ", err!)
+                print("get error when deleting prifile image form firebase: ProfileViewController.swift:saveChangesToFirebase() : ", err)
                 //return
             }
             //1.1, remove old file form local disk:
@@ -184,7 +184,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         if let pImg = profileImageView.image, let uploadData = UIImageJPEGRepresentation(pImg, 0.1) {
             storageRef.put(uploadData, metadata: nil, completion: { (metadata, error) in
                 if error != nil {
-                    print("get error when putting user profile image: [ProfileViewController.swift:saveChangesToFirebase()]", error!)
+                    print("get error when putting user profile image: [ProfileViewController.swift:saveChangesToFirebase()]", error)
                     return
                 }
                 if let newImgUrl = metadata?.downloadURL()?.absoluteString {
@@ -205,7 +205,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         let updateDictionary:[String:Any] = ["name":newName, "profileImgURL":newUrl]
         userRef.updateChildValues(updateDictionary) { (error, reference) in
             if error != nil {
-                print("get error when updating new user name and imgUrl: ProfileViewController.swift: updateNewInfoFor()", error!)
+                print("get error when updating new user name and imgUrl: ProfileViewController.swift: updateNewInfoFor()", error)
             }
             self.showAlertWith(title: "✅ Update Success!", message: "Your new profile information has been update to database successfully!")
         }
@@ -224,7 +224,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
     }
 
     // facebook login button
-    func loginButton(_ loginButton: FBSDKLoginButton!, didCompleteWith result: FBSDKLoginManagerLoginResult!, error: Error!) {
+    func loginButton(_ loginButton: FBSDKLoginButton!, didCompleteWith result: FBSDKLoginManagerLoginResult!, error: Error) {
         if error != nil {
             showAlertWith(title: "‼️Got an Error", message: "Facebook login failed, please try again later. Error: \(error)")
             return

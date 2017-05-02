@@ -406,7 +406,7 @@ class NewMessageViewController: UITableViewController {
         // set media notification actions: ------------
         let acceptRequest = UNNotificationAction(identifier: notiIdAccept, title: "✅ Accept", options: [])
         let rejectRequest = UNNotificationAction(identifier: notiIdReject, title: "⛔️ Ignore", options: [])
-        let category = UNNotificationCategory(identifier: "newRequest", actions: [acceptRequest, rejectRequest], intentIdentifiers: [], options: [])
+        let category = UNNotificationCategory(identifier: newRequestNotificationIdStr, actions: [acceptRequest, rejectRequest], intentIdentifiers: [], options: [])
         UNUserNotificationCenter.current().setNotificationCategories( [category] )
 
         appDelegate?.newFriend = newFriend

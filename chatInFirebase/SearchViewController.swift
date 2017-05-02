@@ -159,7 +159,7 @@ class SearchViewController : UICollectionViewController, UICollectionViewDelegat
             newRequests[myId] = true
             ref.setValue(newRequests, withCompletionBlock: { (err, firRef) in
                 if err != nil {
-                    print("get err: SearchViewController.swift: sendFirendRequestTo(): ", err!)
+                    print("get err: SearchViewController.swift: sendFirendRequestTo(): ", err)
                     self.showAlertWith(title: "Oops! 😰", message: "⛔️ We got an error when sending your request, please try again later.")
                 }else{
                     self.showAlertWith(title: "Success 😸", message: "✅ Your request already been send, please wait for response.")

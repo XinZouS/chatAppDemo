@@ -116,7 +116,7 @@ class MessagesViewController: UITableViewController {
         // do it in deleteMessageInDataBaseFor(..): DispatchQueue.main.async{}
         FIRDatabase.database().reference().child("user-messages").child(myId).child(partnerId).removeValue { (err, ref) in
             if err != nil {
-                print("get error when deleting msg : MessagesViewController.swift: editingStyle(): ", err!)
+                print("get error when deleting msg : MessagesViewController.swift: editingStyle(): ", err)
                 return
             }
             self.deleteMessageLocallyFor(partnerId: partnerId)
@@ -236,7 +236,7 @@ class MessagesViewController: UITableViewController {
         let ref = FIRStorage.storage().reference().child(folder).child(fileName)
         ref.delete { (err) in
             if err != nil {
-                print("get error when try to delete file [\(fileName)]: ", err!)
+                print("get error when try to delete file [\(fileName)]: ", err)
                 return
             }
             // print("fild deleted!!")
@@ -372,7 +372,7 @@ class MessagesViewController: UITableViewController {
         content.sound = UNNotificationSound.default()
         updateBadgeNumberBy(increment: 1)
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
-        let request = UNNotificationRequest(identifier: "identifiterNotification", content: content, trigger: trigger)
+        let request = UNNotificationRequest(identifier: newMessageNotificationIdStr, content: content, trigger: trigger)
         UNUserNotificationCenter.current().add(request, withCompletionHandler: { (err) in
             if let err = err {
                 print("get error when firing UNUserNotification; MessagesVC.swift:newMsgNotification --->", err)
@@ -424,5 +424,3 @@ class MessagesViewController: UITableViewController {
 
 
 }
-
-

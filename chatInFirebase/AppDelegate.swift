@@ -15,9 +15,14 @@ import FirebaseMessaging
 
 import FBSDKCoreKit
 
-let notiIdCategoryStr = "newRequest"
+import CocoaAsyncSocket // for iPv6 ?????? // https://github.com/robbiehanson/CocoaAsyncSocket
+
+
+let newMessageNotificationIdStr = "newMessageNotificationId"
+let newRequestNotificationIdStr = "newRequestNotificationId"
 let notiIdAccept = "acceptRequest"
 let notiIdReject = "rejectRequest"
+
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, FIRMessagingDelegate {
@@ -41,9 +46,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 //        registerForLocalNotifications(application: application) // it may cause watchdog timeout, so put it async to try:
         DispatchQueue.main.async {
             self.registerForLocalNotifications(application: application)
-            
-            FIRApp.configure()
         }
+        
+        FIRApp.configure()
         
         // for facebook login:
         //[[FBSDKApplicationDelegate sharedInstance] application:application didFinishLaunchingWithOptions:launchOptions]
@@ -98,7 +103,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     let settings = UIUserNotificationSettings(types: [.alert, .badge, .sound], categories: nil)
                     UIApplication.shared.registerUserNotificationSettings(settings)
                 }else{
-                    print(" - get UNUserNotificationCenter.current().requestAuthorization() failed: \(error!)")
+                    if let error = error {
+                        print(" - get UNUserNotificationCenter.current().requestAuthorization() failed: \(error)")
+                    }
                 }
             })
             
@@ -118,7 +125,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // media notification actions: ------------
         let acceptRequest = UNNotificationAction(identifier: notiIdAccept, title: "✅ Accept", options: [])
         let rejectRequest = UNNotificationAction(identifier: notiIdReject, title: "⛔️ Ignore", options: [])
-        let category = UNNotificationCategory(identifier: "newRequest", actions: [acceptRequest, rejectRequest], intentIdentifiers: [], options: [])
+        let category = UNNotificationCategory(identifier: newRequestNotificationIdStr, actions: [acceptRequest, rejectRequest], intentIdentifiers: [], options: [])
         UNUserNotificationCenter.current().setNotificationCategories( [category] )
 
         // normal notification: -------------------
@@ -156,24 +163,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         content.subtitle = "\(newFriend.name!) wants to add you as friend."
         content.body = "Do you want to add this new friend?"
         content.sound = UNNotificationSound.default()
-        content.categoryIdentifier = "newRequest"
+        content.categoryIdentifier = newRequestNotificationIdStr //"newRequestNotificationId"
         
         let url = URL(fileURLWithPath: imgPath)
         do{
-            let attachment = try UNNotificationAttachment(identifier: "newRequestImg", url: url, options: nil)
+            let attachment = try UNNotificationAttachment(identifier: newRequestNotificationIdStr, url: url, options: nil)
             content.attachments = [attachment]
         }catch{
             print(" -- loading notification image fail, AppDelegate.swift: secheduleNewRequestNotification() ")
         }
         // send request
-        let request = UNNotificationRequest(identifier: "newRequest", content: content, trigger: triggerTimmer)
+        let request = UNNotificationRequest(identifier: newRequestNotificationIdStr, content: content, trigger: triggerTimmer)
         
         // show notification: 
         print(" -- .removeAllPendingNotificationRequests()")
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         UNUserNotificationCenter.current().add(request) { (err) in
             if err != nil {
-                print(" -- sending notification image fail, AppDelegate.swift: secheduleNewRequestNotification() \(err!)")
+                print(" -- sending notification image fail, AppDelegate.swift: secheduleNewRequestNotification() \(err)")
             }
         }
     }
@@ -190,7 +197,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             print(" --- 2. response: \(notiIdReject), of newFriend: \(newFriend.name)")
             newMsgVC?.rejectRequest(of: newFriend)
         default:
-            return
+            print(" --- 2. response: \(notiIdReject), of newFriend: \(newFriend.name)")
+            newMsgVC?.rejectRequest(of: newFriend)
         }
         
         completionHandler()

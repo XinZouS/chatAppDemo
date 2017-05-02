@@ -402,7 +402,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
 //        
 //        childRef.updateChildValues(value, withCompletionBlock: { (err, ref) in
 //            if err != nil {
-//                print("error when uploading message img: ", err!)
+//                print("error when uploading message img: ", err)
 //                return
 //            }
 //            let msgId = childRef.key
@@ -437,7 +437,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
 //            // childRef.updateChildValues(value) // replace this with following to send msg: 
 //            childRef.updateChildValues(value, withCompletionBlock: { (err, ref) in
 //                if err != nil {
-//                    print("get err when sending msg: \(err!), in ChatLogController.swift: 100")
+//                    print("get err when sending msg: \(err), in ChatLogController.swift: 100")
 //                    return
 //                }
 //                // new a ref to save 'fromId':
@@ -474,7 +474,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         
         childRef.updateChildValues(value, withCompletionBlock: { (err, ref) in
             if err != nil {
-                print("error when uploading message img: ", err!)
+                print("error when uploading message img: ", err)
                 return
             }
             let msgId = childRef.key

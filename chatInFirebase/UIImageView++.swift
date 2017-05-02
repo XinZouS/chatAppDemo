@@ -32,7 +32,7 @@ extension UIImageView {
         // https://developer.apple.com/reference/foundation/urlsession
         URLSession.shared.dataTask(with: url, completionHandler: { (data, response, err) in
             if err != nil {
-                print(" ----- UIImageView++.swift: loading user image error: \(err!).")
+                print(" ----- UIImageView++.swift: loading user image error: \(err).")
                 return
             }
             // get image data and put into tableView:

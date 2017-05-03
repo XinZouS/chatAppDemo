@@ -7,11 +7,12 @@
 //
 
 import UIKit
+import Firebase
 
 enum ItemTitle : String {
     case nameCard = "View name card"
     case clear = "Clear chat history"
-    case report = "Report this user"
+    case report = "Report this user ⚠️"
 }
 
 struct AddMenuItem {
@@ -115,11 +116,28 @@ class ChatLogAddMenuLuncher : NSObject, UICollectionViewDelegate, UICollectionVi
             print("-- get user name card")
         case ItemTitle.clear:
             print("-- clear chat history")
+            chatLogController?.removeChatHistory()
         case ItemTitle.report:
-            print("-- report this user")
+            sendReport()
         default:
             dismissWithoutSelection()
         }
+        dismissWithoutSelection()
+    }
+    
+    private func sendReport(){
+        let ref = FIRDatabase.database().reference().child("reportsAbuse").child("user")
+        let values : [String:String] = [(chatLogController?.partnerUser?.id)! : (chatLogController?.partnerUser?.name)!]
+        ref.updateChildValues(values, withCompletionBlock: {(err, ref) in
+            var title = "✅ Report Success"
+            var msg = "📬 We are receiving your report and will handle the objectionable content or abusive user as soon as possible. 😀Thank you for your reporting!"
+            if let err = err {
+                title = "Oops❗️"
+                msg = "⚠️ Report did not send. I apologize for that, please make sure you have the Internet access and try again later. \(err)"
+            }
+            self.chatLogController?.showAlertWith(title: title, message: msg)
+        })
+        
     }
     
     func dismissWithoutSelection(){

@@ -114,13 +114,13 @@ class MessagesViewController: UITableViewController {
         deleteMessageInDataBaseFor(partnerId: partnerId, myId: myId)
 
         // do it in deleteMessageInDataBaseFor(..): DispatchQueue.main.async{}
-        FIRDatabase.database().reference().child("user-messages").child(myId).child(partnerId).removeValue { (err, ref) in
-            if err != nil {
-                print("get error when deleting msg : MessagesViewController.swift: editingStyle(): ", err)
-                return
-            }
-            self.deleteMessageLocallyFor(partnerId: partnerId)
-        }
+//        FIRDatabase.database().reference().child("user-messages").child(myId).child(partnerId).removeValue { (err, ref) in
+//            if err != nil {
+//                print("get error when deleting msg : MessagesViewController.swift: editingStyle(): ", err)
+//                return
+//            }
+//            self.deleteMessageLocallyFor(partnerId: partnerId)
+//        }
     }
     
     
@@ -174,7 +174,7 @@ class MessagesViewController: UITableViewController {
     
     
     
-    private func deleteMessageInDataBaseFor(partnerId: String, myId: String){
+    func deleteMessageInDataBaseFor(partnerId: String, myId: String){
         let msgsRef = FIRDatabase.database().reference().child("user-messages").child(myId).child(partnerId)
         msgsRef.observeSingleEvent(of: .value, with: { (snapshot) in
             //print(snapshot) // == partnerId:[msgIds]
@@ -205,10 +205,19 @@ class MessagesViewController: UITableViewController {
                         findMsgRef.child(key).updateChildValues(getMsg)
                     }
                     
+                    msgsRef.removeValue { (err, ref) in
+                        if err != nil {
+                            print("get error when deleting msg : MessagesViewController.swift: editingStyle(): ", err)
+                            return
+                        }
+                        self.deleteMessageLocallyFor(partnerId: partnerId)
+                    }
+                    
                 }, withCancel: nil)
             }
             
         }, withCancel: nil)
+        
     }
     
     // one way to delete message, but not so save, bcz db may delay:---------
@@ -225,7 +234,7 @@ class MessagesViewController: UITableViewController {
                 messages.remove(at: idx)
                 return
             }
-        }
+        }        
         reloadAndSortTable()
     }
     private func deleteFileInFireBaseAt(folder:String, fileName:String){
@@ -336,7 +345,7 @@ class MessagesViewController: UITableViewController {
     private func removeMessageFromDisk(){
         if let currName = self.currUser.name, let currId = self.currUser.id {
             UserDefaults.standard.removeObject(forKey: "\(currName)\(currId)Messages")
-            print("------ 1. removed messages in disk success!!")
+            print("------ removed messages in disk success!!")
         }
     }
     func saveUserIntoDisk(){
@@ -389,8 +398,8 @@ class MessagesViewController: UITableViewController {
     
     func showChatControllerForUser(partnerUser: User) { //--- go to ChatLogViewController.swift ---
         let chatLogVC = ChatLogController(collectionViewLayout: UICollectionViewFlowLayout())
+        chatLogVC.messagesVC = self
         chatLogVC.partnerUser = partnerUser
-        // get selfUser info and passing object to ChatLogController:
         chatLogVC.currUser = self.currUser
         
         navigationController?.pushViewController(chatLogVC, animated: true) // equals to use segue() in storyboard;

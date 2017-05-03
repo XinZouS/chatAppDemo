@@ -17,15 +17,21 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
 
     //let containerView = UIView() // replaced by inputView on top of keyboard;
     
+    var messagesVC : MessagesViewController?
+    
     var player: AVPlayer?
 
     let cellId = "cellId"
     
+    var msgLoadingTimer = Timer()
     var messages = [Message]() {
         didSet{
-            if let t = messages.last?.text {
-                animateCurveFlowFor(inputStr: t, num: 10)
-            }
+            msgLoadingTimer.invalidate()
+            msgLoadingTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: {(timeup) in
+                if let t = self.messages.last?.text {
+                    self.animateCurveFlowFor(inputStr: t, num: 10)
+                }
+            })
         }
     }
     
@@ -80,7 +86,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     func observeMessages(){
         guard let myid = FIRAuth.auth()?.currentUser?.uid, let toId = partnerUser?.id, let ptrName = partnerUser?.name else {return}
 
-        loadMessagesFromDiskFor(partnerName: ptrName)
+        loadMessagesFromDiskFor(friend: partnerUser)
         
         let ref = FIRDatabase.database().reference().child("user-messages").child(myid).child(toId)
         ref.observe(.childAdded, with: { (snapshot) in
@@ -106,7 +112,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                         self.collectionView?.reloadData()
                         self.scrollerViewMoveToBottom()
                         
-                        self.saveMessagesToDiskFor(partnerName: ptrName)
+                        self.saveMessagesToDiskFor(friend: self.partnerUser)
                     }
                 }
                 //}
@@ -122,15 +128,16 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             collectionView?.scrollToItem(at: indexPath, at: .bottom, animated: true)
         }
     }
-    private func saveMessagesToDiskFor(partnerName:String){
+    private func saveMessagesToDiskFor(friend: User?){
+        guard let partnerName = friend?.name, let partnerId = friend?.id else { return }
         let userDefaults = UserDefaults.standard
         let encodeData : Data = NSKeyedArchiver.archivedData(withRootObject: messages)
-        userDefaults.set(encodeData, forKey: "\(partnerName)Messages")
+        userDefaults.set(encodeData, forKey: "\(partnerName)\(partnerId)Messages")
         userDefaults.synchronize()
     }
-    private func loadMessagesFromDiskFor(partnerName: String?){
-        guard let name = partnerName else { return }
-        if let decodeed = UserDefaults.standard.object(forKey: "\(name)Messages") as? Data {
+    private func loadMessagesFromDiskFor(friend: User?){
+        guard let partnerName = friend?.name, let partnerId = friend?.id else { return }
+        if let decodeed = UserDefaults.standard.object(forKey: "\(partnerName)\(partnerId)Messages") as? Data {
             let decodeItems = NSKeyedUnarchiver.unarchiveObject(with: decodeed) as! [Message]
             //print("decodeItems: ", decodeItems)
             messages.append(contentsOf: decodeItems)
@@ -142,6 +149,11 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             if localMsg.timeStamp == newTimeStamp { return true }
         }
         return false
+    }
+    private func removeMessagesFromDiskFor(friend: User?){
+        guard let partnerName = friend?.name, let partnerId = friend?.id else { return }
+        let userDf = UserDefaults.standard
+        userDf.removeObject(forKey: "\(partnerName)\(partnerId)Messages")
     }
     
     
@@ -461,7 +473,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         }
     }
     
-    private func sendMessageWithProperties(properties:[String:Any]){
+    private func sendMessageWithProperties(properties : [String:Any]){
         let ref = FIRDatabase.database().reference().child("messages")
         let childRef = ref.childByAutoId()
         let toId = partnerUser!.id
@@ -501,6 +513,13 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         addMenu.addMenuViewShowUp()        
     }
 
+    func removeChatHistory(){
+        guard let myId = currUser?.id, let friendId = partnerUser?.id else { return }
+        self.messages.removeAll()
+        removeMessagesFromDiskFor(friend: partnerUser)
+        messagesVC?.deleteMessageInDataBaseFor(partnerId: friendId, myId: myId)
+        collectionView?.reloadData()
+    }
     
     //=== zooming image and video ================================================
     
@@ -611,6 +630,14 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         performZoomOutOf()
     }
     
+    func showAlertWith(title:String, message:String){
+        let alertCtrl = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
+        alertCtrl.addAction(UIAlertAction(title: "OK", style: .default, handler: { (action) in
+            alertCtrl.dismiss(animated: true, completion: nil)
+        }))
+        self.present(alertCtrl, animated: true, completion: nil)
+    }
     
+
     
 }

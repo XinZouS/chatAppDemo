@@ -77,9 +77,12 @@ extension ChatLogController {
             ]
             let emojiWordSet : Set<String> = Set(emojiOfWord.keys)
             let targetWordSet: Set<String> = wordSet.intersection(emojiWordSet)
+            if targetWordSet.count == 0 { return }
             let targetEmojis : [String] = targetWordSet.map{ emojiOfWord[$0]! }
-            print(targetEmojis)
-            let targetString : String = targetEmojis.reduce("", + )
+            var targetString : String = targetEmojis.reduce("", + )
+            if targetString.characters.count > 5 {
+                targetString = targetString.substring(to: targetString.index(targetString.startIndex, offsetBy: 5) )
+            }
 
             animateCurveFlowBy(emojiStr: targetString, num: bonusNum)
         }

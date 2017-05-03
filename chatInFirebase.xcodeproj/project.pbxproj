@@ -24,8 +24,10 @@
 		6652DDC01EB394A6008B4E43 /* GifsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6652DDBF1EB394A6008B4E43 /* GifsViewController.swift */; };
 		6652DDC21EB3DB97008B4E43 /* UIImage++.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6652DDC11EB3DB97008B4E43 /* UIImage++.swift */; };
 		66561D991EA90E7C00200ECD /* String++.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66561D981EA90E7C00200ECD /* String++.swift */; };
-		66561D9B1EA9356600200ECD /* ChatLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66561D9A1EA9356600200ECD /* ChatLogView.swift */; };
+		66561D9B1EA9356600200ECD /* ChatLogViewEmojis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66561D9A1EA9356600200ECD /* ChatLogViewEmojis.swift */; };
 		66561D9D1EA9570C00200ECD /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66561D9C1EA9570C00200ECD /* FBSDKLoginKit.framework */; };
+		665BD4BB1EB8E170002CF1D8 /* ChatLogAddMenuLuncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 665BD4BA1EB8E170002CF1D8 /* ChatLogAddMenuLuncher.swift */; };
+		665BD4BD1EB915FB002CF1D8 /* AddMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 665BD4BC1EB915FB002CF1D8 /* AddMenuCell.swift */; };
 		668A407A1EAAA7E90048B166 /* 01.png in Resources */ = {isa = PBXBuildFile; fileRef = 668A40761EAAA7E90048B166 /* 01.png */; };
 		668A407B1EAAA7E90048B166 /* 02.png in Resources */ = {isa = PBXBuildFile; fileRef = 668A40771EAAA7E90048B166 /* 02.png */; };
 		668A407C1EAAA7E90048B166 /* 03.png in Resources */ = {isa = PBXBuildFile; fileRef = 668A40781EAAA7E90048B166 /* 03.png */; };
@@ -64,8 +66,10 @@
 		6652DDBF1EB394A6008B4E43 /* GifsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GifsViewController.swift; sourceTree = "<group>"; };
 		6652DDC11EB3DB97008B4E43 /* UIImage++.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImage++.swift"; sourceTree = "<group>"; };
 		66561D981EA90E7C00200ECD /* String++.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String++.swift"; sourceTree = "<group>"; };
-		66561D9A1EA9356600200ECD /* ChatLogView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatLogView.swift; sourceTree = "<group>"; };
+		66561D9A1EA9356600200ECD /* ChatLogViewEmojis.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatLogViewEmojis.swift; sourceTree = "<group>"; };
 		66561D9C1EA9570C00200ECD /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FBSDKLoginKit.framework; sourceTree = "<group>"; };
+		665BD4BA1EB8E170002CF1D8 /* ChatLogAddMenuLuncher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatLogAddMenuLuncher.swift; sourceTree = "<group>"; };
+		665BD4BC1EB915FB002CF1D8 /* AddMenuCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddMenuCell.swift; sourceTree = "<group>"; };
 		668A40761EAAA7E90048B166 /* 01.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 01.png; sourceTree = "<group>"; };
 		668A40771EAAA7E90048B166 /* 02.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 02.png; sourceTree = "<group>"; };
 		668A40781EAAA7E90048B166 /* 03.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 03.png; sourceTree = "<group>"; };
@@ -133,7 +137,8 @@
 				661D191F1EB03ADA0004CB66 /* BaseInputContainerView.swift */,
 				6690F5381E2E7F4800F1B6E0 /* ChatInputContainerView.swift */,
 				668DC3BD1E2039CA005EC99B /* ChatMessageCell.swift */,
-				66561D9A1EA9356600200ECD /* ChatLogView.swift */,
+				66561D9A1EA9356600200ECD /* ChatLogViewEmojis.swift */,
+				665BD4BC1EB915FB002CF1D8 /* AddMenuCell.swift */,
 				66321A551EB198F60069CA38 /* MenuCell.swift */,
 				6690F5411E31496D00F1B6E0 /* SearchViewCell.swift */,
 			);
@@ -206,6 +211,7 @@
 				669985D21E15A1CE00DCA278 /* MessagesViewController.swift */,
 				663C18AB1E1816680014A359 /* NewMessageViewController.swift */,
 				663C18B31E1C739A0014A359 /* ChatLogController.swift */,
+				665BD4BA1EB8E170002CF1D8 /* ChatLogAddMenuLuncher.swift */,
 				662ABB8C1EB0F1E4002ACDC2 /* ChatLogMenuLuncher.swift */,
 				6652DDBF1EB394A6008B4E43 /* GifsViewController.swift */,
 				6690F53F1E313E7200F1B6E0 /* SearchViewController.swift */,
@@ -384,14 +390,16 @@
 				6690F5421E31496D00F1B6E0 /* SearchViewCell.swift in Sources */,
 				66F5C2F41E97D4A900AA568C /* ProfileViewController.swift in Sources */,
 				6608BCF81EA4F2E400DBB87F /* UINavigationController++.swift in Sources */,
+				665BD4BB1EB8E170002CF1D8 /* ChatLogAddMenuLuncher.swift in Sources */,
 				669985D11E15A1CE00DCA278 /* AppDelegate.swift in Sources */,
 				6604EE581EA128FF00E28DCE /* UserNewrequestCell.swift in Sources */,
-				66561D9B1EA9356600200ECD /* ChatLogView.swift in Sources */,
+				66561D9B1EA9356600200ECD /* ChatLogViewEmojis.swift in Sources */,
 				663C18AE1E195AA60014A359 /* User.swift in Sources */,
 				6690F5401E313E7200F1B6E0 /* SearchViewController.swift in Sources */,
 				663C18AC1E1816680014A359 /* NewMessageViewController.swift in Sources */,
 				66E5F8091E97465C0070ADEB /* Date++.swift in Sources */,
 				668DC3BE1E2039CA005EC99B /* ChatMessageCell.swift in Sources */,
+				665BD4BD1EB915FB002CF1D8 /* AddMenuCell.swift in Sources */,
 				663C18B01E1AAE5A0014A359 /* LoginViewController+Ex.swift in Sources */,
 				6649CE1A1E1EBD5A006633CD /* UserCell.swift in Sources */,
 				663C18B21E1BEAF60014A359 /* UIImageView++.swift in Sources */,

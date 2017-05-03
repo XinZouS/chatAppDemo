@@ -44,6 +44,8 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.white]
         
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonTapped))
+        
         collectionView?.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 76, right: 0) // margin on top;
         // collectionView?.scrollIndicatorInsets = UIEdgeInsets(top: 1, left: 0, bottom: 60, right: 0)
         collectionView?.alwaysBounceVertical = true
@@ -487,6 +489,20 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
             
         })
     }
+    
+    
+    lazy var addMenu : ChatLogAddMenuLuncher = {
+        let m = ChatLogAddMenuLuncher()
+        m.chatLogController = self
+        return m
+    }()
+    
+    func addButtonTapped(){
+        addMenu.addMenuViewShowUp()        
+    }
+
+    
+    //=== zooming image and video ================================================
     
     private var startFrame : CGRect?
     private var blurEffectView : UIVisualEffectView! // for img zoom in background

@@ -65,48 +65,23 @@ extension ChatLogController {
             let str = inputStr.emojiString
             animateCurveFlowBy(emojiStr: str, num: 10)
         }else{ // see if it has some keywords:
+            //var newStr : String = ""
             let words = (inputStr.lowercased()).components(separatedBy: [" ", "!", "~", "@", ",", "."])
-            let wSet = Set<String>(words)
-            if wSet.contains("birthday") {
-                animateCurveFlowBy(emojiStr: "🎂", num: bonusNum)
-            }else if wSet.contains("happy") || wSet.contains("hi") || wSet.contains("smile") {
-                animateCurveFlowBy(emojiStr: "😄", num: bonusNum)
-            }else if wSet.contains("mouse") || wSet.contains("mice") || wSet.contains("hamster") {
-                animateCurveFlowBy(emojiStr: "🐹", num: bonusNum)
-            }else if wSet.contains("bull") || wSet.contains("ox") {
-                animateCurveFlowBy(emojiStr: "🐂", num: bonusNum)
-            }else if wSet.contains("tiger") || wSet.contains("tigers") {
-                animateCurveFlowBy(emojiStr: "🐯", num: bonusNum)
-            }else if wSet.contains("rabbit") || wSet.contains("hare") {
-                animateCurveFlowBy(emojiStr: "🐰", num: bonusNum)
-            }else if wSet.contains("dragon") || wSet.contains("dragons") {
-                animateCurveFlowBy(emojiStr: "🐲", num: bonusNum)
-            }else if wSet.contains("snake") || wSet.contains("serpent") {
-                animateCurveFlowBy(emojiStr: "🐍", num: bonusNum)
-            }else if wSet.contains("horse") || wSet.contains("pony") {
-                animateCurveFlowBy(emojiStr: "🐴", num: bonusNum)
-            }else if wSet.contains("goat") || wSet.contains("sheep") {
-                animateCurveFlowBy(emojiStr: "🐑", num: bonusNum)
-            }else if wSet.contains("monkey") {
-                animateCurveFlowBy(emojiStr: "🐵", num: bonusNum)
-            }else if wSet.contains("rooster") {
-                animateCurveFlowBy(emojiStr: "🐓", num: bonusNum)
-            }else if wSet.contains("dog") || wSet.contains("puppy") {
-                animateCurveFlowBy(emojiStr: "🐶", num: bonusNum)
-            }else if wSet.contains("pig") || wSet.contains("pigs") {
-                animateCurveFlowBy(emojiStr: "🐷", num: bonusNum)
-            }else if wSet.contains("chick") || wSet.contains("chicken") {
-                animateCurveFlowBy(emojiStr: "🐥", num: bonusNum)
-            }else if wSet.contains("love") {
-                animateCurveFlowBy(emojiStr: "💘", num: bonusNum)
-            }else if wSet.contains("ha") || wSet.contains("haha") {
-                animateCurveFlowBy(emojiStr: "🤣", num: bonusNum)
-            }else if wSet.contains("what?") || wSet.contains("??") {
-                animateCurveFlowBy(emojiStr: "😯", num: bonusNum)
-            }else if wSet.contains("milk") || wSet.contains("breakfast") {
-                animateCurveFlowBy(emojiStr: "🥛", num: bonusNum)
-            }
-            
+            let wordSet = Set<String>(words)
+            let emojiOfWord : [String:String] = [
+                "birthday":"🎂", "happy":"😄", "hi":"😄", "smile":"😄", "ha":"🤣", "haha":"😁", "hahaha":"🤣😂", "what?":"😯", "?":"😯❓", "??":"🤔❓", "???":"😳❓",
+                "mouse":"🐹", "hamster":"🐹", "mice":"🐹", "bull":"🐂" , "ox":"🐂", "tiger":"🐯", "tigers":"🐯", "rabbit":"🐰", "hare":"🐰", "dragon":"🐲",
+                "snake":"🐍", "serpent":"🐍", "horse":"🐴", "pony":"🐴", "horses":"🐴", "goat":"🐐", "goats":"🐐🐏", "sheep":"🐑", "ram":"🐐🐏",
+                "monkey":"🐵", "monkeys":"🐒🐵", "rooster":"🐓", "dog":"🐶", "puppy":"🐶", "pig":"🐷", "chick":"🐥", "chicken":"🐥", "love":"💘",
+                "milk":"🥛", "breakfast":"🥛" //, "":"", "":"", "":""
+            ]
+            let emojiWordSet : Set<String> = Set(emojiOfWord.keys)
+            let targetWordSet: Set<String> = wordSet.intersection(emojiWordSet)
+            let targetEmojis : [String] = targetWordSet.map{ emojiOfWord[$0]! }
+            print(targetEmojis)
+            let targetString : String = targetEmojis.reduce("", + )
+
+            animateCurveFlowBy(emojiStr: targetString, num: bonusNum)
         }
     }
     

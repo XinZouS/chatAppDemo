@@ -11,20 +11,32 @@ import Firebase
 import FBSDKLoginKit
 
 
-class ProfileViewController : UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, FBSDKLoginButtonDelegate {
+class ProfileViewController : UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate,
+                                FBSDKLoginButtonDelegate, UITextViewDelegate, UITextFieldDelegate {
     
     var msgViewController : MessagesViewController?
     var currUser: User?
     
-    let nameTextField : UITextField = {
+    lazy var nameTextField : UITextField = {
         let l = UITextField()
         l.translatesAutoresizingMaskIntoConstraints = false
         l.backgroundColor = UIColor(r: 246, g: 230, b: 255) // .clear
+        l.delegate = self
         l.font = UIFont.systemFont(ofSize: 20)
         l.textAlignment = .center
-        l.text = "My Name here~~"
+        l.placeholder = "My Name here~~"
         return l
     }()
+    
+//    lazy var nameTextView: UITextView = {
+//        let t = UITextView()
+//        t.translatesAutoresizingMaskIntoConstraints = false
+//        t.backgroundColor = UIColor(r: 246, g: 230, b: 255) // .clear
+//        t.font = UIFont.systemFont(ofSize: 20)
+//        t.textAlignment = .center
+//        t.text = "My Name here~~"
+//        return t
+//    }()
     
     lazy var profileImageView : UIImageView = {
         let i = UIImageView()
@@ -35,6 +47,22 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         i.image = #imageLiteral(resourceName: "guaiqiao01")
         return i
     }()
+    
+    let textViewPlaceholder = " Hi~ what's new today?"
+    lazy var signatureTextView : UITextView = {
+        let v = UITextView()
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.delegate = self
+        v.text = " Hi~ what's new today?"
+        v.textColor = .lightGray
+        v.font = UIFont.systemFont(ofSize: 16)
+        v.layer.borderWidth = 1
+        v.layer.borderColor = buttonColorPurple.cgColor
+        return v
+    }()
+    
+    var signatureTextViewTopconstraint : NSLayoutConstraint?
+    var signatureTextViewTopconstraintOriginConst : CGFloat?
     
     lazy var saveButton : UIButton = {
         let b = UIButton()
@@ -75,28 +103,17 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         
         updateUserAndView()
 
-        view.addSubview(profileImageView)
-        profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        profileImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -50).isActive = true
-        profileImageView.widthAnchor.constraint(equalToConstant: 260).isActive = true
-        profileImageView.heightAnchor.constraint(equalToConstant: 260).isActive = true
-        
-        view.addSubview(nameTextField)
-        nameTextField.addConstraints(left: view.leftAnchor, top: topLayoutGuide.bottomAnchor, right: view.rightAnchor, bottom: nil, leftConstent: 0, topConstent: 0, rightConstent: 0, bottomConstent: 0, width: 0, height: 46)
-        
-        view.addSubview(logoutButton)
-        logoutButton.addConstraints(left: view.leftAnchor, top: nil, right: view.rightAnchor, bottom: view.bottomAnchor, leftConstent: 0, topConstent: 0, rightConstent: 0, bottomConstent: 60, width: 0, height: 40)
-        
-        view.addSubview(saveButton)
-        saveButton.addConstraints(left: view.leftAnchor, top: nil, right: view.rightAnchor, bottom: logoutButton.topAnchor, leftConstent: 0, topConstent: 0, rightConstent: 0, bottomConstent: 15, width: 0, height: 40)
-        
-        view.addSubview(fbLoginButton)
-        fbLoginButton.addConstraints(left: view.leftAnchor, top: nil, right: view.rightAnchor, bottom: logoutButton.bottomAnchor, leftConstent: 0, topConstent: 0, rightConstent: 0, bottomConstent: 0, width: 0, height: 42)
+        setupViewContents()
         
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        setupKeyboardObservers()        
         setupFbLoginButton()
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        NotificationCenter.default.removeObserver(self)
     }
     private func updateUserAndView(){
         if let getUser = msgViewController?.currUser {
@@ -109,6 +126,41 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         nameTextField.text = currUser?.name
     }
     
+    func setupViewContents(){
+        let topCst: CGFloat = UIScreen.main.bounds.height < 600 ? 10 : 20
+        
+        view.addSubview(nameTextField)
+        nameTextField.addConstraints(left: view.leftAnchor, top: topLayoutGuide.bottomAnchor, right: view.rightAnchor, bottom: nil, leftConstent: 0, topConstent: 0, rightConstent: 0, bottomConstent: 0, width: 0, height: 36 + topCst)
+        
+        let sideConstant : CGFloat = (UIDevice.current.userInterfaceIdiom == .phone) ? 200 : 360
+        let yConstant : CGFloat = (UIDevice.current.userInterfaceIdiom == .phone) ? -80 : -260
+        view.addSubview(profileImageView)
+        profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        profileImageView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: topCst).isActive = true
+        // profileImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: yConstant).isActive = true
+        profileImageView.widthAnchor.constraint(equalToConstant: sideConstant).isActive = true
+        profileImageView.heightAnchor.constraint(equalToConstant: sideConstant).isActive = true
+        
+        view.addSubview(logoutButton)
+        logoutButton.addConstraints(left: view.leftAnchor, top: nil, right: view.rightAnchor, bottom: view.bottomAnchor, leftConstent: 0, topConstent: 0, rightConstent: 0, bottomConstent: 60, width: 0, height: 40)
+        
+        let btmCst: CGFloat = UIScreen.main.bounds.height < 600 ? 5 : 15
+        view.addSubview(saveButton)
+        saveButton.addConstraints(left: view.leftAnchor, top: nil, right: view.rightAnchor, bottom: logoutButton.topAnchor, leftConstent: 0, topConstent: 0, rightConstent: 0, bottomConstent: btmCst, width: 0, height: 40)
+        
+        view.addSubview(fbLoginButton)
+        fbLoginButton.addConstraints(left: view.leftAnchor, top: nil, right: view.rightAnchor, bottom: logoutButton.bottomAnchor, leftConstent: 0, topConstent: 0, rightConstent: 0, bottomConstent: 0, width: 0, height: 42)
+        
+        view.addSubview(signatureTextView)
+        signatureTextView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        signatureTextViewTopconstraint = signatureTextView.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: topCst)
+        signatureTextViewTopconstraint?.isActive = true
+        signatureTextViewTopconstraintOriginConst = signatureTextViewTopconstraint?.constant
+        signatureTextView.widthAnchor.constraint(equalToConstant: sideConstant * 1.3).isActive = true
+        signatureTextView.bottomAnchor.constraint(equalTo: saveButton.topAnchor, constant: -topCst).isActive = true
+
+    }
+
     func pickImg(){
         let imgPicker = UIImagePickerController()
         imgPicker.navigationBar.tintColor = .white
@@ -163,12 +215,66 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         }
     }
 
+    // for textView:
+    private func setupKeyboardObservers(){
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidShow), name: NSNotification.Name.UIKeyboardDidShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+    }
+    func keyboardDidShow(notification: Notification){
+        let dy = self.profileImageView.frame.height / 1.5
+        guard let sct = self.signatureTextViewTopconstraint?.constant, sct > -dy else { return }
+            self.signatureTextViewTopconstraint?.constant = signatureTextViewTopconstraintOriginConst! - dy - 30 //(keyboardFrame.height / 4)
+            self.view.layoutIfNeeded()
+    }
+    func keyboardWillHide(notification: Notification){
+            self.signatureTextViewTopconstraint?.constant = self.signatureTextViewTopconstraintOriginConst ?? 20
+    }
+    // from UITextViewDelegate:
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if signatureTextView.text == textViewPlaceholder {
+            signatureTextView.text = ""
+            signatureTextView.textColor = .black
+        }
+        signatureTextView.becomeFirstResponder()
+    }
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if signatureTextView.text == "" {
+            signatureTextView.text = textViewPlaceholder
+            signatureTextView.textColor = .lightGray
+        }
+        signatureTextView.resignFirstResponder()
+    }
+    
+    // from UITextFieldDelegate:
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        NotificationCenter.default.removeObserver(self)
+        nameTextField.becomeFirstResponder()
+    }
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        nameTextField.resignFirstResponder()
+        setupKeyboardObservers()
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        guard let touch = touches.first else { return }
+        
+        let locationTxVw = touch.location(in: self.signatureTextView)
+        if locationTxVw.x < 0 || locationTxVw.y < 0 || locationTxVw.x > signatureTextView.frame.maxX {
+            textViewDidEndEditing(signatureTextView)
+        }
+        let locationTxFd = touch.location(in: self.nameTextField)
+        if locationTxFd.y > nameTextField.frame.height {
+            textFieldDidEndEditing(nameTextField)
+        }
+    }
+    
     
     func saveChangesToFirebase(){
         guard let userName = currUser?.name, let userEmail = currUser?.email,
               let userId = currUser?.id, let url = currUser?.profileImgURL else { return }
         
-        let imgId = "\(userEmail)Profile.jpg"
+        let imgId = "\(userEmail)Profile.jpg" // if need to change this id, also change it in LoginViewController
         let storageRef = FIRStorage.storage().reference().child("profile_images").child(imgId)
         // 1, remove old file from firebase:
         storageRef.delete { (err) in

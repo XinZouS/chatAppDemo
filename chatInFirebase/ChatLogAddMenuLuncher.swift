@@ -12,7 +12,7 @@ import Firebase
 enum ItemTitle : String {
     case nameCard = "View name card"
     case clear = "Clear chat history"
-    case report = "Report this user ⚠️"
+    case report = "Report this user"
 }
 
 struct AddMenuItem {
@@ -74,10 +74,10 @@ class ChatLogAddMenuLuncher : NSObject, UICollectionViewDelegate, UICollectionVi
     }
     
     private func setupAddMenuItems(){
-        let itemViewNameCard = AddMenuItem(title: ItemTitle.nameCard, icon: #imageLiteral(resourceName: "kitten_169x158@1x"))
+        let itemViewNameCard = AddMenuItem(title: ItemTitle.nameCard, icon: #imageLiteral(resourceName: "guaiqiao80x80"))
         let itemClearChatHistory = AddMenuItem(title: ItemTitle.clear, icon: #imageLiteral(resourceName: "paw-print_64x64@1x")) // paw-print_512x512
         let itemReport = AddMenuItem(title: ItemTitle.report, icon: #imageLiteral(resourceName: "catAngryIcon91x91"))
-        items = [itemClearChatHistory, itemReport]
+        items = [itemViewNameCard, itemClearChatHistory, itemReport]
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -113,9 +113,8 @@ class ChatLogAddMenuLuncher : NSObject, UICollectionViewDelegate, UICollectionVi
         
         switch getTitle {
         case ItemTitle.nameCard:
-            print("-- get user name card")
+            chatLogController?.showFriendNamecard()
         case ItemTitle.clear:
-            print("-- clear chat history")
             chatLogController?.removeChatHistory()
         case ItemTitle.report:
             sendReport()
@@ -130,7 +129,7 @@ class ChatLogAddMenuLuncher : NSObject, UICollectionViewDelegate, UICollectionVi
         let values : [String:String] = [(chatLogController?.partnerUser?.id)! : (chatLogController?.partnerUser?.name)!]
         ref.updateChildValues(values, withCompletionBlock: {(err, ref) in
             var title = "✅ Report Success"
-            var msg = "📬 We are receiving your report and will handle the objectionable content or abusive user as soon as possible. 😀Thank you for your reporting!"
+            var msg = "📬 We are receiving your report and will handle the objectionable content as soon as possible. 😀Thank you for your reporting!"
             if let err = err {
                 title = "Oops❗️"
                 msg = "⚠️ Report did not send. I apologize for that, please make sure you have the Internet access and try again later. \(err)"

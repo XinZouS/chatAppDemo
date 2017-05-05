@@ -521,6 +521,15 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
         collectionView?.reloadData()
     }
     
+    func showFriendNamecard(){
+        let friendNamecard = NamecardController()
+        friendNamecard.partnerUser = self.partnerUser
+//        present(friendNamecard, animated: true, completion: nil)
+        navigationController?.pushViewController(friendNamecard, animated: true)
+    }
+    
+    
+    
     //=== zooming image and video ================================================
     
     private var startFrame : CGRect?

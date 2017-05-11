@@ -19,6 +19,8 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
     let isIphone5 : Bool = (UIScreen.main.bounds.height < 600)
     let topMargin : CGFloat = (UIScreen.main.bounds.height < 600) ? 10 : 20
 
+    let acceptedEULAKey = "UserAcceptedEULAContent"
+
     lazy var profileImageView : UIImageView = {
         let img = UIImageView()
         img.translatesAutoresizingMaskIntoConstraints = false
@@ -133,6 +135,11 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
         setupLoginRegisterButton()
         setupFbLoginButton()
     
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        setupUserAgreementContentAlert()
     }
     
     private func setupProfileImageView(){
@@ -273,6 +280,16 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
         fbLoginButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30).isActive = true
         fbLoginButton.widthAnchor.constraint(equalTo: loginRegisterButton.widthAnchor).isActive = true
         fbLoginButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+    }
+    
+    func setupUserAgreementContentAlert(){
+        let userAgreedContent = UserDefaults.standard.object(forKey: acceptedEULAKey) as? Bool
+        if userAgreedContent == nil || userAgreedContent == false {
+            fbLoginButton.isHidden = true
+            showUserContentAlert()
+        }else{
+            fbLoginButton.isHidden = false
+        }
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {

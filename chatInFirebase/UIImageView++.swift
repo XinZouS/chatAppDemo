@@ -15,13 +15,13 @@ extension UIImageView {
     func loadImageUsingCacheWith(urlString:String) {
         // check image for cache first(before download)!!!
         if let cacheImg = imgCache.object(forKey: urlString as NSString) {
-            print(" -  load image from NSCache: \(cacheImg)")
+            //print(" -  load image from NSCache: \(cacheImg)")
             self.image = cacheImg
             return
         }
         // else, check disk see if already got it previous:
         if let storedImgData = UserDefaults.standard.value(forKey: urlString) as? Data {
-            print(" -  load image from disk: \(storedImgData)")
+            //print(" -  load image from disk: \(storedImgData)")
             self.image = UIImage(data: storedImgData)
             return
         }

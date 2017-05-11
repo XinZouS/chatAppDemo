@@ -118,6 +118,7 @@ class ChatLogAddMenuLuncher : NSObject, UICollectionViewDelegate, UICollectionVi
             chatLogController?.removeChatHistory()
         case ItemTitle.report:
             sendReport()
+            chatLogController?.removeChatHistory()
         default:
             dismissWithoutSelection()
         }
@@ -129,7 +130,7 @@ class ChatLogAddMenuLuncher : NSObject, UICollectionViewDelegate, UICollectionVi
         let values : [String:String] = [(chatLogController?.partnerUser?.id)! : (chatLogController?.partnerUser?.name)!]
         ref.updateChildValues(values, withCompletionBlock: {(err, ref) in
             var title = "✅ Report Success"
-            var msg = "📬 We are receiving your report and will handle the objectionable content as soon as possible. 😀Thank you for your reporting!"
+            var msg = "📬 We are receiving your report and will handle the objectionable content in 24 hours. 😀Thank you for your reporting!"
             if let err = err {
                 title = "Oops❗️"
                 msg = "⚠️ Report did not send. I apologize for that, please make sure you have the Internet access and try again later. \(err)"

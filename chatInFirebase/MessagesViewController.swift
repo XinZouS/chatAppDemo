@@ -420,6 +420,7 @@ class MessagesViewController: UITableViewController {
         
         let loginVC = LoginViewController()
         loginVC.messagesViewController = self // for setting bar.title;
+        UserDefaults.standard.set(false, forKey: loginVC.acceptedEULAKey)
         present(loginVC, animated: true, completion: nil) // this need to be dismiss when its done!
     }
     

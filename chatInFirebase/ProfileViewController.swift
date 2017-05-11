@@ -101,14 +101,15 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.white]
         
-        updateUserAndView()
-
         setupViewContents()
         
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        setupKeyboardObservers()        
+
+        updateUserAndView()
+        
+        setupKeyboardObservers()
         setupFbLoginButton()
     }
     override func viewWillDisappear(_ animated: Bool) {

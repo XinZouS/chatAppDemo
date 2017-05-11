@@ -51,6 +51,12 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
     //=== save user data into fierbase ======================================================
     
     func loginOrRegister(){
+        let key = UserDefaults.standard.object(forKey: acceptedEULAKey) as? Bool
+        if key == nil || key == false {
+            showUserContentAlert()
+            return
+        }
+        
         if emailTextField.text == "" || passwordTextField.text == "" {
             showAlertWith(title: "Missing Info", message: "You need to input both your email and password. Please try again.")
             return
@@ -229,7 +235,23 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
             }
         })
     }
-
+    
+    func showUserContentAlert(){
+        let msg = "This is a chatting app and it will display of user-generated content. To use this app, I agree to terms (EULA) and I acknowledged that there is no tolerance for objectionable content or abusive users, and I will NOT distribute potentially objectionable content, such as nudity, pornography, and profanity. By tapping 【I agree】 button, I accept all contents above."
+        let alertCtrl = UIAlertController(title: "User Agreement", message: msg, preferredStyle: .alert)
+        alertCtrl.addAction(UIAlertAction(title: "Disagree", style: .destructive, handler: {(action) in
+            alertCtrl.dismiss(animated: true, completion: nil)
+            UserDefaults.standard.set(false, forKey: self.acceptedEULAKey)
+            _ = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.showUserContentAlert), userInfo: nil, repeats: false)
+        }))
+        alertCtrl.addAction(UIAlertAction(title: "I agree", style: .default, handler: {(action) in
+            alertCtrl.dismiss(animated: true, completion: nil)
+            UserDefaults.standard.set(true, forKey: self.acceptedEULAKey)
+            self.fbLoginButton.isHidden = false
+        }))
+        self.present(alertCtrl, animated: true, completion: nil)
+    }
+    
     
     private func showAlertWith(title:String, message:String){
         let alertCtrl = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)

@@ -94,6 +94,7 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
             if user?.email != nil {
                 self.messagesViewController?.currUser.id = user?.uid
                 self.messagesViewController?.currUser.email = user?.email
+                self.messagesViewController?.currUser.signature = ""
                 self.messagesViewController?.saveUserIntoDisk()
                 self.messagesViewController?.fetchUserAndSetUpNavBarTitle() // update navBar.title
                 self.dismiss(animated: true, completion: nil)
@@ -139,7 +140,7 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
                 if let profileImgURL = metadata?.downloadURL()?.absoluteString {
                     let friends : [String] = [uid]
                     // let userValue = ["name":name, "email":email, "profileImgURL":metadata.downloadUrl()]
-                    let userValue = ["name":name, "email":email, "profileImgURL":profileImgURL, "friends":friends] as [String:Any]
+                    let userValue = ["name":name, "email":email, "signature":"", "profileImgURL":profileImgURL, "friends":friends] as [String:Any]
                     self.registerUserIntoDatabaseWithUID(uid: uid, userValue: userValue)
                     //print(metadata)  // to get its info and key;
                     
@@ -211,6 +212,7 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
                 self.messagesViewController?.currUser.id = id
                 self.messagesViewController?.currUser.email = email
                 self.messagesViewController?.currUser.name = name
+                self.messagesViewController?.currUser.signature = ""
                 self.messagesViewController?.saveUserIntoDisk()
                 self.messagesViewController?.fetchUserAndSetUpNavBarTitle() // update navBar.title
 

@@ -51,7 +51,6 @@ class NamecardController : UIViewController, UINavigationControllerDelegate {
     
     let introduceOfUserTextView : UITextView = {
         let t = UITextView()
-        t.isEditable = false
         t.layer.borderWidth = 1
         t.layer.borderColor = (UIColor.lightGray).cgColor
         t.isEditable = false
@@ -115,6 +114,9 @@ class NamecardController : UIViewController, UINavigationControllerDelegate {
         profileImgView.loadImageUsingCacheWith(urlString: url)
         nameOfUserLabel.text = name
         emailOfUserLabel.text = email
+        if let signature = partnerUser?.signature {
+            introduceOfUserTextView.text = signature
+        }
     }
     
     func gotoMessagePage(){

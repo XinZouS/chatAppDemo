@@ -28,7 +28,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         return l
     }()
     
-//    lazy var nameTextView: UITextView = {
+//    lazy var nameTextView: UITextView = { // not using this bcz textView only has ONE row;
 //        let t = UITextView()
 //        t.translatesAutoresizingMaskIntoConstraints = false
 //        t.backgroundColor = UIColor(r: 246, g: 230, b: 255) // .clear
@@ -38,6 +38,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
 //        return t
 //    }()
     
+    var imageDidChanged = false
     lazy var profileImageView : UIImageView = {
         let i = UIImageView()
         i.translatesAutoresizingMaskIntoConstraints = false
@@ -48,13 +49,14 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         return i
     }()
     
+    var signatureString = ""
     let textViewPlaceholder = " Hi~ what's new today?"
     lazy var signatureTextView : UITextView = {
         let v = UITextView()
         v.translatesAutoresizingMaskIntoConstraints = false
         v.delegate = self
-        v.text = " Hi~ what's new today?"
-        v.textColor = .lightGray
+        v.text = self.signatureString == "" ? " Hi~ what's new today?" : self.signatureString
+        v.textColor = self.signatureString == "" ? .lightGray : .black
         v.font = UIFont.systemFont(ofSize: 16)
         v.layer.borderWidth = 1
         v.layer.borderColor = buttonColorPurple.cgColor
@@ -125,6 +127,11 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         setupNavigaionBar()
         setupProfileImage()
         nameTextField.text = currUser?.name
+        if let mySignature = currUser?.signature, mySignature != "" {
+            signatureTextView.text = mySignature
+            signatureTextView.textColor = .black
+            signatureString = mySignature
+        }
     }
     
     func setupViewContents(){
@@ -181,10 +188,12 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         }
         if let getImg = selectedImg {
             profileImageView.image = getImg
+            imageDidChanged = true
         }
         dismiss(animated: true, completion: nil)
     }
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        imageDidChanged = false
         dismiss(animated: true, completion: nil)
     }
     
@@ -232,7 +241,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
     }
     // from UITextViewDelegate:
     func textViewDidBeginEditing(_ textView: UITextView) {
-        if signatureTextView.text == textViewPlaceholder {
+        if signatureTextView.text == textViewPlaceholder || signatureTextView.text == "" {
             signatureTextView.text = ""
             signatureTextView.textColor = .black
         }
@@ -242,6 +251,9 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         if signatureTextView.text == "" {
             signatureTextView.text = textViewPlaceholder
             signatureTextView.textColor = .lightGray
+            signatureString = ""
+        }else{
+            signatureString = signatureTextView.text
         }
         signatureTextView.resignFirstResponder()
     }
@@ -249,6 +261,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
     // from UITextFieldDelegate:
     func textFieldDidBeginEditing(_ textField: UITextField) {
         NotificationCenter.default.removeObserver(self)
+        signatureTextView.resignFirstResponder()
         nameTextField.becomeFirstResponder()
     }
     func textFieldDidEndEditing(_ textField: UITextField) {
@@ -272,19 +285,29 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
     
     
     func saveChangesToFirebase(){
+        signatureTextView.resignFirstResponder()
+        nameTextField.resignFirstResponder()
+        
         guard let userName = currUser?.name, let userEmail = currUser?.email,
               let userId = currUser?.id, let url = currUser?.profileImgURL else { return }
         
+        if imageDidChanged == false {
+            currUser?.name = nameTextField.text
+            currUser?.signature = signatureString
+            msgViewController?.currUser.name = nameTextField.text
+            updateNewInfoFor(id: userId, newName: nameTextField.text, newSignature: signatureString)
+            return
+        }
+        // else, save with new image: -------------------
         let imgId = "\(userEmail)Profile.jpg" // if need to change this id, also change it in LoginViewController
         let storageRef = FIRStorage.storage().reference().child("profile_images").child(imgId)
         // 1, remove old file from firebase:
         storageRef.delete { (err) in
             if err != nil {
                 print("get error when deleting prifile image form firebase: ProfileViewController.swift:saveChangesToFirebase() : ", err)
-                //return
             }
             //1.1, remove old file form local disk:
-            print("  --------- 1.1, remove old file form local disk.")
+            print("  --------- 1.1, remove old img file form local disk.")
             UserDefaults.standard.removeObject(forKey: url)
         }
         // 2, put new image file into it:
@@ -297,6 +320,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
                 if let newImgUrl = metadata?.downloadURL()?.absoluteString {
                     self.currUser?.profileImgURL = newImgUrl
                     self.currUser?.name = self.nameTextField.text
+                    self.currUser?.signature = self.signatureString
                     self.msgViewController?.currUser.profileImgURL = newImgUrl
                     self.msgViewController?.currUser.name = self.nameTextField.text
                     self.msgViewController?.saveUserIntoDisk()
@@ -322,11 +346,24 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         UserDefaults.standard.set(UIImageJPEGRepresentation(image, 1.0), forKey: imgUrl)
         UserDefaults.standard.synchronize()
     }
+    private func updateNewInfoFor(id: String?, newName: String?, newSignature: String?){
+        guard let id = id, let newName = newName else { return }
+        let newSig = newSignature ?? ""
+        let userRef = FIRDatabase.database().reference().child("users").child(id)
+        let updateDict : [String:Any] = ["name": newName, "signature": newSig]
+        userRef.updateChildValues(updateDict) { (error, reference) in
+            if error != nil {
+                print("get error when updating new user name and imgUrl: ProfileViewController.swift: updateNewInfoFor()", error)
+            }
+            self.showAlertWith(title: "✅ Update Success!", message: "Your new profile information has been update to database successfully!")
+        }
+    }
 
     
     func handleLogout(){
         tabBarController?.selectedIndex = 0
         self.currUser = nil as User?
+        signatureTextView.text = ""
         msgViewController?.handleLogout()
     }
 

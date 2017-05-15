@@ -9,6 +9,7 @@
 import UIKit
 import ImageIO
 
+// for gif display
 // https://github.com/bahlo/SwiftGif/blob/master/SwiftGifCommon/UIImage%2BGif.swift
 extension UIImage {
     

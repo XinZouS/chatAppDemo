@@ -412,6 +412,8 @@ class MessagesViewController: UITableViewController {
             print("error when signOut: \(signoutErr)")
             return
         }
+        self.messages.removeAll()
+        self.messageOfPartnerId.removeAll()
         self.removeUserFromDisk()
         self.removeMessageFromDisk()
         self.navigationItem.title = "New user"

@@ -75,6 +75,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     // remove the keyboardObserver if we leave this page:
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+//        self.messages.removeAll()
         NotificationCenter.default.removeObserver(self)
     }
     // changing between vertical and landscape:
@@ -83,6 +84,7 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     }
     
 
+    var collectionTimer = Timer()
     func observeMessages(){
         guard let myid = FIRAuth.auth()?.currentUser?.uid, let toId = partnerUser?.id, let ptrName = partnerUser?.name else {return}
 
@@ -111,6 +113,8 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                     DispatchQueue.main.async {
                         self.collectionView?.reloadData()
                         self.scrollerViewMoveToBottom()
+//                        self.collectionTimer.invalidate()
+//                        self.collectionTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(self.scrollerViewMoveToBottom), userInfo: nil, repeats: false)
                         
                         self.saveMessagesToDiskFor(friend: self.partnerUser)
                     }
@@ -123,8 +127,8 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     }
     
     func scrollerViewMoveToBottom(){
-        if messages.count > 0 {
-            let indexPath = IndexPath(item: self.messages.count - 1, section: 0)
+        if let numOfItems = collectionView?.numberOfItems(inSection: 0), numOfItems > 3 {
+            let indexPath = IndexPath(item: numOfItems - 1, section: 0)
             collectionView?.scrollToItem(at: indexPath, at: .bottom, animated: true)
         }
     }

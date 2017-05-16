@@ -150,23 +150,32 @@ class SearchViewController : UICollectionViewController, UICollectionViewDelegat
     
     func sendFriendRequestTo(userId: String?){
         guard let myId = currUser?.id, let friendId = userId else { return }
-        let ref = FIRDatabase.database().reference().child("friendRequests").child(friendId)
-        ref.observeSingleEvent(of: .value, with: { (snapshot) in
-            var newRequests = [String:Bool]()
-            if let getList = snapshot.value as? [String:Bool] {
-                newRequests = getList //as! [String:Bool]
+
+        let friendBlackListRef = FIRDatabase.database().reference().child("users").child(friendId).child("blackList")
+        friendBlackListRef.observeSingleEvent(of: .value, with: { (snapshot) in
+            if let bkList = snapshot.value as? [String], bkList.contains(myId) { // [id]
+                self.showAlertWith(title: "Success 😺", message: "✅ Your request already been send, please wait for response.")
+                return
             }
-            newRequests[myId] = true
-            ref.setValue(newRequests, withCompletionBlock: { (err, firRef) in
-                if err != nil {
-                    print("get err: SearchViewController.swift: sendFirendRequestTo(): ", err)
-                    self.showAlertWith(title: "Oops! 😰", message: "⛔️ We got an error when sending your request, please try again later.")
-                }else{
-                    self.showAlertWith(title: "Success 😸", message: "✅ Your request already been send, please wait for response.")
+            // not in blacklist, then send request:
+            let ref = FIRDatabase.database().reference().child("friendRequests").child(friendId)
+            ref.observeSingleEvent(of: .value, with: { (snapshot) in
+                var newRequests = [String:Bool]()
+                if let getList = snapshot.value as? [String:Bool] {
+                    newRequests = getList //as! [String:Bool]
                 }
+                newRequests[myId] = true
+                ref.setValue(newRequests, withCompletionBlock: { (err, firRef) in
+                    if err != nil {
+                        print("get err: SearchViewController.swift: sendFirendRequestTo(): ", err)
+                        self.showAlertWith(title: "Oops! 😰", message: "⛔️ We got an error when sending your request, please try again later.")
+                    }else{
+                        self.showAlertWith(title: "Success 😸", message: "✅ Your request already been send, please wait for response.")
+                    }
+                })
             })
+            
         })
-        
     }
     
     

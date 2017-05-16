@@ -94,9 +94,9 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
             if user?.email != nil {
                 self.messagesViewController?.currUser.id = user?.uid
                 self.messagesViewController?.currUser.email = user?.email
-                self.messagesViewController?.currUser.signature = ""
-                self.messagesViewController?.saveUserIntoDisk()
+//                self.messagesViewController?.saveUserIntoDisk()
                 self.messagesViewController?.fetchUserAndSetUpNavBarTitle() // update navBar.title
+                self.messagesViewController?.saveUserIntoDisk()
                 self.dismiss(animated: true, completion: nil)
             }
         })

@@ -15,7 +15,8 @@ class User : NSObject, NSCoding {
     var email: String?
     var signature: String?
     var profileImgURL: String?
-    var friends: [String]? // [userID]
+    var friends: [String]?   // [userID]
+    var blackList: [String]? // [userID]
     
     override init() {
         id = ""
@@ -24,13 +25,16 @@ class User : NSObject, NSCoding {
         signature = ""
         profileImgURL = ""
         friends = [""]
+        blackList = [""]
     }
-    init(id: String?, name: String?, email:String?, signature:String?, profileImgUrl:String?, friendList:[String]?) {
+    init(id: String?, name: String?, email:String?, signature:String?, profileImgUrl:String?, friendList:[String]?, blackList: [String]?) {
         self.id = id
         self.name = name
         self.email = email
+        self.signature = signature
         self.profileImgURL = profileImgUrl
         self.friends = friendList
+        self.blackList = blackList
     }
     init(dictionary: [String: AnyObject]) {
         super.init()        
@@ -40,6 +44,7 @@ class User : NSObject, NSCoding {
         signature = dictionary["signature"] as? String
         profileImgURL = dictionary["profileImgURL"] as? String
         friends = dictionary["friends"] as? [String]
+        blackList = dictionary["blackList"] as? [String]
     }
 
     // for save into disk on device:
@@ -50,7 +55,8 @@ class User : NSObject, NSCoding {
         let signature = aDecoder.decodeObject(forKey: "signature") as? String
         let profileImgUrl = aDecoder.decodeObject(forKey: "profileImgURL") as? String
         let friends = aDecoder.decodeObject(forKey: "friends") as? [String]
-        self.init(id: id, name: name, email: email, signature: signature, profileImgUrl: profileImgUrl, friendList: friends)
+        let blackList = aDecoder.decodeObject(forKey: "blackList") as? [String]
+        self.init(id: id, name: name, email: email, signature: signature, profileImgUrl: profileImgUrl, friendList: friends, blackList: blackList)
     }
     func encode(with aCoder: NSCoder) {
         aCoder.encode(id, forKey: "id")
@@ -59,6 +65,7 @@ class User : NSObject, NSCoding {
         aCoder.encode(signature, forKey: "signature")
         aCoder.encode(profileImgURL, forKey: "profileImgURL")
         aCoder.encode(friends, forKey: "friends")
+        aCoder.encode(blackList, forKey: "blackList")
     }
     
     func printContents(){
@@ -68,5 +75,6 @@ class User : NSObject, NSCoding {
         print(" - signature: ", signature)
         print(" - URL: ", profileImgURL)
         print(" - friends: ", friends)
+        print(" - blackList: ", blackList)
     }
 }

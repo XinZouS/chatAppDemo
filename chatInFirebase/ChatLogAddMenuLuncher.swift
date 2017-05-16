@@ -13,6 +13,7 @@ enum ItemTitle : String {
     case nameCard = "View name card"
     case clear = "Clear chat history"
     case report = "Report this user"
+    case blackList = "Block this user"
 }
 
 struct AddMenuItem {
@@ -77,7 +78,8 @@ class ChatLogAddMenuLuncher : NSObject, UICollectionViewDelegate, UICollectionVi
         let itemViewNameCard = AddMenuItem(title: ItemTitle.nameCard, icon: #imageLiteral(resourceName: "guaiqiao80x80"))
         let itemClearChatHistory = AddMenuItem(title: ItemTitle.clear, icon: #imageLiteral(resourceName: "paw-print_64x64@1x")) // paw-print_512x512
         let itemReport = AddMenuItem(title: ItemTitle.report, icon: #imageLiteral(resourceName: "catAngryIcon91x91"))
-        items = [itemViewNameCard, itemClearChatHistory, itemReport]
+        let itemBlock = AddMenuItem(title: ItemTitle.blackList, icon: #imageLiteral(resourceName: "dogStopIcon150x150"))
+        items = [itemViewNameCard, itemClearChatHistory, itemReport, itemBlock]
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -119,6 +121,8 @@ class ChatLogAddMenuLuncher : NSObject, UICollectionViewDelegate, UICollectionVi
         case ItemTitle.report:
             sendReport()
             chatLogController?.removeChatHistory()
+        case ItemTitle.blackList:
+            chatLogController?.blockThisFriend()
         default:
             dismissWithoutSelection()
         }

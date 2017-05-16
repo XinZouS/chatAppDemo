@@ -103,6 +103,8 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.white]
         
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .bookmarks, target: self, action: #selector(showMenu))
+        
         setupViewContents()
         
     }
@@ -357,6 +359,11 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
             }
             self.showAlertWith(title: "✅ Update Success!", message: "Your new profile information has been update to database successfully!")
         }
+    }
+    
+    
+    func showMenu(){
+        
     }
 
     

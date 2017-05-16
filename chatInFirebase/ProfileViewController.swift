@@ -103,7 +103,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.white]
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .bookmarks, target: self, action: #selector(showMenu))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonTapped))
         
         setupViewContents()
         
@@ -361,11 +361,23 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         }
     }
     
+    //=== Menu ==============================================
+    lazy var topRightMenuLuncher : ProfileViewMenuLuncher = {
+        let m = ProfileViewMenuLuncher()
+        m.menuView.backgroundColor = menuColorLightOrange
+        return m
+    }()
     
-    func showMenu(){
-        
+    func addButtonTapped(){
+        topRightMenuLuncher.addMenuViewShowUp()
     }
 
+    func showBlackList(){
+        //use slide-out menu
+        
+    }
+    
+    
     
     func handleLogout(){
         tabBarController?.selectedIndex = 0

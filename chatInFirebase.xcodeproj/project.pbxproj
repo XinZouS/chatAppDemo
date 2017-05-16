@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		469C62760433F34121605A7F /* Pods_chatInFirebase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9965A7F4372D5FADABFC4ED /* Pods_chatInFirebase.framework */; };
+		66024EC41ECA850400B23413 /* SmallTopRightMenuLuncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66024EC31ECA850400B23413 /* SmallTopRightMenuLuncher.swift */; };
+		66024EC61ECA86E100B23413 /* ProfileViewMenuLuncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66024EC51ECA86E100B23413 /* ProfileViewMenuLuncher.swift */; };
 		6604EE581EA128FF00E28DCE /* UserNewrequestCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6604EE571EA128FF00E28DCE /* UserNewrequestCell.swift */; };
 		6608BCF81EA4F2E400DBB87F /* UINavigationController++.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6608BCF71EA4F2E400DBB87F /* UINavigationController++.swift */; };
 		661D191E1EAFAF550004CB66 /* yadianwenqing.png in Resources */ = {isa = PBXBuildFile; fileRef = 661D191D1EAFAF550004CB66 /* yadianwenqing.png */; };
@@ -53,6 +55,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		66024EC31ECA850400B23413 /* SmallTopRightMenuLuncher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SmallTopRightMenuLuncher.swift; sourceTree = "<group>"; };
+		66024EC51ECA86E100B23413 /* ProfileViewMenuLuncher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewMenuLuncher.swift; sourceTree = "<group>"; };
 		6604EE571EA128FF00E28DCE /* UserNewrequestCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserNewrequestCell.swift; sourceTree = "<group>"; };
 		6608BCF71EA4F2E400DBB87F /* UINavigationController++.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UINavigationController++.swift"; sourceTree = "<group>"; };
 		661D191D1EAFAF550004CB66 /* yadianwenqing.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = yadianwenqing.png; sourceTree = "<group>"; };
@@ -147,6 +151,7 @@
 				665BD4BC1EB915FB002CF1D8 /* AddMenuCell.swift */,
 				66321A551EB198F60069CA38 /* MenuCell.swift */,
 				6690F5411E31496D00F1B6E0 /* SearchViewCell.swift */,
+				66024EC31ECA850400B23413 /* SmallTopRightMenuLuncher.swift */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -222,6 +227,7 @@
 				6652DDBF1EB394A6008B4E43 /* GifsViewController.swift */,
 				6690F53F1E313E7200F1B6E0 /* SearchViewController.swift */,
 				66F5C2F31E97D4A900AA568C /* ProfileViewController.swift */,
+				66024EC51ECA86E100B23413 /* ProfileViewMenuLuncher.swift */,
 				661FAAA41EBAAB83008DD655 /* NamecardController.swift */,
 			);
 			name = Controller;
@@ -385,6 +391,7 @@
 				66321A561EB198F60069CA38 /* MenuCell.swift in Sources */,
 				662ABB8D1EB0F1E4002ACDC2 /* ChatLogMenuLuncher.swift in Sources */,
 				66561D991EA90E7C00200ECD /* String++.swift in Sources */,
+				66024EC61ECA86E100B23413 /* ProfileViewMenuLuncher.swift in Sources */,
 				663C18B41E1C739A0014A359 /* ChatLogController.swift in Sources */,
 				6690F53E1E31154900F1B6E0 /* TabBarController.swift in Sources */,
 				66F5C2F61E97D50300AA568C /* UIView++.swift in Sources */,
@@ -415,6 +422,7 @@
 				663C18B01E1AAE5A0014A359 /* LoginViewController+Ex.swift in Sources */,
 				6649CE1A1E1EBD5A006633CD /* UserCell.swift in Sources */,
 				663C18B21E1BEAF60014A359 /* UIImageView++.swift in Sources */,
+				66024EC41ECA850400B23413 /* SmallTopRightMenuLuncher.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

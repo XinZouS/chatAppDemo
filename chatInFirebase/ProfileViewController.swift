@@ -20,12 +20,18 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
     lazy var nameTextField : UITextField = {
         let l = UITextField()
         l.translatesAutoresizingMaskIntoConstraints = false
-        l.backgroundColor = UIColor(r: 246, g: 230, b: 255) // .clear
+        l.backgroundColor = .white // .clear
         l.delegate = self
         l.font = UIFont.systemFont(ofSize: 20)
         l.textAlignment = .center
         l.placeholder = "My Name here~~"
         return l
+    }()
+    
+    let nameTextFieldBottomLine : UIView = {
+        let v = UIView()
+        v.backgroundColor = buttonColorPurple
+        return v
     }()
     
 //    lazy var nameTextView: UITextView = { // not using this bcz textView only has ONE row;
@@ -141,6 +147,10 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         
         view.addSubview(nameTextField)
         nameTextField.addConstraints(left: view.leftAnchor, top: topLayoutGuide.bottomAnchor, right: view.rightAnchor, bottom: nil, leftConstent: 0, topConstent: 0, rightConstent: 0, bottomConstent: 0, width: 0, height: 36 + topCst)
+        nameTextField.delegate = self
+        
+        view.addSubview(nameTextFieldBottomLine)
+        nameTextFieldBottomLine.addConstraints(left: view.leftAnchor, top: nil, right: view.rightAnchor, bottom: nameTextField.bottomAnchor, leftConstent: 30, topConstent: 0, rightConstent: 30, bottomConstent: 0, width: 0, height: 1)
         
         let sideConstant : CGFloat = (UIDevice.current.userInterfaceIdiom == .phone) ? 200 : 360
         let yConstant : CGFloat = (UIDevice.current.userInterfaceIdiom == .phone) ? -80 : -260
@@ -168,6 +178,7 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         signatureTextViewTopconstraintOriginConst = signatureTextViewTopconstraint?.constant
         signatureTextView.widthAnchor.constraint(equalToConstant: sideConstant * 1.3).isActive = true
         signatureTextView.bottomAnchor.constraint(equalTo: saveButton.topAnchor, constant: -topCst).isActive = true
+        signatureTextView.delegate = self
 
     }
 
@@ -361,10 +372,11 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         }
     }
     
-    //=== Menu ==============================================
+    //=== [+] Menu ==============================================
     lazy var topRightMenuLuncher : ProfileViewMenuLuncher = {
         let m = ProfileViewMenuLuncher()
         m.menuView.backgroundColor = menuColorLightOrange
+        m.profileVC = self
         return m
     }()
     
@@ -373,12 +385,14 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
     }
 
     func showBlackList(){
-        //use slide-out menu
-        
+        tabBarController?.hideTabBarWithAnimation(toHide: true)
+        let blackListVC = BlackListViewController()
+        blackListVC.msgVC = msgViewController
+        navigationController?.pushViewController(blackListVC, animated: true)
     }
     
     
-    
+    //=== Buttons ===============================================
     func handleLogout(){
         tabBarController?.selectedIndex = 0
         self.currUser = nil as User?
@@ -397,6 +411,16 @@ class ProfileViewController : UIViewController, UIImagePickerControllerDelegate,
         handleLogout()
     }
 
+    
+    //=== keyboard setup =========================================
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        self.view.endEditing(true)
+        return true
+    }
+    func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
+        nameTextField.resignFirstResponder()
+        return true
+    }
     
     
     private func showAlertWith(title:String, message:String){

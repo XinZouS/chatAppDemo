@@ -264,7 +264,6 @@ class NewMessageViewController: UITableViewController {
         guard let myId = currUser?.id else { return }
         let reqRef = FIRDatabase.database().reference().child("friendRequests").child(myId)
         reqRef.observe(.childAdded, with: {(snapshot)in
-            print("get a new request: ", snapshot)
             if let newReqId = snapshot.key as? String, newReqId != "", newReqId != " " {
                 self.fetchOneRequestingUserBy(id: newReqId)
                 self.appDelegate?.secheduleNewRequestNotification()
@@ -279,7 +278,6 @@ class NewMessageViewController: UITableViewController {
     private func saveMyFriendUsersIntoDisk(){
         if myFriends.count == 0 { return }
         let encodedData : Data = NSKeyedArchiver.archivedData(withRootObject: myFriends)
-        print("-- saveMyFriendUsersIntoDisk()()")
         userDefaults.set(encodedData, forKey: savingKeyForMyFriends)
         userDefaults.synchronize()
     }
@@ -307,13 +305,11 @@ class NewMessageViewController: UITableViewController {
         if myFriends.count != 0 {
             for friend in myFriends {
                 if friend.id! == newUser.id! {
-                    print("------- already has this friend; return.")
                     return // already has this friend;
                 }
             }
         }
         myFriends.append(newUser) // with or without this no different;
-        print("---   myFriends.append(newUser).count = ", myFriends.count)
         if let myId: String = currUser?.id, let friendId: String = newUser.id {
             updateFriendsListInFirebaseFor(me: myId, friend: friendId) // add friend to my list
             updateFriendsListInFirebaseFor(me: friendId, friend: myId) // add me to my friend's list
@@ -327,23 +323,18 @@ class NewMessageViewController: UITableViewController {
     private func removeRequestOf(friend: User){
         guard let idx = myRequests.index(of: friend) else { return }
         myRequests.remove(at: idx )
-        print("- WILL removeRequestOf(friend), myRequests.count = ", myRequests.count)
         self.tableViewReloadData()
         // also remove from firebase:
         if let myId: String = currUser?.id, let friendId: String = friend.id {
             let ref = FIRDatabase.database().reference()
-            print("- remove request in Firebase:.child(friendId).removeValue()")
             ref.child("friendRequests").child(myId).child(friendId).removeValue()
-            print("- AFTER removeRequestOf(friend), myRequests.count = ", myRequests.count)
         }
     }
     private func updateFriendsListInFirebaseFor(me: String, friend: String){
         let ref = FIRDatabase.database().reference().child("users")
-        print("--------- WILL updateFriendsListInFirebaseFor(friend).")
         
         ref.child(me).child("friends").observeSingleEvent(of: .value, with: {(snapshot) in
             if var friendsList = snapshot.value as? [String] {
-                print("--------- Doing updateFriendsListInFirebaseFor(friend).")
                 for oldFriend in friendsList {
                     if friend == oldFriend { return }
                 }

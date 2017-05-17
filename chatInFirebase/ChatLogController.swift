@@ -562,21 +562,22 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
     func blockThisFriend(){
         guard let myId = currUser?.id, let friendId = partnerUser?.id, let friendName = partnerUser?.name else { return }
         if myId == friendId {
-            showAlertWith(title: "😅 Really?", message: "Sorry you cannot do this. If you want to block yourself, just stop talking to yourself, put down your phone and go outside to chat with friends.")
+            showAlertWith(title: "😅 Really?", message: "Sorry you cannot do this. 🙈 If you want to block yourself, just stop talking to yourself, put down your phone and go outside🤾🏼‍♂️ to chat with friends.")
             return
         }
         let alertTitle = "✅ Block user success"
         let alertMsg = "You will no longer receive message from this user. You can edit your blacklist in profile page."
-        if var myList = currUser?.blackList {
-            if myList.contains(friendId){
+        
+        if var mybkList = currUser?.blackList {
+            if mybkList.contains(friendId){
                 showAlertWith(title: alertTitle, message: alertMsg)
             }else{
-                myList.append(friendId)
+                mybkList.append(friendId)
+                currUser?.blackList?.append(friendId)
                 let myRef = FIRDatabase.database().reference().child("users").child(myId).child("blackList")
-                myRef.setValue(myList, withCompletionBlock: {(error, reference) in
+                myRef.setValue(mybkList, withCompletionBlock: {(error, reference) in
                     if error != nil {
                         self.showAlertWith(title: "😳 Oops!", message: "⚠️ Unable to add this user into blacklist, please make sure you have network connection and try again later. Error: \(error!)")
-                        print(" -- get err when blockThisFriend(): ChatLogController")
                         return
                     }
                     self.showAlertWith(title: alertTitle, message: alertMsg)
@@ -585,19 +586,25 @@ class ChatLogController: UICollectionViewController, UITextFieldDelegate, UIColl
                 if var myFriendsList = messagesVC?.newMsgVC?.myFriends {
                     for idx in 0..<myFriendsList.count {
                         if friendId == myFriendsList[idx].id {
-                            myFriendsList.remove(at: idx)
-                            messagesVC?.newMsgVC?.myFriends = myFriendsList
+//                            myFriendsList.remove(at: idx)
+                            messagesVC?.newMsgVC?.myFriends.remove(at: idx) // may cause nil in that tableview
                             break
                         }
                     }
                 }
             }
+        }else{
+            currUser?.blackList = [friendId]
+            let userRef = FIRDatabase.database().reference().child("users").child(myId).child("blackList")
+            userRef.setValue(currUser?.blackList)
         }
+        messagesVC?.currUser.blackList = self.currUser?.blackList
+        messagesVC?.saveUserIntoDisk()
+        
         // then remove id from both friend list:
         removeFriendshipFrom(myId, of: friendId)
         removeFriendshipFrom(friendId, of: myId)
     }
-    
     private func removeFriendshipFrom(_ idA:String, of idB:String){
         let friendListRef = FIRDatabase.database().reference().child("users").child(idA).child("friends")
         friendListRef.observeSingleEvent(of: .value, with: {(snapshot) in

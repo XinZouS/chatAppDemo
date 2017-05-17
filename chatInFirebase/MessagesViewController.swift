@@ -107,7 +107,7 @@ class MessagesViewController: UITableViewController {
         return true
     }
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        guard let myId = FIRAuth.auth()?.currentUser?.uid else {return}
+        guard let myId = FIRAuth.auth()?.currentUser?.uid, indexPath.row < messages.count else {return}
         let msg = messages[indexPath.row]
         guard let partnerId = msg.chatPartnerId() else {return}
         
@@ -228,7 +228,7 @@ class MessagesViewController: UITableViewController {
     // the other way to delete message, remove reference from db:------------
     private func deleteMessageLocallyFor(partnerId: String){
         messageOfPartnerId.removeValue(forKey: partnerId)
-        for idx in 0...messages.count - 1 {
+        for idx in 0..<messages.count {
             let msg = messages[idx]
             if msg.chatPartnerId() == partnerId {
                 messages.remove(at: idx)

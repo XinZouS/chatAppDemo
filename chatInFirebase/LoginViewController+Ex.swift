@@ -238,6 +238,7 @@ extension LoginViewController : UIImagePickerControllerDelegate, UINavigationCon
         })
     }
     
+    
     func showUserContentAlert(){
         let msg = "This is a chatting app and it will display of user-generated content. To use this app, I agree to terms (EULA) and I acknowledged that there is no tolerance for objectionable content or abusive users, and I will NOT distribute potentially objectionable content, such as nudity, pornography, and profanity. By tapping 【I agree】 button, I accept all contents above."
         let alertCtrl = UIAlertController(title: "User Agreement", message: msg, preferredStyle: .alert)

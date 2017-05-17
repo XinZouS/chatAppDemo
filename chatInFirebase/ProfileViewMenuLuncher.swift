@@ -13,6 +13,7 @@ class ProfileViewMenuLuncher : SmallTopRightMenuLuncher {
     
     var profileVC : ProfileViewController?
     
+    
     override init() {
         super.init()
         
@@ -26,8 +27,8 @@ class ProfileViewMenuLuncher : SmallTopRightMenuLuncher {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard indexPath.item < self.items.count, let getTitle = items[indexPath.item].title else { return }
-        
+        guard indexPath.item < self.items.count, let getTitle = items[indexPath.row].title else { return }
+
         switch getTitle {
         case ItemTitle.blackList:
             profileVC?.showBlackList()

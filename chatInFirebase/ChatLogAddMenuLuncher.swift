@@ -40,8 +40,9 @@ class ChatLogAddMenuLuncher : SmallTopRightMenuLuncher {
         case ItemTitle.report:
             sendReport()
             chatLogController?.removeChatHistory()
-        case ItemTitle.blackList:
+        case ItemTitle.blockUser:
             chatLogController?.blockThisFriend()
+            chatLogController?.removeChatHistory()
         default:
             dismissWithoutSelection()
         }

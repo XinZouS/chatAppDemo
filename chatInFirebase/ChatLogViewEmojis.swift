@@ -69,7 +69,8 @@ extension ChatLogController {
             let words = (inputStr.lowercased()).components(separatedBy: [" ", "!", "~", "@", ",", "."])
             let wordSet = Set<String>(words)
             let emojiOfWord : [String:String] = [
-                "birthday":"🎂", "happy":"😄", "hi":"😄", "smile":"😄", "ha":"🤣", "haha":"😁", "hahaha":"🤣😂", "what?":"😯", "?":"😯❓", "??":"🤔❓", "???":"😳❓",
+                "birthday":"🎂", "happy":"😄", "hi":"😄", "smile":"😄", "ha":"🤣", "haha":"😁", "hahaha":"🤣😂",
+                "what?":"😯", "?":"😯❓", "??":"🤔❓", "???":"😳❓",
                 "mouse":"🐹", "hamster":"🐹", "mice":"🐹", "bull":"🐂" , "ox":"🐂", "tiger":"🐯", "tigers":"🐯", "rabbit":"🐰", "hare":"🐰", "dragon":"🐲",
                 "snake":"🐍", "serpent":"🐍", "horse":"🐴", "pony":"🐴", "horses":"🐴", "goat":"🐐", "goats":"🐐🐏", "sheep":"🐑", "ram":"🐐🐏",
                 "monkey":"🐵", "monkeys":"🐒🐵", "rooster":"🐓", "dog":"🐶", "puppy":"🐶", "pig":"🐷", "chick":"🐥", "chicken":"🐥", "love":"💘",

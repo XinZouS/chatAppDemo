@@ -12,7 +12,7 @@ import Firebase
 import FBSDKLoginKit
 
 
-class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
+class LoginViewController: UIViewController, FBSDKLoginButtonDelegate, UITextFieldDelegate {
 
     var messagesViewController: MessagesViewController? // for access its func; 
 
@@ -134,6 +134,11 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
         setupInputsContainerView()
         setupLoginRegisterButton()
         setupFbLoginButton()
+        
+        nameTextField.delegate = self
+        emailTextField.delegate = self
+        passwordTextField.delegate = self
+        passwordConfernTextField.delegate = self
     
     }
     
@@ -291,6 +296,12 @@ class LoginViewController: UIViewController, FBSDKLoginButtonDelegate {
             fbLoginButton.isHidden = false
         }
     }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        self.view.endEditing(true)
+        return true
+    }
+    
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return UIStatusBarStyle.lightContent
